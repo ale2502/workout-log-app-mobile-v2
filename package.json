@@ -1,0 +1,5 @@
+{
+  "name": "workout-log-app-mobile",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"]
+}

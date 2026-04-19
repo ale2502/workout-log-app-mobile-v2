@@ -1,10 +1,16 @@
 {
     "compilerOptions": {
       "target": "ES2020",
-      "module": "CommonJS",
+      "module": "ES2020",
+      "moduleResolution": "Bundler",
       "rootDir": "server",
+      "noEmit": true,
+      "isolatedModules": true,
       "esModuleInterop": true,
+      "forceConsistentCasingInFileNames": true,
       "strict": true,
+      "allowImportingTsExtensions": true,
+      "allowJs": true,
       "skipLibCheck": true
     }
   }

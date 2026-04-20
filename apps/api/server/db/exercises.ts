@@ -1,6 +1,6 @@
 import db from './connection.ts';
 import { Exercise, ExerciseData } from '../models/exercise.ts';
 
-export async function getExercises(): Promise<Exercise[]> {
+export async function getAllExercises(): Promise<Exercise[]> {
   return db('exercises').select('*');
 }

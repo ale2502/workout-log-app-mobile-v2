@@ -6,7 +6,7 @@ const router = Router();
 // GET /api/v1/exercises
 router.get('/', async (req, res) => {
   try {
-    const exercises = await db.getExercises();
+    const exercises = await db.getAllExercises();
     res.json(exercises);
   } catch (error) {
     console.error(error);

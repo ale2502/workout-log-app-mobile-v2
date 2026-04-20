@@ -1,6 +1,8 @@
 import db from './connection.ts';
-import { Exercise, ExerciseData } from '../models/exercise.ts';
+import { Exercise } from '../models/exercise.ts';
+
+const exerciseColumns = ['id', 'name', 'muscle_group as muscleGroup'];
 
 export async function getAllExercises(): Promise<Exercise[]> {
-  return db('exercises').select('*');
+  return db('exercises').select(exerciseColumns);
 }

@@ -13,5 +13,9 @@ const setColumns = [
 ];
 
 export async function getAllSets(): Promise<Set[]> {
-  return db('sets').select(setColumns);
+  const sets = await db('sets')
+    // Join sets and exercises tables
+    .join('exercises', 'sets.exercise_id', 'exercises.id')
+    // Join sets and workouts tables
+    .join('workouts', 'sets.workout_id', 'workouts.id');
 }

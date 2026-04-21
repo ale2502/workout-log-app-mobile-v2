@@ -16,3 +16,7 @@ Technical features:
 * This app stack consists in TypeScript, React Native, Node, Knex.js and SQLite3 as the local DB.
 * Expected React hooks/components: useQuery, useMutation, React Router, etc
 * Styling: Tailwind CSS
+
+Starting development server:
+
+Either cd into apps/api then `npm run dev` or `npm run dev -w apps/api`

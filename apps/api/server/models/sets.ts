@@ -11,3 +11,13 @@ export interface SetData {
 export interface Set extends SetData {
   id: number;
 }
+
+export interface SetDisplay {
+  id: number;
+  exerciseName: string;
+  setNumber: number;
+  reps: number;
+  load: number | null;
+  rir: number | null;
+  note: string | null;
+}

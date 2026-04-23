@@ -7,6 +7,7 @@ const columns = [
   'created_at as createdAt',
 ];
 
+// addWorkout DB function doesn't need created_at because it is created automatically
 export async function addWorkout(newWorkout: WorkoutData) {
   const newWorkoutArr = await db('workouts')
     .insert({

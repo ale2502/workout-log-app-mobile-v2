@@ -3,7 +3,6 @@ import * as db from '../db/exercises';
 
 const router = Router();
 
-// GET /api/v1/exercises
 router.get('/', async (req, res) => {
   try {
     const exercises = await db.getAllExercises();

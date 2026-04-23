@@ -3,7 +3,6 @@ import * as db from '../db/sets';
 
 const router = Router();
 
-// GET /api/v1/sets
 router.get('/', async (req, res) => {
   try {
     const sets = await db.getAllSets();

@@ -3,9 +3,9 @@ export interface SetData {
   workoutId: number;
   setNumber: number;
   reps: number;
-  load: number;
-  rir: number;
-  note: string;
+  load: number | null;
+  rir: number | null;
+  note: string | null;
 }
 
 export interface Set extends SetData {

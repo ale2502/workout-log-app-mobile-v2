@@ -1,5 +1,5 @@
 import db from './connection.ts';
-import { SetDisplay } from '../models/sets.ts';
+import { SetDisplay } from '../models/set.ts';
 
 export async function getAllSets(): Promise<SetDisplay[]> {
   const sets = await db('sets')

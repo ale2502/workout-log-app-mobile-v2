@@ -1,10 +1,21 @@
 import db from './connection.ts';
-import { SetDisplay, SetData } from '../models/set.ts';
+import { Set, SetDisplay, SetData } from '../models/set.ts';
 
-const columns = [
+const columnsSetDisplay = [
   'sets.id as id',
   'workouts.performed_on as performedOn',
   'exercises.name as exerciseName',
+  'set_number as setNumber',
+  'reps',
+  'load',
+  'rir',
+  'note',
+];
+
+const columnsNewSet = [
+  'id',
+  'exercise_id as exerciseId',
+  'workout_id as workoutId',
   'set_number as setNumber',
   'reps',
   'load',
@@ -18,11 +29,11 @@ export async function getAllSets(): Promise<SetDisplay[]> {
     .join('exercises', 'sets.exercise_id', 'exercises.id')
     // Join sets and workouts tables
     .join('workouts', 'sets.workout_id', 'workouts.id')
-    .select(columns);
+    .select(columnsSetDisplay);
   return sets as SetDisplay[];
 }
 
-export async function addSet(newSet: SetData) {
+export async function addSet(newSet: SetData): Promise<Set> {
   const newSetArr = await db('sets')
     .insert({
       exercise_id: newSet.exerciseId,
@@ -33,6 +44,6 @@ export async function addSet(newSet: SetData) {
       rir: newSet.rir,
       note: newSet.note,
     })
-    .returning(columns);
+    .returning(columnsNewSet);
   return newSetArr[0];
 }

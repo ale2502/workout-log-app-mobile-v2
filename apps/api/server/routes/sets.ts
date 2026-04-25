@@ -18,7 +18,7 @@ router.post('/', async (req, res) => {
     const newSet = req.body;
     const set = await db.addSet(newSet);
     console.log(set);
-    res.json(set);
+    res.status(201).json(set);
   } catch (error) {
     console.error(error);
     res.status(500).send('Something went wrong');

@@ -8,7 +8,7 @@ router.post('/', async (req, res) => {
     const newWorkout = req.body;
     const workout = await db.addWorkout(newWorkout);
     console.log(workout);
-    res.json(workout);
+    res.status(201).json(workout);
   } catch (error) {
     console.error(error);
     res.status(500).send('Something went wrong');

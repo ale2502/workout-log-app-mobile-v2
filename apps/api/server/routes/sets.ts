@@ -16,6 +16,21 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const newSet = req.body;
+
+    if (
+      newSet.workoutId === undefined ||
+      newSet.exerciseId === undefined ||
+      newSet.setNumber === undefined ||
+      newSet.reps === undefined
+    ) {
+      res
+        .status(400)
+        .json({
+          error: 'workoutId, exerciseId, setNumber and reps are required',
+        });
+      return;
+    }
+
     const set = await db.addSet(newSet);
     console.log(set);
     res.status(201).json(set);

@@ -20,3 +20,7 @@ Technical features:
 Starting development server:
 
 Either cd into apps/api then `npm run dev` or `npm run dev -w apps/api`
+
+Starting mobile preview:
+
+`npm start -w apps/mobile`

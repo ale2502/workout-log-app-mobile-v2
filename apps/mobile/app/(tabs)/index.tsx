@@ -14,6 +14,26 @@ export default function HomeScreen() {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadExercises() {
+      try {
+        const response = await fetch('http://localhost:3001/exercises');
+
+        if (!response.ok) {
+          throw new Error('Failed to load exercises');
+        }
+
+        const data = await response.json();
+        setExercises(data);
+      } catch (error) {
+        setError('Could not load exercises');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadExercises();
+  }, []);
 }
 
 // import { Image } from 'expo-image';

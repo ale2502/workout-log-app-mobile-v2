@@ -35,7 +35,7 @@ export default function HomeScreen() {
     loadExercises();
   }, []);
 
-  const muscleGroup = [
+  const muscleGroups = [
     ...new Set(exercises.map((exercise) => exercise.muscleGroup)),
   ];
 
@@ -44,6 +44,46 @@ export default function HomeScreen() {
         (exercise) => exercise.muscleGroup === selectedMuscleGroup,
       )
     : [];
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Workout Log</Text>
+
+      <Pressable style={styles.startButton}>
+        <Text style={styles.startButtonText}>Start Workout</Text>
+      </Pressable>
+
+      <Text style={styles.sectionTitle}>Choose muscle group</Text>
+
+      {isLoading && <Text>Loading exercises...</Text>}
+
+      {error && <Text style={styles.errorText}>{error}</Text>}
+
+      <View style={styles.muscleGroupList}>
+        {muscleGroups.map((muscleGroup) => (
+          <Pressable
+            key={muscleGroup}
+            style={[
+              styles.muscleGroupButton,
+              selectedMuscleGroup === muscleGroup &&
+                styles.selectedMuscleGroupButton,
+            ]}
+            onPress={() => setSelectedMuscleGroup(muscleGroup)}
+          >
+            <Text>{muscleGroup}</Text>
+          </Pressable>
+        ))}
+      </View>
+
+      <Text style={styles.sectionTitle}>Exercises</Text>
+
+      {filteredExercises.map((exercise) => (
+        <Text key={exercise.id} style={styles.exerciseName}>
+          {exercise.name}
+        </Text>
+      ))}
+    </View>
+  );
 }
 
 // import { Image } from 'expo-image';

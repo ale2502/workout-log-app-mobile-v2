@@ -34,6 +34,16 @@ export default function HomeScreen() {
     }
     loadExercises();
   }, []);
+
+  const muscleGroup = [
+    ...new Set(exercises.map((exercise) => exercise.muscleGroup)),
+  ];
+
+  const filteredExercises = selectedMuscleGroup
+    ? exercises.filter(
+        (exercise) => exercise.muscleGroup === selectedMuscleGroup,
+      )
+    : [];
 }
 
 // import { Image } from 'expo-image';

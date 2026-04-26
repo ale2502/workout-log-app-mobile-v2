@@ -18,7 +18,7 @@ export default function HomeScreen() {
   useEffect(() => {
     async function loadExercises() {
       try {
-        const response = await fetch('http://localhost:3001/exercises');
+        const response = await fetch('http://192.168.1.205:3001/exercises');
 
         if (!response.ok) {
           throw new Error('Failed to load exercises');
@@ -85,6 +85,54 @@ export default function HomeScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 24,
+    gap: 16,
+    backgroundColor: '#ffffff',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+  },
+  startButton: {
+    backgroundColor: '#111827',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  startButtonText: {
+    color: '#ffffff',
+    fontWeight: '700',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginTop: 8,
+  },
+  muscleGroupList: {
+    gap: 8,
+  },
+  muscleGroupButton: {
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+  },
+  selectedMuscleGroupButton: {
+    backgroundColor: '#dbeafe',
+    borderColor: '#2563eb',
+  },
+  exerciseName: {
+    fontSize: 16,
+    paddingVertical: 8,
+  },
+  errorText: {
+    color: '#dc2626',
+  },
+});
 
 // import { Image } from 'expo-image';
 // import { Platform, StyleSheet } from 'react-native';

@@ -35,6 +35,7 @@ export default function HomeScreen() {
     loadExercises();
   }, []);
 
+  // Get each exercise's muscle group, remove duplicates with Set, then spread it back into an array
   const muscleGroups = [
     ...new Set(exercises.map((exercise) => exercise.muscleGroup)),
   ];

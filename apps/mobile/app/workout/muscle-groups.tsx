@@ -9,6 +9,7 @@ type Exercise = {
 };
 
 export default function MuscleGroupScreen() {
+  const router = useRouter();
   const params = useLocalSearchParams<{ workoutId: string }>();
   const workoutId = params.workoutId;
   // Same as:
@@ -20,7 +21,7 @@ export default function MuscleGroupScreen() {
   useEffect(() => {
     async function loadExercises() {
       try {
-        const response = await fetch('http://192.168.1.205:3001/exercises');
+        const response = await fetch('http://172.20.10.180:3001/exercises');
 
         if (!response.ok) {
           throw new Error('Failed to load muscle-groups');
@@ -41,4 +42,71 @@ export default function MuscleGroupScreen() {
   const muscleGroups = [
     ...new Set(exercises.map((exercise) => exercise.muscleGroup)),
   ];
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading muscle groups...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Choose a muscle group</Text>
+
+      <View style={styles.muscleGroupList}>
+        {muscleGroups.map((muscleGroup) => (
+          <Pressable
+            key={muscleGroup}
+            style={styles.muscleGroupButton}
+            onPress={() => {
+              router.push({
+                pathname: '/workout/exercises',
+                params: {
+                  workoutId,
+                  muscleGroup,
+                },
+              });
+            }}
+          >
+            <Text>{muscleGroup}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 24,
+    gap: 16,
+    backgroundColor: '#ffffff',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+  },
+  muscleGroupButton: {
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+  },
+  muscleGroupList: {
+    gap: 8,
+  },
+  errorText: {
+    color: '#dc2626',
+  },
+});

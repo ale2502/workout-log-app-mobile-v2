@@ -45,4 +45,51 @@ export default function LogSetScreen() {
   const chosenExercise = exercises.find(
     (exercise) => exercise.id.toString() === exerciseId,
   );
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading exercises...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>{chosenExercise?.name}</Text>
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 24,
+    gap: 16,
+    backgroundColor: '#ffffff',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+  },
+  exerciseButton: {
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+  },
+  exerciseList: {
+    gap: 8,
+  },
+  errorText: {
+    color: '#dc2626',
+  },
+});

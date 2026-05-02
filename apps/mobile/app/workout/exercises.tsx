@@ -32,7 +32,7 @@ export default function ExercisesScreen() {
 
         const data = await response.json();
         setExercises(data);
-      } catch (error) {
+      } catch {
         setError('Could not load exercises');
       } finally {
         setIsLoading(false);
@@ -40,4 +40,76 @@ export default function ExercisesScreen() {
     }
     loadExercises();
   }, []);
+
+  const filteredExercises = exercises.filter(
+    (exercise) => exercise.muscleGroup === muscleGroup,
+  );
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading exercises...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Choose an exercise</Text>
+
+      <View style={styles.exerciseList}>
+        {filteredExercises.map((exercise) => (
+          <Pressable
+            key={exercise.id}
+            style={styles.exerciseButton}
+            onPress={() => {
+              router.push({
+                pathname: '/workout/log-set',
+                params: {
+                  workoutId,
+                  muscleGroup,
+                  exerciseId: String(exercise.id),
+                },
+              });
+            }}
+          >
+            <Text>{exercise.name}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 24,
+    gap: 16,
+    backgroundColor: '#ffffff',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+  },
+  exerciseButton: {
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+  },
+  exerciseList: {
+    gap: 8,
+  },
+  errorText: {
+    color: '#dc2626',
+  },
+});

@@ -30,7 +30,7 @@ export default function MuscleGroupScreen() {
 
         const data = await response.json();
         setExercises(data);
-      } catch (error) {
+      } catch {
         setError('Could not load muscle groups');
       } finally {
         setIsLoading(false);

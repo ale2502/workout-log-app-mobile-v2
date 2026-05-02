@@ -72,6 +72,7 @@ export default function ExercisesScreen() {
             style={styles.exerciseButton}
             onPress={() => {
               router.push({
+                // "workout" refers to the folder inside of apps and "log-set" it's the set recording screen. The last path (log-set) is where you're navigating to.
                 pathname: '/workout/log-set',
                 params: {
                   workoutId,

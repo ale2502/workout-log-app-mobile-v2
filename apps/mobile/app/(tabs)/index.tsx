@@ -12,7 +12,7 @@ export default function HomeScreen() {
     setIsStartingWorkout(true);
 
     try {
-      const response = await fetch('http://172.20.10.180:3001/workouts', {
+      const response = await fetch('http://192.168.1.207:3001/workouts', {
         method: 'POST',
       });
 

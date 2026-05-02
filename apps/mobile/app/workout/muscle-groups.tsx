@@ -22,16 +22,16 @@ export default function MuscleGroupScreen() {
   useEffect(() => {
     async function loadExercises() {
       try {
-        const response = await fetch('http://172.20.10.180:3001/exercises');
+        const response = await fetch('http://192.168.1.207:3001/exercises');
 
         if (!response.ok) {
-          throw new Error('Failed to load muscle-groups');
+          throw new Error('Failed to load muscle groups');
         }
 
         const data = await response.json();
         setExercises(data);
       } catch (error) {
-        setError('Could not load muscle-groups');
+        setError('Could not load muscle groups');
       } finally {
         setIsLoading(false);
       }

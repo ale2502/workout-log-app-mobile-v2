@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+// useRouter is only for navigation and useLocalSearchParams is for reading the existing params
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 

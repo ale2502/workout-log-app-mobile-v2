@@ -17,10 +17,49 @@ Technical features:
 * Expected React hooks/components: useQuery, useMutation, React Router, etc
 * Styling: Tailwind CSS
 
-Starting development server:
+## Setup notes
 
-Either cd into apps/api then `npm run dev` or `npm run dev -w apps/api`
+1) Install all project dependencies from the root folder:
 
-Starting mobile preview:
+```bash
+npm install
+```
 
-`npm start -w apps/mobile`
+This repo uses npm workspaces, so running `npm install` from the root installs the dependencies for the mobile app, the API, and shared packages.
+
+2) Set up the API database:
+
+```bash
+npm run knex -w apps/api -- migrate:latest
+npm run knex -w apps/api -- seed:run
+```
+
+3) Start the API:
+
+```bash
+npm run dev -w apps/api
+```
+
+4) Start the mobile app:
+
+```bash
+npm start -w apps/mobile
+```
+
+5) Install Expo Go on your mobile<br>
+Google Play: https://play.google.com/store/apps/details?id=host.exp.exponent&hl=en_NZ<br>
+Apple Store: https://apps.apple.com/us/app/expo-go/id982107779
+
+6) Open Expo Go and scan the QR Code generated on the terminal.
+
+When testing on a phone, the phone and computer must be on the same Wi-Fi network. Find your computer's local IP address:
+
+```bash
+ipconfig getifaddr en0
+```
+
+Use that IP in the mobile app's API URLs, for example:
+
+```ts
+http://YOUR_IP_ADDRESS:3001
+```

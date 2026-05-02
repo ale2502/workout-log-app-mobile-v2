@@ -80,15 +80,6 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '700',
   },
-  exerciseButton: {
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 8,
-  },
-  exerciseList: {
-    gap: 8,
-  },
   errorText: {
     color: '#dc2626',
   },

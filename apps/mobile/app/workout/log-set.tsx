@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, TextInput } from 'react-native';
 
 type Exercise = {
   id: number;
@@ -22,6 +22,7 @@ export default function LogSetScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // They start as a string because React Native inputs give text
   const [reps, setReps] = useState('');
   const [load, setLoad] = useState('');
   const [rir, setRir] = useState('');
@@ -74,6 +75,29 @@ export default function LogSetScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{chosenExercise?.name}</Text>
+
+      <TextInput
+        value={reps}
+        onChangeText={setReps}
+        placeholder="Reps"
+        keyboardType="numeric"
+      />
+
+      <TextInput
+        value={load}
+        onChangeText={setLoad}
+        placeholder="Load"
+        keyboardType="numeric"
+      />
+
+      <TextInput
+        value={rir}
+        onChangeText={setRir}
+        placeholder="RIR"
+        keyboardType="numeric"
+      />
+
+      <TextInput value={note} onChangeText={setNote} placeholder="Notes" />
     </View>
   );
 }

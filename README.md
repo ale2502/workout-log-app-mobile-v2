@@ -58,8 +58,8 @@ When testing on a phone, the phone and computer must be on the same Wi-Fi networ
 ipconfig getifaddr en0
 ```
 
-Use that IP in the mobile app's API URLs, for example:
+7) Create a .env.local file at apps/mobile and add this line, replacing "YOUR_COMPUTER_IP" with your IP.
 
 ```ts
-http://YOUR_IP_ADDRESS:3001
+EXPO_PUBLIC_API_URL=http://YOUR_COMPUTER_IP:3001
 ```

@@ -25,7 +25,9 @@ export default function LogSetScreen() {
   useEffect(() => {
     async function loadExercises() {
       try {
-        const response = await fetch('http://192.168.1.207:3001/exercises');
+        const response = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/exercises`,
+        );
 
         if (!response.ok) {
           throw new Error('Failed to load exercise');

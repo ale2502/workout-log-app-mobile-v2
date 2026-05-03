@@ -12,9 +12,12 @@ export default function HomeScreen() {
     setIsStartingWorkout(true);
 
     try {
-      const response = await fetch('http://192.168.1.207:3001/workouts', {
-        method: 'POST',
-      });
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/workouts`,
+        {
+          method: 'POST',
+        },
+      );
 
       if (!response.ok) {
         throw new Error('Failed to start new workout');

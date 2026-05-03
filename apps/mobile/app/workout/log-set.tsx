@@ -22,6 +22,8 @@ export default function LogSetScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  async function handleSaveSet() {}
+
   useEffect(() => {
     async function loadExercises() {
       try {

@@ -11,11 +11,9 @@ type Exercise = {
 export default function LogSetScreen() {
   const params = useLocalSearchParams<{
     workoutId: string;
-    muscleGroup: string;
     exerciseId: string;
   }>();
   const workoutId = params.workoutId;
-  const muscleGroup = params.muscleGroup;
   const exerciseId = params.exerciseId;
 
   const [exercises, setExercises] = useState<Exercise[]>([]);
@@ -28,7 +26,40 @@ export default function LogSetScreen() {
   const [rir, setRir] = useState('');
   const [note, setNote] = useState('');
 
-  async function handleSaveSet() {}
+  async function handleSaveSet() {
+    setError(null);
+    setIsLoading(true);
+
+    const requestBody = {
+      workoutId: Number(workoutId),
+      exerciseId: Number(exerciseId),
+      setNumber: 1,
+      reps: Number(reps),
+      load: load === '' ? null : Number(load),
+      rir: rir === '' ? null : Number(rir),
+      note: note === '' ? null : note,
+    };
+
+    try {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/sets`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save set');
+      }
+
+      // later: navigate somewhere or clear the form
+    } catch {
+      setError('Could not save set');
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   useEffect(() => {
     async function loadExercises() {

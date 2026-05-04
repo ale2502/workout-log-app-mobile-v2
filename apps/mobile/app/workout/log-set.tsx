@@ -106,6 +106,10 @@ export default function LogSetScreen() {
         onChangeText={setNote}
         placeholder="Notes"
       />
+
+      <Pressable style={styles.saveButton}>
+        <Text style={styles.saveButtonText}>Save</Text>
+      </Pressable>
     </View>
   );
 }
@@ -129,5 +133,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#d1d5db',
     borderRadius: 8,
+  },
+  saveButton: {
+    backgroundColor: '#111827',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    color: '#ffffff',
+    fontWeight: '700',
   },
 });

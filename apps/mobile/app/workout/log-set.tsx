@@ -77,6 +77,7 @@ export default function LogSetScreen() {
       <Text style={styles.title}>{chosenExercise?.name}</Text>
 
       <TextInput
+        style={styles.formInput}
         value={reps}
         onChangeText={setReps}
         placeholder="Reps"
@@ -84,6 +85,7 @@ export default function LogSetScreen() {
       />
 
       <TextInput
+        style={styles.formInput}
         value={load}
         onChangeText={setLoad}
         placeholder="Load"
@@ -91,13 +93,19 @@ export default function LogSetScreen() {
       />
 
       <TextInput
+        style={styles.formInput}
         value={rir}
         onChangeText={setRir}
         placeholder="RIR"
         keyboardType="numeric"
       />
 
-      <TextInput value={note} onChangeText={setNote} placeholder="Notes" />
+      <TextInput
+        style={styles.formInput}
+        value={note}
+        onChangeText={setNote}
+        placeholder="Notes"
+      />
     </View>
   );
 }
@@ -115,5 +123,11 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#dc2626',
+  },
+  formInput: {
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
   },
 });

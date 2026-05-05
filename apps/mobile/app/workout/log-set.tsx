@@ -138,7 +138,7 @@ export default function LogSetScreen() {
         placeholder="Notes"
       />
 
-      <Pressable style={styles.saveButton}>
+      <Pressable onPress={handleSaveSet} style={styles.saveButton}>
         <Text style={styles.saveButtonText}>Save</Text>
       </Pressable>
     </View>

@@ -107,13 +107,16 @@ export default function LogSetScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>{chosenExercise?.name}</Text>
 
-      <TextInput
-        style={styles.formInput}
-        value={reps}
-        onChangeText={setReps}
-        placeholder="Reps"
-        keyboardType="numeric"
-      />
+      <View style={styles.inputRow}>
+        <Text style={styles.label}>Reps</Text>
+        <TextInput
+          style={[styles.formInput, styles.rowInput]}
+          value={reps}
+          onChangeText={setReps}
+          placeholder="Reps"
+          keyboardType="numeric"
+        />
+      </View>
 
       <TextInput
         style={styles.formInput}
@@ -176,5 +179,13 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#ffffff',
     fontWeight: '700',
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  label: {
+    fontWeight: 600,
   },
 });

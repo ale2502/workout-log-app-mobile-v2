@@ -139,7 +139,9 @@ export default function LogSetScreen() {
       />
 
       <Pressable onPress={handleSaveSet} style={styles.saveButton}>
-        <Text style={styles.saveButtonText}>Save</Text>
+        <Text style={styles.saveButtonText}>
+          {isLoading ? 'Saving...' : 'Save'}
+        </Text>
       </Pressable>
     </View>
   );

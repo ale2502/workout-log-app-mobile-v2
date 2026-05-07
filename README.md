@@ -37,13 +37,13 @@ npm run knex -w apps/api -- seed:run
 3) Start the API:
 
 ```bash
-npm run dev -w apps/api
+npm run dev:api
 ```
 
 4) Start the mobile app:
 
 ```bash
-npm start -w apps/mobile
+npm run dev:mobile
 ```
 
 5) Install Expo Go on your mobile<br>

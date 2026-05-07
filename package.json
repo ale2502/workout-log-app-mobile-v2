@@ -1,5 +1,15 @@
 {
   "name": "workout-log-app-mobile",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"]
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "scripts": {
+    "dev:api": "npm run dev -w apps/api",
+    "dev:mobile": "npm start -w apps/mobile"
+  }
 }

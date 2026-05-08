@@ -1,12 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { Pressable, StyleSheet, Text, View, TextInput } from 'react-native';
-
-type Exercise = {
-  id: number;
-  name: string;
-  muscleGroup: string;
-};
+import { Exercise } from '../../../api/server/models/exercise';
+import { SetDisplay } from '../../../api/server/models/set';
 
 export default function LogSetScreen() {
   const params = useLocalSearchParams<{
@@ -16,6 +12,7 @@ export default function LogSetScreen() {
   const workoutId = params.workoutId;
   const exerciseId = params.exerciseId;
 
+  const [sets, setSets] = useState<SetDisplay[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

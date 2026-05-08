@@ -5,21 +5,33 @@ const router = Router();
 
 router.get('/', async (req, res) => {
   try {
-    const sets = await db.getAllSets();
+    const workoutIdString = req.query.workoutId;
+    const exerciseIdString = req.query.exerciseId;
+
+    if (workoutIdString === undefined || exerciseIdString === undefined) {
+      res.status(400).json({ error: 'Could not find workoutId or exerciseId' });
+      return;
+    }
+
+    const workoutId = Number(workoutIdString);
+    const exerciseId = Number(exerciseIdString);
+
+    // isNaN explanation: did workoutId fail to become a real number?
+    if (Number.isNaN(workoutId) || Number.isNaN(exerciseId)) {
+      res
+        .status(400)
+        .json({ error: 'workoutId and exerciseId must be numbers' });
+      return;
+    }
+
+    const sets = await db.getSetsByWorkoutAndExercise(workoutId, exerciseId);
+    console.log(sets);
     res.json(sets);
   } catch (error) {
     console.error(error);
     res.status(500).send('Something went wrong');
   }
 });
-
-router.get('/', async (req, res) => {
-  try {
-    const workoutId = Number(req.query.workoutId)
-    const exerciseId = Number(req.query.exerciseId)
-    const sets = 
-  }
-})
 
 router.post('/', async (req, res) => {
   try {
@@ -31,11 +43,9 @@ router.post('/', async (req, res) => {
       newSet.setNumber === undefined ||
       newSet.reps === undefined
     ) {
-      res
-        .status(400)
-        .json({
-          error: 'workoutId, exerciseId, setNumber and reps are required',
-        });
+      res.status(400).json({
+        error: 'workoutId, exerciseId, setNumber and reps are required',
+      });
       return;
     }
 

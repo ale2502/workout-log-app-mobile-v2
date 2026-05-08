@@ -23,16 +23,6 @@ const columnsNewSet = [
   'note',
 ];
 
-export async function getAllSets(): Promise<SetDisplay[]> {
-  const sets = await db('sets')
-    // Join sets and exercises tables
-    .join('exercises', 'sets.exercise_id', 'exercises.id')
-    // Join sets and workouts tables
-    .join('workouts', 'sets.workout_id', 'workouts.id')
-    .select(columnsSetDisplay);
-  return sets as SetDisplay[];
-}
-
 export async function addSet(newSet: SetData): Promise<Set> {
   const newSetArr = await db('sets')
     .insert({
@@ -53,7 +43,7 @@ export async function getSetsByWorkoutAndExercise(
   exerciseId: number,
 ): Promise<SetDisplay[]> {
   const sets = await db('sets')
-    .join('exercises', 'sets.exercise_id', 'exercise.id')
+    .join('exercises', 'sets.exercise_id', 'exercises.id')
     .join('workouts', 'sets.workout_id', 'workouts.id')
     .where('sets.workout_id', workoutId)
     .where('sets.exercise_id', exerciseId)

@@ -77,6 +77,21 @@ export default function LogSetScreen() {
         setIsLoading(false);
       }
     }
+
+    async function loadSets() {
+      try {
+        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/sets`);
+
+        if (!response.ok) {
+          throw new Error('Could not load sets');
+        }
+
+        const data = await response.json();
+        setSets(data);
+      } catch {
+        setError('Could not load sets');
+      }
+    }
     loadExercises();
   }, []);
 

@@ -47,3 +47,16 @@ export async function addSet(newSet: SetData): Promise<Set> {
     .returning(columnsNewSet);
   return newSetArr[0];
 }
+
+export async function getSetsByWorkoutAndExercise(
+  workoutId: number,
+  exerciseId: number,
+): Promise<SetDisplay[]> {
+  const sets = await db('sets')
+    .join('exercises', 'sets.exercise_id', 'exercise.id')
+    .join('workouts', 'sets.workout_id', 'workouts.id')
+    .where('sets.workout_id', workoutId)
+    .where('sets.exercise_id', exerciseId)
+    .select(columnsSetDisplay);
+  return sets as SetDisplay[];
+}

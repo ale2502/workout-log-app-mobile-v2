@@ -13,6 +13,14 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/', async (req, res) => {
+  try {
+    const workoutId = Number(req.query.workoutId)
+    const exerciseId = Number(req.query.exerciseId)
+    const sets = 
+  }
+})
+
 router.post('/', async (req, res) => {
   try {
     const newSet = req.body;

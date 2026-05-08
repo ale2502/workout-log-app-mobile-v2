@@ -118,28 +118,37 @@ export default function LogSetScreen() {
         />
       </View>
 
-      <TextInput
-        style={styles.formInput}
-        value={load}
-        onChangeText={setLoad}
-        placeholder="Load"
-        keyboardType="numeric"
-      />
+      <View style={styles.inputRow}>
+        <Text style={styles.label}>Load</Text>
+        <TextInput
+          style={[styles.formInput, styles.rowInput]}
+          value={load}
+          onChangeText={setLoad}
+          placeholder="Load"
+          keyboardType="numeric"
+        />
+      </View>
 
-      <TextInput
-        style={styles.formInput}
-        value={rir}
-        onChangeText={setRir}
-        placeholder="RIR"
-        keyboardType="numeric"
-      />
+      <View style={styles.inputRow}>
+        <Text style={styles.label}>RIR</Text>
+        <TextInput
+          style={[styles.formInput, styles.rowInput]}
+          value={rir}
+          onChangeText={setRir}
+          placeholder="RIR"
+          keyboardType="numeric"
+        />
+      </View>
 
-      <TextInput
-        style={styles.formInput}
-        value={note}
-        onChangeText={setNote}
-        placeholder="Notes"
-      />
+      <View style={styles.inputRow}>
+        <Text style={styles.label}>Notes</Text>
+        <TextInput
+          style={[styles.formInput, styles.rowInput]}
+          value={note}
+          onChangeText={setNote}
+          placeholder="Notes"
+        />
+      </View>
 
       <Pressable onPress={handleSaveSet} style={styles.saveButton}>
         <Text style={styles.saveButtonText}>
@@ -183,9 +192,12 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+  },
+  rowInput: {
+    flex: 1,
   },
   label: {
-    fontWeight: 600,
+    width: 55,
+    fontWeight: '600',
   },
 });

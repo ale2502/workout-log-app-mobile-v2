@@ -149,6 +149,18 @@ export default function LogSetScreen() {
           placeholder="Reps"
           keyboardType="numeric"
         />
+        <Pressable
+          style={styles.incrementButton}
+          onPress={() => changeNumberValue(reps, setReps, -1)}
+        >
+          <Text style={styles.incrementText}>-</Text>
+        </Pressable>
+        <Pressable
+          style={styles.incrementButton}
+          onPress={() => changeNumberValue(reps, setReps, 1)}
+        >
+          <Text style={styles.incrementText}>+</Text>
+        </Pressable>
       </View>
 
       <View style={styles.inputRow}>
@@ -243,12 +255,13 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
   },
   rowInput: {
     flex: 1,
   },
   label: {
-    width: 55,
+    width: 50,
     fontWeight: '600',
   },
   // Table styling
@@ -275,5 +288,21 @@ const styles = StyleSheet.create({
   tableCell: {
     flex: 1,
     padding: 10,
+  },
+  // Increment buttons
+  incrementButton: {
+    width: 44,
+    height: 44,
+    borderWidth: 1,
+    backgroundColor: '#111827',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  incrementText: {
+    color: '#ffffff',
+    fontWeight: '700',
+    fontSize: 20,
+    lineHeight: 20,
   },
 });

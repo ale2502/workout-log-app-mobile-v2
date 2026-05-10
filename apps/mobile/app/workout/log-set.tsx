@@ -25,12 +25,21 @@ export default function LogSetScreen() {
 
   function changeNumberValue(
     value: string,
+    // This is the state setter function. For reps, it would be setReps. For load, setLoad. For RIR, setRir.
+    // This lets the helper update whichever input you pass in.
     setValue: (newValue: string) => void,
     amount: number,
+    maxValue?: number,
   ) {
     const currentValue = value === '' ? 0 : Number(value);
-    const nextValue = Math.max(0, currentValue + amount);
+    const increasedValue = currentValue + amount;
+    const valueNotBelowZero = Math.max(0, increasedValue);
+    const nextValue =
+      maxValue === undefined
+        ? valueNotBelowZero
+        : Math.min(maxValue, valueNotBelowZero);
 
+    // State setter changes back the number into string and add that value to it.
     setValue(String(nextValue));
   }
 
@@ -172,6 +181,18 @@ export default function LogSetScreen() {
           placeholder="Load"
           keyboardType="numeric"
         />
+        <Pressable
+          style={styles.incrementButton}
+          onPress={() => changeNumberValue(load, setLoad, -1)}
+        >
+          <Text style={styles.incrementText}>-</Text>
+        </Pressable>
+        <Pressable
+          style={styles.incrementButton}
+          onPress={() => changeNumberValue(load, setLoad, 1)}
+        >
+          <Text style={styles.incrementText}>+</Text>
+        </Pressable>
       </View>
 
       <View style={styles.inputRow}>
@@ -183,6 +204,18 @@ export default function LogSetScreen() {
           placeholder="RIR"
           keyboardType="numeric"
         />
+        <Pressable
+          style={styles.incrementButton}
+          onPress={() => changeNumberValue(rir, setRir, -0.5)}
+        >
+          <Text style={styles.incrementText}>-</Text>
+        </Pressable>
+        <Pressable
+          style={styles.incrementButton}
+          onPress={() => changeNumberValue(rir, setRir, 0.5, 10)}
+        >
+          <Text style={styles.incrementText}>+</Text>
+        </Pressable>
       </View>
 
       <View style={styles.inputRow}>

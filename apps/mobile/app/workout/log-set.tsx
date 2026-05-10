@@ -50,11 +50,29 @@ export default function LogSetScreen() {
         throw new Error('Failed to save set');
       }
 
+      await loadSets();
       // later: navigate somewhere or clear the form
     } catch {
       setError('Could not save set');
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function loadSets() {
+    try {
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/sets?workoutId=${workoutId}&exerciseId=${exerciseId}`,
+      );
+
+      if (!response.ok) {
+        throw new Error('Could not load sets');
+      }
+
+      const data = await response.json();
+      setSets(data);
+    } catch {
+      setError('Could not load sets');
     }
   }
 
@@ -77,22 +95,12 @@ export default function LogSetScreen() {
         setIsLoading(false);
       }
     }
-
-    async function loadSets() {
-      try {
-        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/sets`);
-
-        if (!response.ok) {
-          throw new Error('Could not load sets');
-        }
-
-        const data = await response.json();
-        setSets(data);
-      } catch {
-        setError('Could not load sets');
-      }
-    }
     loadExercises();
+    loadSets();
+    // This effect only loads data when the screen first opens.
+    // The linter warns because loadSets uses route params from outside the effect.
+    // For now, workoutId and exerciseId are stable for this screen, so this is okay.
+    // Later, clean this up with useCallback or a helper that receives the IDs as arguments.
   }, []);
 
   const chosenExercise = exercises.find(

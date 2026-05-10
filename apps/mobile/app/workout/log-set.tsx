@@ -23,6 +23,17 @@ export default function LogSetScreen() {
   const [rir, setRir] = useState('');
   const [note, setNote] = useState('');
 
+  function changeNumberValue(
+    value: string,
+    setValue: (newValue: string) => void,
+    amount: number,
+  ) {
+    const currentValue = value === '' ? 0 : Number(value);
+    const nextValue = Math.max(0, currentValue + amount);
+
+    setValue(String(nextValue));
+  }
+
   async function handleSaveSet() {
     setError(null);
     setIsLoading(true);

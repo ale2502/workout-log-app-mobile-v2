@@ -175,6 +175,16 @@ export default function LogSetScreen() {
           {isLoading ? 'Saving...' : 'Save'}
         </Text>
       </Pressable>
+
+      <View>
+        <Text>Sets</Text>
+        {sets.map((set) => (
+          <View key={set.id}>
+            <Text>{set.setNumber}</Text>
+            <Text>{set.reps} reps</Text>
+          </View>
+        ))}
+      </View>
     </View>
   );
 }

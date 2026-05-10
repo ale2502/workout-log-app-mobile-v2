@@ -27,10 +27,12 @@ export default function LogSetScreen() {
     setError(null);
     setIsLoading(true);
 
+    const nextSetNumber = sets.length + 1;
+
     const requestBody = {
       workoutId: Number(workoutId),
       exerciseId: Number(exerciseId),
-      setNumber: 1,
+      setNumber: nextSetNumber,
       reps: Number(reps),
       load: load === '' ? null : Number(load),
       rir: rir === '' ? null : Number(rir),

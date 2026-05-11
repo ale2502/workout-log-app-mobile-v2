@@ -52,14 +52,4 @@ Apple Store: https://apps.apple.com/us/app/expo-go/id982107779
 
 6) Open Expo Go and scan the QR Code generated on the terminal.
 
-When testing on a phone, the phone and computer must be on the same Wi-Fi network. Find your computer's local IP address:
-
-```bash
-ipconfig getifaddr en0
-```
-
-7) Create a .env.local file at apps/mobile and add this line, replacing "YOUR_COMPUTER_IP" with your IP.
-
-```ts
-EXPO_PUBLIC_API_URL=http://YOUR_COMPUTER_IP:3001
-```
+Obs: when testing on a phone, the phone and computer must be on the same Wi-Fi network.

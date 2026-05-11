@@ -50,3 +50,22 @@ export async function getSetsByWorkoutAndExercise(
     .select(columnsSetDisplay);
   return sets as SetDisplay[];
 }
+
+export async function updateSetById(
+  id: number,
+  updatedSet: SetData,
+): Promise<Set> {
+  const updatedSetArr = await db('sets')
+    .where('id', id)
+    .update({
+      exercise_id: updatedSet.exerciseId,
+      workout_id: updatedSet.workoutId,
+      set_number: updatedSet.setNumber,
+      reps: updatedSet.reps,
+      load: updatedSet.load,
+      rir: updatedSet.rir,
+      note: updatedSet.note,
+    })
+    .returning(columnsNewSet);
+  return updatedSetArr[0];
+}

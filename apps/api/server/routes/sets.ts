@@ -58,4 +58,23 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.patch('/:id', async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+
+    if (Number.isNaN(id)) {
+      res.status(400).json({ error: 'set id must be a number' });
+      return;
+    }
+
+    const updatedSet = req.body;
+    const set = await db.updateSetById(id, updatedSet);
+
+    res.json(set);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Something went wrong');
+  }
+});
+
 export default router;

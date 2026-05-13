@@ -18,4 +18,4 @@ if (existsSync(envPath)) {
   writeFileSync(envPath, `${envLine}\n`);
 }
 
-console.log(`Updated mobile API RUL: ${apiURL}`);
+console.log(`Updated mobile API URL: ${apiURL}`);

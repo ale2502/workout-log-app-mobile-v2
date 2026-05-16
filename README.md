@@ -14,8 +14,7 @@ This app will have an UI where the user can:
 Technical features:
 
 * This app stack consists in TypeScript, React Native, Node, Knex.js and SQLite3 as the local DB.
-* Expected React hooks/components: useQuery, useMutation, React Router, etc
-* Styling: Tailwind CSS
+* Expected React hooks/components: useQuery, useMutation, React Router, etc.
 
 ## Setup notes
 

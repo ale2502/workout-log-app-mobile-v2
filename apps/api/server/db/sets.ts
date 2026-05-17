@@ -69,3 +69,7 @@ export async function updateSetById(
     .returning(columnsNewSet);
   return updatedSetArr[0];
 }
+
+export async function deleteSetById(id: number): Promise<number> {
+  return db('sets').where('id', id).delete();
+}

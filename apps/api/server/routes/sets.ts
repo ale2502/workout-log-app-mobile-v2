@@ -77,4 +77,27 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
+router.delete('/:id', async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+
+    if (Number.isNaN(id)) {
+      res.status(400).json({ error: 'set id must be a number' });
+      return;
+    }
+
+    const deletedCount = await db.deleteSetById(id);
+
+    if (deletedCount === 0) {
+      res.status(404).json({ error: 'Set not found' });
+      return;
+    }
+
+    res.sendStatus(204);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Something went wrong');
+  }
+});
+
 export default router;

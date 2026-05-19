@@ -168,51 +168,14 @@ export default function LogSetScreen() {
         onIncrease={() => changeNumberValue(load, setLoad, 1)}
       />
 
-      {/* <View style={styles.inputRow}>
-        <Text style={styles.label}>Load</Text>
-        <TextInput
-          style={[styles.formInput, styles.rowInput]}
-          value={load}
-          onChangeText={setLoad}
-          placeholder="Load"
-          keyboardType="numeric"
-        />
-        <Pressable
-          style={styles.incrementButton}
-          onPress={() => changeNumberValue(load, setLoad, -1)}
-        >
-          <Text style={styles.incrementText}>-</Text>
-        </Pressable>
-        <Pressable
-          style={styles.incrementButton}
-          onPress={() => changeNumberValue(load, setLoad, 1)}
-        >
-          <Text style={styles.incrementText}>+</Text>
-        </Pressable>
-      </View> */}
-
-      <View style={styles.inputRow}>
-        <Text style={styles.label}>RIR</Text>
-        <TextInput
-          style={[styles.formInput, styles.rowInput]}
-          value={rir}
-          onChangeText={setRir}
-          placeholder="RIR"
-          keyboardType="numeric"
-        />
-        <Pressable
-          style={styles.incrementButton}
-          onPress={() => changeNumberValue(rir, setRir, -0.5)}
-        >
-          <Text style={styles.incrementText}>-</Text>
-        </Pressable>
-        <Pressable
-          style={styles.incrementButton}
-          onPress={() => changeNumberValue(rir, setRir, 0.5, 10)}
-        >
-          <Text style={styles.incrementText}>+</Text>
-        </Pressable>
-      </View>
+      <NumberStepperInput
+        label="RIR"
+        value={rir}
+        onChangeText={setRir}
+        placeholder="RIR"
+        onDecrease={() => changeNumberValue(rir, setRir, -0.5, 10)}
+        onIncrease={() => changeNumberValue(rir, setRir, 0.5, 10)}
+      />
 
       <View style={styles.inputRow}>
         <Text style={styles.label}>Notes</Text>

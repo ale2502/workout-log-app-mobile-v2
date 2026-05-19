@@ -3,6 +3,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { Pressable, StyleSheet, Text, View, TextInput } from 'react-native';
 import { Exercise } from '../../../api/server/models/exercise';
 import { SetDisplay } from '../../../api/server/models/set';
+import { NumberStepperInput } from '@/components/workout/NumberStepperInput';
 
 export default function LogSetScreen() {
   const params = useLocalSearchParams<{
@@ -149,7 +150,7 @@ export default function LogSetScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>{chosenExercise?.name}</Text>
 
-      <View style={styles.inputRow}>
+      {/* <View style={styles.inputRow}>
         <Text style={styles.label}>Reps</Text>
         <TextInput
           style={[styles.formInput, styles.rowInput]}
@@ -170,7 +171,16 @@ export default function LogSetScreen() {
         >
           <Text style={styles.incrementText}>+</Text>
         </Pressable>
-      </View>
+      </View> */}
+
+      <NumberStepperInput
+        label="Reps"
+        value={reps}
+        onChangeText={setReps}
+        placeholder="Reps"
+        onDecrease={() => changeNumberValue(reps, setReps, -1)}
+        onIncrease={() => changeNumberValue(reps, setReps, +1)}
+      />
 
       <View style={styles.inputRow}>
         <Text style={styles.label}>Load</Text>

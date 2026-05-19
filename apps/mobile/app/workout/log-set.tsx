@@ -150,29 +150,6 @@ export default function LogSetScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>{chosenExercise?.name}</Text>
 
-      {/* <View style={styles.inputRow}>
-        <Text style={styles.label}>Reps</Text>
-        <TextInput
-          style={[styles.formInput, styles.rowInput]}
-          value={reps}
-          onChangeText={setReps}
-          placeholder="Reps"
-          keyboardType="numeric"
-        />
-        <Pressable
-          style={styles.incrementButton}
-          onPress={() => changeNumberValue(reps, setReps, -1)}
-        >
-          <Text style={styles.incrementText}>-</Text>
-        </Pressable>
-        <Pressable
-          style={styles.incrementButton}
-          onPress={() => changeNumberValue(reps, setReps, 1)}
-        >
-          <Text style={styles.incrementText}>+</Text>
-        </Pressable>
-      </View> */}
-
       <NumberStepperInput
         label="Reps"
         value={reps}
@@ -182,7 +159,16 @@ export default function LogSetScreen() {
         onIncrease={() => changeNumberValue(reps, setReps, +1)}
       />
 
-      <View style={styles.inputRow}>
+      <NumberStepperInput
+        label="Load"
+        value={load}
+        onChangeText={setLoad}
+        placeholder="Load"
+        onDecrease={() => changeNumberValue(load, setLoad, -1)}
+        onIncrease={() => changeNumberValue(load, setLoad, 1)}
+      />
+
+      {/* <View style={styles.inputRow}>
         <Text style={styles.label}>Load</Text>
         <TextInput
           style={[styles.formInput, styles.rowInput]}
@@ -203,7 +189,7 @@ export default function LogSetScreen() {
         >
           <Text style={styles.incrementText}>+</Text>
         </Pressable>
-      </View>
+      </View> */}
 
       <View style={styles.inputRow}>
         <Text style={styles.label}>RIR</Text>

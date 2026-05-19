@@ -15,7 +15,7 @@ export function NumberStepperInput(props: NumberStepperInputProps) {
       <Text style={styles.label}>{props.label}</Text>
 
       <TextInput
-        style={[styles.formInput, styles.rowInput]}
+        style={styles.formInput}
         value={props.value}
         onChangeText={props.onChangeText}
         placeholder={props.placeholder}
@@ -32,3 +32,40 @@ export function NumberStepperInput(props: NumberStepperInputProps) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  label: {
+    width: 50,
+    fontWeight: '600',
+  },
+  formInput: {
+    flex: 1,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+  },
+  rowInput: {
+    flex: 1,
+  },
+  incrementButton: {
+    width: 44,
+    height: 44,
+    borderWidth: 1,
+    backgroundColor: '#111827',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  incrementText: {
+    color: '#ffffff',
+    fontWeight: '700',
+    fontSize: 20,
+    lineHeight: 20,
+  },
+});

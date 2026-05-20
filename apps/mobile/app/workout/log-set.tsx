@@ -281,20 +281,4 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
-  // Increment buttons
-  incrementButton: {
-    width: 44,
-    height: 44,
-    borderWidth: 1,
-    backgroundColor: '#111827',
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  incrementText: {
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: 20,
-    lineHeight: 20,
-  },
 });

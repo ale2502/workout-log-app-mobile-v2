@@ -50,9 +50,6 @@ const styles = StyleSheet.create({
     borderColor: '#d1d5db',
     borderRadius: 8,
   },
-  rowInput: {
-    flex: 1,
-  },
   incrementButton: {
     width: 44,
     height: 44,

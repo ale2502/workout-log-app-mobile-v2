@@ -256,29 +256,4 @@ const styles = StyleSheet.create({
     width: 50,
     fontWeight: '600',
   },
-  // Table styling
-  setsTable: {
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  tableHeaderRow: {
-    flexDirection: 'row',
-    backgroundColor: '#f3f4f6',
-  },
-  tableRow: {
-    flexDirection: 'row',
-    borderTopWidth: 1,
-    borderTopColor: '#d1d5db',
-  },
-  tableHeaderCell: {
-    flex: 1,
-    padding: 10,
-    fontWeight: '700',
-  },
-  tableCell: {
-    flex: 1,
-    padding: 10,
-  },
 });

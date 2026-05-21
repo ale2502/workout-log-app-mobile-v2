@@ -15,7 +15,7 @@ export function SavedSetsTable(props: SavedSetsTableProps) {
         <Text style={styles.tableHeaderCell}>RIR</Text>
       </View>
 
-      {sets.map((set) => (
+      {props.sets.map((set) => (
         <View key={set.id} style={styles.tableRow}>
           <Text style={styles.tableCell}>{set.setNumber}</Text>
           <Text style={styles.tableCell}>{set.reps}</Text>
@@ -26,3 +26,30 @@ export function SavedSetsTable(props: SavedSetsTableProps) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  setsTable: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  tableHeaderRow: {
+    flexDirection: 'row',
+    backgroundColor: '#f3f4f6',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    borderTopWidth: 1,
+    borderTopColor: '#d1d5db',
+  },
+  tableHeaderCell: {
+    flex: 1,
+    padding: 10,
+    fontWeight: '700',
+  },
+  tableCell: {
+    flex: 1,
+    padding: 10,
+  },
+});

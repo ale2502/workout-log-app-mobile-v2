@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, Text, View, TextInput } from 'react-native';
 import { Exercise } from '../../../api/server/models/exercise';
 import { SetDisplay } from '../../../api/server/models/set';
 import { NumberStepperInput } from '@/components/workout/NumberStepperInput';
+import { SavedSetsTable } from '@/components/workout/SavedSetsTable';
 
 export default function LogSetScreen() {
   const params = useLocalSearchParams<{
@@ -193,23 +194,7 @@ export default function LogSetScreen() {
         </Text>
       </Pressable>
 
-      <View style={styles.setsTable}>
-        <View style={styles.tableHeaderRow}>
-          <Text style={styles.tableHeaderCell}>Set</Text>
-          <Text style={styles.tableHeaderCell}>Reps</Text>
-          <Text style={styles.tableHeaderCell}>Load</Text>
-          <Text style={styles.tableHeaderCell}>RIR</Text>
-        </View>
-
-        {sets.map((set) => (
-          <View key={set.id} style={styles.tableRow}>
-            <Text style={styles.tableCell}>{set.setNumber}</Text>
-            <Text style={styles.tableCell}>{set.reps}</Text>
-            <Text style={styles.tableCell}>{set.load ?? '-'}</Text>
-            <Text style={styles.tableCell}>{set.rir ?? '-'}</Text>
-          </View>
-        ))}
-      </View>
+      <SavedSetsTable sets={sets} />
     </View>
   );
 }

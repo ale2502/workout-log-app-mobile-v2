@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import { Pressable, StyleSheet, Text, View, TextInput } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Exercise } from '../../../api/server/models/exercise';
 import { SetDisplay } from '../../../api/server/models/set';
-import { NumberStepperInput } from '@/components/workout/NumberStepperInput';
 import { SavedSetsTable } from '@/components/workout/SavedSetsTable';
 import { SetForm } from '@/components/workout/SetForm';
 
@@ -150,6 +149,8 @@ export default function LogSetScreen() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>{chosenExercise?.name}</Text>
+
       <SetForm
         reps={reps}
         load={load}
@@ -181,39 +182,11 @@ const styles = StyleSheet.create({
     gap: 16,
     backgroundColor: '#ffffff',
   },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-  },
   errorText: {
     color: '#dc2626',
   },
-  formInput: {
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 8,
-  },
-  saveButton: {
-    backgroundColor: '#111827',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  saveButtonText: {
-    color: '#ffffff',
+  title: {
+    fontSize: 28,
     fontWeight: '700',
-  },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  rowInput: {
-    flex: 1,
-  },
-  label: {
-    width: 50,
-    fontWeight: '600',
   },
 });

@@ -23,7 +23,7 @@ type SetFormProps = {
   isSaving: boolean;
 };
 
-export function SerForm(props: SetFormProps) {
+export function SetForm(props: SetFormProps) {
   return (
     <View>
       <NumberStepperInput
@@ -34,6 +34,34 @@ export function SerForm(props: SetFormProps) {
         onDecrease={props.onDecreaseReps}
         onIncrease={props.onIncreaseReps}
       />
+
+      <NumberStepperInput
+        label="Load"
+        value={props.load}
+        onChangeText={props.onChangeLoad}
+        placeholder="Load"
+        onDecrease={props.onDecreaseLoad}
+        onIncrease={props.onIncreaseLoad}
+      />
+
+      <NumberStepperInput
+        label="RIR"
+        value={props.rir}
+        onChangeText={props.onChangeRir}
+        placeholder="RIR"
+        onDecrease={props.onDecreaseRir}
+        onIncrease={props.onIncreaseRir}
+      />
+
+      <View style={styles.inputRow}>
+        <Text style={styles.label}>Notes</Text>
+        <TextInput
+          style={[styles.formInput, styles.rowInput]}
+          value={props.note}
+          onChangeText={props.onChangeNote}
+          placeholder="Notes"
+        />
+      </View>
     </View>
   );
 }

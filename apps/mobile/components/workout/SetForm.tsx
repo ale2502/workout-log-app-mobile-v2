@@ -22,3 +22,18 @@ type SetFormProps = {
   onSave: () => void;
   isSaving: boolean;
 };
+
+export function SerForm(props: SetFormProps) {
+  return (
+    <View>
+      <NumberStepperInput
+        label="Reps"
+        value={props.reps}
+        onChangeText={props.onChangeReps}
+        placeholder="Reps"
+        onDecrease={props.onDecreaseReps}
+        onIncrease={props.onIncreaseReps}
+      />
+    </View>
+  );
+}

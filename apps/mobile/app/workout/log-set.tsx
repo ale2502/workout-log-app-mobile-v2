@@ -5,6 +5,7 @@ import { Exercise } from '../../../api/server/models/exercise';
 import { SetDisplay } from '../../../api/server/models/set';
 import { NumberStepperInput } from '@/components/workout/NumberStepperInput';
 import { SavedSetsTable } from '@/components/workout/SavedSetsTable';
+import { SetForm } from '@/components/workout/SetForm';
 
 export default function LogSetScreen() {
   const params = useLocalSearchParams<{
@@ -149,50 +150,24 @@ export default function LogSetScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{chosenExercise?.name}</Text>
-
-      <NumberStepperInput
-        label="Reps"
-        value={reps}
-        onChangeText={setReps}
-        placeholder="Reps"
-        onDecrease={() => changeNumberValue(reps, setReps, -1)}
-        onIncrease={() => changeNumberValue(reps, setReps, +1)}
+      <SetForm
+        reps={reps}
+        load={load}
+        rir={rir}
+        note={note}
+        onChangeReps={setReps}
+        onChangeLoad={setLoad}
+        onChangeRir={setRir}
+        onChangeNote={setNote}
+        onDecreaseReps={() => changeNumberValue(reps, setReps, -1)}
+        onIncreaseReps={() => changeNumberValue(reps, setReps, 1)}
+        onDecreaseLoad={() => changeNumberValue(load, setLoad, -1)}
+        onIncreaseLoad={() => changeNumberValue(load, setLoad, 1)}
+        onDecreaseRir={() => changeNumberValue(rir, setRir, -0.5, 10)}
+        onIncreaseRir={() => changeNumberValue(rir, setRir, 0.5, 10)}
+        onSave={handleSaveSet}
+        isSaving={isLoading}
       />
-
-      <NumberStepperInput
-        label="Load"
-        value={load}
-        onChangeText={setLoad}
-        placeholder="Load"
-        onDecrease={() => changeNumberValue(load, setLoad, -1)}
-        onIncrease={() => changeNumberValue(load, setLoad, 1)}
-      />
-
-      <NumberStepperInput
-        label="RIR"
-        value={rir}
-        onChangeText={setRir}
-        placeholder="RIR"
-        onDecrease={() => changeNumberValue(rir, setRir, -0.5, 10)}
-        onIncrease={() => changeNumberValue(rir, setRir, 0.5, 10)}
-      />
-
-      <View style={styles.inputRow}>
-        <Text style={styles.label}>Notes</Text>
-        <TextInput
-          style={[styles.formInput, styles.rowInput]}
-          value={note}
-          onChangeText={setNote}
-          placeholder="Notes"
-        />
-      </View>
-
-      <Pressable onPress={handleSaveSet} style={styles.saveButton}>
-        <Text style={styles.saveButtonText}>
-          {isLoading ? 'Saving...' : 'Save'}
-        </Text>
-      </Pressable>
 
       <SavedSetsTable sets={sets} />
     </View>

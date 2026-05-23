@@ -25,7 +25,7 @@ type SetFormProps = {
 
 export function SetForm(props: SetFormProps) {
   return (
-    <View>
+    <View style={styles.container}>
       <NumberStepperInput
         label="Reps"
         value={props.reps}
@@ -62,6 +62,46 @@ export function SetForm(props: SetFormProps) {
           placeholder="Notes"
         />
       </View>
+
+      <Pressable onPress={props.onSave} style={styles.saveButton}>
+        <Text style={styles.saveButtonText}>
+          {props.isSaving ? 'Saving...' : 'Save'}
+        </Text>
+      </Pressable>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    gap: 16,
+  },
+  formInput: {
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  rowInput: {
+    flex: 1,
+  },
+  label: {
+    width: 50,
+    fontWeight: '600',
+  },
+  saveButton: {
+    backgroundColor: '#111827',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    color: '#ffffff',
+    fontWeight: '700',
+  },
+});

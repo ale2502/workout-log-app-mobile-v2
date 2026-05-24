@@ -24,6 +24,7 @@ export default function LogSetScreen() {
   const [load, setLoad] = useState('');
   const [rir, setRir] = useState('');
   const [note, setNote] = useState('');
+  const [selectedSetId, setSelectedSetId] = useState<number | null>(null);
 
   function changeNumberValue(
     value: string,

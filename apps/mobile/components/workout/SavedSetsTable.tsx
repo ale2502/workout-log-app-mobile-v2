@@ -1,8 +1,9 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Pressable } from 'react-native';
 import { SetDisplay } from '../../../api/server/models/set';
 
 type SavedSetsTableProps = {
   sets: SetDisplay[];
+  onLongPressSet: (set: SetDisplay) => void;
 };
 
 export function SavedSetsTable(props: SavedSetsTableProps) {
@@ -16,12 +17,14 @@ export function SavedSetsTable(props: SavedSetsTableProps) {
       </View>
 
       {props.sets.map((set) => (
-        <View key={set.id} style={styles.tableRow}>
-          <Text style={styles.tableCell}>{set.setNumber}</Text>
-          <Text style={styles.tableCell}>{set.reps}</Text>
-          <Text style={styles.tableCell}>{set.load ?? '-'}</Text>
-          <Text style={styles.tableCell}>{set.rir ?? '-'}</Text>
-        </View>
+        <Pressable key={set.id} onLongPress={() => props.onLongPressSet(set)}>
+          <View style={styles.tableRow}>
+            <Text style={styles.tableCell}>{set.setNumber}</Text>
+            <Text style={styles.tableCell}>{set.reps}</Text>
+            <Text style={styles.tableCell}>{set.load ?? '-'}</Text>
+            <Text style={styles.tableCell}>{set.rir ?? '-'}</Text>
+          </View>
+        </Pressable>
       ))}
     </View>
   );

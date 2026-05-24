@@ -101,6 +101,10 @@ export default function LogSetScreen() {
     }
   }
 
+  function handleLongPressSet(set: SetDisplay) {
+    setSelectedSetId(set.id);
+  }
+
   useEffect(() => {
     async function loadExercises() {
       try {

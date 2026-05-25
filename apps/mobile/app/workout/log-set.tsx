@@ -101,8 +101,8 @@ export default function LogSetScreen() {
     }
   }
 
-  function handleLongPressSet(set: SetDisplay) {
-    setSelectedSetId(set.id);
+  function handleLongPressSet(selectedSet: SetDisplay) {
+    setSelectedSetId(selectedSet.id);
   }
 
   useEffect(() => {
@@ -175,7 +175,8 @@ export default function LogSetScreen() {
         isSaving={isLoading}
       />
 
-      <SavedSetsTable sets={sets} />
+      <SavedSetsTable sets={sets} onLongPressSet={handleLongPressSet} />
+      {selectedSetId !== null && <Text>Selected set id: {selectedSetId}</Text>}
     </View>
   );
 }

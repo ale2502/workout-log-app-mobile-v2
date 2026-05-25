@@ -104,6 +104,7 @@ export default function LogSetScreen() {
 
   function handleLongPressSet(selectedSet: SetDisplay) {
     setSelectedSetId(selectedSet.id);
+    // Add light vibration to long press
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 

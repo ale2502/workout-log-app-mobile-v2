@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
@@ -103,6 +104,7 @@ export default function LogSetScreen() {
 
   function handleLongPressSet(selectedSet: SetDisplay) {
     setSelectedSetId(selectedSet.id);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 
   useEffect(() => {

@@ -19,8 +19,12 @@ type SetFormProps = {
   onDecreaseRir: () => void;
   onIncreaseRir: () => void;
 
+  onUpdate: () => void;
+  onDelete: () => void;
+
   onSave: () => void;
   isSaving: boolean;
+  isEditing: boolean;
 };
 
 export function SetForm(props: SetFormProps) {

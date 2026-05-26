@@ -4,6 +4,7 @@ import { SetDisplay } from '../../../api/server/models/set';
 type SavedSetsTableProps = {
   sets: SetDisplay[];
   onLongPressSet: (set: SetDisplay) => void;
+  selectedSetId: number | null;
 };
 
 export function SavedSetsTable(props: SavedSetsTableProps) {
@@ -16,16 +17,20 @@ export function SavedSetsTable(props: SavedSetsTableProps) {
         <Text style={styles.tableHeaderCell}>RIR</Text>
       </View>
 
-      {props.sets.map((set) => (
-        <Pressable key={set.id} onLongPress={() => props.onLongPressSet(set)}>
-          <View style={styles.tableRow}>
-            <Text style={styles.tableCell}>{set.setNumber}</Text>
-            <Text style={styles.tableCell}>{set.reps}</Text>
-            <Text style={styles.tableCell}>{set.load ?? '-'}</Text>
-            <Text style={styles.tableCell}>{set.rir ?? '-'}</Text>
-          </View>
-        </Pressable>
-      ))}
+      {props.sets.map((set) => {
+        const isSelected = set.id === props.selectedSetId;
+
+        return (
+          <Pressable key={set.id} onLongPress={() => props.onLongPressSet(set)}>
+            <View style={[styles.tableRow, isSelected && styles.selectedRow]}>
+              <Text style={styles.tableCell}>{set.setNumber}</Text>
+              <Text style={styles.tableCell}>{set.reps}</Text>
+              <Text style={styles.tableCell}>{set.load ?? '-'}</Text>
+              <Text style={styles.tableCell}>{set.rir ?? '-'}</Text>
+            </View>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
@@ -54,5 +59,8 @@ const styles = StyleSheet.create({
   tableCell: {
     flex: 1,
     padding: 10,
+  },
+  selectedRow: {
+    backgroundColor: '#e0f2fe',
   },
 });

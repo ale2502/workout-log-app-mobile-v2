@@ -193,7 +193,11 @@ export default function LogSetScreen() {
         isEditing={selectedSetId !== null}
       />
 
-      <SavedSetsTable sets={sets} onLongPressSet={handleLongPressSet} />
+      <SavedSetsTable
+        sets={sets}
+        onLongPressSet={handleLongPressSet}
+        selectedSetId={selectedSetId}
+      />
       {selectedSetId !== null && <Text>Selected set id: {selectedSetId}</Text>}
     </View>
   );

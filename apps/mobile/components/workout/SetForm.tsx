@@ -73,13 +73,13 @@ export function SetForm(props: SetFormProps) {
             onPress={props.onUpdate}
             style={[styles.editButton, styles.updateButton]}
           >
-            <Text style={styles.editButtonText}>Update</Text>
+            <Text style={styles.editButtonText}>Update Set</Text>
           </Pressable>
           <Pressable
             onPress={props.onDelete}
             style={[styles.editButton, styles.deleteButton]}
           >
-            <Text style={styles.editButtonText}>Delete</Text>
+            <Text style={styles.editButtonText}>Delete Set</Text>
           </Pressable>
         </View>
       ) : (

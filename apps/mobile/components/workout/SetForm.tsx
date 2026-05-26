@@ -73,13 +73,13 @@ export function SetForm(props: SetFormProps) {
             onPress={props.onUpdate}
             style={[styles.editButton, styles.updateButton]}
           >
-            <Text>Update</Text>
+            <Text style={styles.editButtonText}>Update</Text>
           </Pressable>
           <Pressable
             onPress={props.onDelete}
             style={[styles.editButton, styles.deleteButton]}
           >
-            <Text>Delete</Text>
+            <Text style={styles.editButtonText}>Delete</Text>
           </Pressable>
         </View>
       ) : (
@@ -141,6 +141,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#111827',
   },
   deleteButton: {
-    backgroundColor: '#fb7777',
+    backgroundColor: '#dc2626',
+  },
+  editButtonText: {
+    color: '#ffffff',
+    fontWeight: '700',
   },
 });

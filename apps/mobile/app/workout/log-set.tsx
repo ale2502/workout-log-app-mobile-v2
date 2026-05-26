@@ -19,7 +19,6 @@ export default function LogSetScreen() {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
 
   // They start as a string because React Native inputs give text
   const [reps, setReps] = useState('');

@@ -69,10 +69,16 @@ export function SetForm(props: SetFormProps) {
 
       {props.isEditing ? (
         <View style={styles.editButtonRow}>
-          <Pressable onPress={props.onUpdate}>
+          <Pressable
+            onPress={props.onUpdate}
+            style={[styles.editButton, styles.updateButton]}
+          >
             <Text>Update</Text>
           </Pressable>
-          <Pressable onPress={props.onDelete}>
+          <Pressable
+            onPress={props.onDelete}
+            style={[styles.editButton, styles.deleteButton]}
+          >
             <Text>Delete</Text>
           </Pressable>
         </View>
@@ -113,6 +119,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
   },
+  // Save button
   saveButton: {
     backgroundColor: '#111827',
     padding: 16,
@@ -122,5 +129,18 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#ffffff',
     fontWeight: '700',
+  },
+  // Update/delete button
+  editButton: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  updateButton: {
+    backgroundColor: '#111827',
+  },
+  deleteButton: {
+    backgroundColor: '#fb7777',
   },
 });

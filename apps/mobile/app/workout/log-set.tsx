@@ -86,7 +86,53 @@ export default function LogSetScreen() {
   }
 
   async function handleUpdateSet() {
-    console.log('update selected set', selectedSetId);
+    if (selectedSetId === null) {
+      return;
+    }
+
+    const selectedSet = sets.find((set) => set.id === selectedSetId);
+
+    if (selectedSet === undefined) {
+      setError('Could not find selected set');
+      return;
+    }
+
+    setError(null);
+    setIsLoading(true);
+
+    const requestBody = {
+      workoutId: Number(workoutId),
+      exerciseId: Number(exerciseId),
+      setNumber: selectedSet.setNumber,
+      reps: Number(reps),
+      load: load === '' ? null : Number(load),
+      rir: rir === '' ? null : Number(rir),
+      note: note === '' ? null : note,
+    };
+
+    try {
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/sets/${selectedSetId}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to update set');
+      }
+
+      await loadSets();
+      setSelectedSetId(null);
+    } catch {
+      setError('Could not update set');
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   async function handleDeleteSet() {

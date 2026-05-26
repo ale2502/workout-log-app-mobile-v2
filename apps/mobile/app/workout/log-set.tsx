@@ -86,12 +86,15 @@ export default function LogSetScreen() {
   }
 
   async function handleUpdateSet() {
+    // Prevent action when no set is selected
     if (selectedSetId === null) {
       return;
     }
 
+    // Find the selected set
     const selectedSet = sets.find((set) => set.id === selectedSetId);
 
+    // Prevent action when selectedSetId is not present on sets list
     if (selectedSet === undefined) {
       setError('Could not find selected set');
       return;
@@ -127,6 +130,7 @@ export default function LogSetScreen() {
       }
 
       await loadSets();
+      // Turn off editing mode
       setSelectedSetId(null);
     } catch {
       setError('Could not update set');

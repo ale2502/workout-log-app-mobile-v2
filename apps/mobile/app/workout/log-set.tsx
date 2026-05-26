@@ -19,6 +19,7 @@ export default function LogSetScreen() {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   // They start as a string because React Native inputs give text
   const [reps, setReps] = useState('');
@@ -84,6 +85,10 @@ export default function LogSetScreen() {
       setIsLoading(false);
     }
   }
+
+  async function handleUpdateSet() {}
+
+  async function handleDeleteSet() {}
 
   async function loadSets() {
     try {
@@ -178,8 +183,11 @@ export default function LogSetScreen() {
         onIncreaseLoad={() => changeNumberValue(load, setLoad, 1)}
         onDecreaseRir={() => changeNumberValue(rir, setRir, -0.5, 10)}
         onIncreaseRir={() => changeNumberValue(rir, setRir, 0.5, 10)}
+        onUpdate={handleUpdateSet}
+        onDelete={handleDeleteSet}
         onSave={handleSaveSet}
         isSaving={isLoading}
+        isEditing={isEditing}
       />
 
       <SavedSetsTable sets={sets} onLongPressSet={handleLongPressSet} />

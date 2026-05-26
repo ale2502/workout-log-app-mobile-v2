@@ -67,11 +67,22 @@ export function SetForm(props: SetFormProps) {
         />
       </View>
 
-      <Pressable onPress={props.onSave} style={styles.saveButton}>
-        <Text style={styles.saveButtonText}>
-          {props.isSaving ? 'Saving...' : 'Save'}
-        </Text>
-      </Pressable>
+      {props.isEditing ? (
+        <View style={styles.editButtonRow}>
+          <Pressable onPress={props.onUpdate}>
+            <Text>Update</Text>
+          </Pressable>
+          <Pressable onPress={props.onDelete}>
+            <Text>Delete</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <Pressable onPress={props.onSave} style={styles.saveButton}>
+          <Text style={styles.saveButtonText}>
+            {props.isSaving ? 'Saving...' : 'Save'}
+          </Text>
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -97,6 +108,10 @@ const styles = StyleSheet.create({
   label: {
     width: 50,
     fontWeight: '600',
+  },
+  editButtonRow: {
+    flexDirection: 'row',
+    gap: 10,
   },
   saveButton: {
     backgroundColor: '#111827',

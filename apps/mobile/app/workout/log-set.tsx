@@ -190,6 +190,7 @@ export default function LogSetScreen() {
         onDelete={handleDeleteSet}
         onSave={handleSaveSet}
         isSaving={isLoading}
+        // If selectedSetId is different than null, this becomes true
         isEditing={selectedSetId !== null}
       />
 

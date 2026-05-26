@@ -85,9 +85,13 @@ export default function LogSetScreen() {
     }
   }
 
-  async function handleUpdateSet() {}
+  async function handleUpdateSet() {
+    console.log('update selected set', selectedSetId);
+  }
 
-  async function handleDeleteSet() {}
+  async function handleDeleteSet() {
+    console.log('delete selected set', selectedSetId);
+  }
 
   async function loadSets() {
     try {

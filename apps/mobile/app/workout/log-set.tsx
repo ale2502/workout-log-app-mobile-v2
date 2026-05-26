@@ -186,7 +186,7 @@ export default function LogSetScreen() {
         onDelete={handleDeleteSet}
         onSave={handleSaveSet}
         isSaving={isLoading}
-        isEditing={isEditing}
+        isEditing={selectedSetId !== null}
       />
 
       <SavedSetsTable sets={sets} onLongPressSet={handleLongPressSet} />

@@ -246,6 +246,7 @@ export default function LogSetScreen() {
         onIncreaseRir={() => changeNumberValue(rir, setRir, 0.5, 10)}
         onUpdate={handleUpdateSet}
         onDelete={handleDeleteSet}
+        onCancel={handleCancelEdit}
         onSave={handleSaveSet}
         isSaving={isLoading}
         // If selectedSetId is different than null, this becomes true

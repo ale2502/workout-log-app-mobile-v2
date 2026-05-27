@@ -21,6 +21,7 @@ type SetFormProps = {
 
   onUpdate: () => void;
   onDelete: () => void;
+  onCancel: () => void;
 
   onSave: () => void;
   isSaving: boolean;

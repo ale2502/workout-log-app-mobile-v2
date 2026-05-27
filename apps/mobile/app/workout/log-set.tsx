@@ -170,6 +170,14 @@ export default function LogSetScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 
+  function handleCancelEdit() {
+    setSelectedSetId(null);
+    setReps('');
+    setLoad('');
+    setRir('');
+    setNote('');
+  }
+
   useEffect(() => {
     async function loadExercises() {
       try {

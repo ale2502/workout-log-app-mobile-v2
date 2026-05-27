@@ -88,7 +88,7 @@ export function SetForm(props: SetFormProps) {
             onPress={props.onCancel}
             style={[styles.editButton, styles.cancelButton]}
           >
-            <Text style={styles.cancelButtonText}>Cancel Edit</Text>
+            <Text style={styles.cancelButtonText}>Cancel</Text>
           </Pressable>
         </View>
       ) : (

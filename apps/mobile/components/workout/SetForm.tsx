@@ -88,7 +88,7 @@ export function SetForm(props: SetFormProps) {
             onPress={props.onCancel}
             style={[styles.editButton, styles.cancelButton]}
           >
-            <Text style={styles.editButtonText}>Cancel Edit</Text>
+            <Text style={styles.cancelButtonText}>Cancel Edit</Text>
           </Pressable>
         </View>
       ) : (
@@ -153,10 +153,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#dc2626',
   },
   cancelButton: {
-    backgroundColor: '#111827',
+    backgroundColor: '#E8E8E8',
   },
   editButtonText: {
     color: '#ffffff',
+    fontWeight: '700',
+  },
+  cancelButtonText: {
+    color: '#000000',
     fontWeight: '700',
   },
 });

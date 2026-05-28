@@ -174,8 +174,6 @@ export default function LogSetScreen() {
 
       await loadSets();
       handleCancelEdit();
-      // Turn off editing mode
-      setSelectedSetId(null);
     } catch {
       setError('Could not delete set');
     } finally {
@@ -212,6 +210,7 @@ export default function LogSetScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 
+  // Reset input fields and cancel edit mode
   function handleCancelEdit() {
     setSelectedSetId(null);
     setReps('');

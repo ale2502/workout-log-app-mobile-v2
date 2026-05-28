@@ -140,7 +140,44 @@ export default function LogSetScreen() {
   }
 
   async function handleDeleteSet() {
-    console.log('delete selected set', selectedSetId);
+    // Prevent action when no set is selected
+    if (selectedSetId === null) {
+      return;
+    }
+
+    // Find the selected set
+    const selectedSet = sets.find((set) => set.id === selectedSetId);
+
+    // Prevent action when selectedSetId is not present on sets list
+    if (selectedSet === undefined) {
+      setError('Could not find selected set');
+      return;
+    }
+
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/sets/${selectedSetId}`,
+        {
+          method: 'DELETE',
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to delete set');
+      }
+
+      await loadSets();
+      handleCancelEdit();
+      // Turn off editing mode
+      setSelectedSetId(null);
+    } catch {
+      setError('Could not delete set');
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   async function loadSets() {

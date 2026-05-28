@@ -47,6 +47,7 @@ export default function LogSetScreen() {
     setValue(String(nextValue));
   }
 
+  // Save set function
   async function handleSaveSet() {
     setError(null);
     setIsLoading(true);
@@ -85,6 +86,7 @@ export default function LogSetScreen() {
     }
   }
 
+  // Update set function
   async function handleUpdateSet() {
     // Prevent action when no set is selected
     if (selectedSetId === null) {
@@ -139,6 +141,7 @@ export default function LogSetScreen() {
     }
   }
 
+  // Delete set function
   async function handleDeleteSet() {
     // Prevent action when no set is selected
     if (selectedSetId === null) {
@@ -180,6 +183,7 @@ export default function LogSetScreen() {
     }
   }
 
+  // Load sets function
   async function loadSets() {
     try {
       const response = await fetch(
@@ -197,6 +201,7 @@ export default function LogSetScreen() {
     }
   }
 
+  // Selecting sets and populate the set data into the text fields (ready for update)
   function handleLongPressSet(selectedSet: SetDisplay) {
     setSelectedSetId(selectedSet.id);
     setReps(String(selectedSet.reps));
@@ -215,6 +220,7 @@ export default function LogSetScreen() {
     setNote('');
   }
 
+  // Load exercise name, might need a refactor later
   useEffect(() => {
     async function loadExercises() {
       try {
@@ -286,7 +292,7 @@ export default function LogSetScreen() {
         onCancel={handleCancelEdit}
         onSave={handleSaveSet}
         isSaving={isLoading}
-        // If selectedSetId is different than null, this becomes true
+        // If selectedSetId is different than null, this becomes true, which means edit mode is active
         isEditing={selectedSetId !== null}
       />
 

@@ -71,5 +71,21 @@ export async function updateSetById(
 }
 
 export async function deleteSetById(id: number): Promise<number> {
-  return db('sets').where('id', id).delete();
+  const setToDelete = await db('sets').where('id', id).first();
+
+  if (!setToDelete) {
+    return 0;
+  }
+
+  const deletedCount = await db('sets').where('id', id).delete();
+
+  const remainingSets = await db('sets')
+    .where('workout_id', setToDelete.workout_id)
+    .where('exercise_id', setToDelete.exercise_id)
+    .orderBy('set_number', 'asc');
+
+  for (let index = 0; index < remainingSets.length; index++) {
+    const set = remainingSets[index];
+    const newSetNumber = index + 1;
+  }
 }

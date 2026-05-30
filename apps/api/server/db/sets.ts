@@ -89,5 +89,11 @@ export async function deleteSetById(id: number): Promise<number> {
   for (let index = 0; index < remainingSets.length; index++) {
     const set = remainingSets[index];
     const newSetNumber = index + 1;
+
+    await db('sets').where('id', set.id).update({
+      set_number: newSetNumber,
+    });
   }
+
+  return deletedCount;
 }

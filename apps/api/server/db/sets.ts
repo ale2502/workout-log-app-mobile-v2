@@ -71,6 +71,7 @@ export async function updateSetById(
 }
 
 export async function deleteSetById(id: number): Promise<number> {
+  // Before deleting the set, we need to save its workout_id and exercise_id
   const setToDelete = await db('sets').where('id', id).first();
 
   if (!setToDelete) {
@@ -79,6 +80,7 @@ export async function deleteSetById(id: number): Promise<number> {
 
   const deletedCount = await db('sets').where('id', id).delete();
 
+  // Fetch the remaining sets and reorder them from lowest to highest.
   const remainingSets = await db('sets')
     .where('workout_id', setToDelete.workout_id)
     .where('exercise_id', setToDelete.exercise_id)

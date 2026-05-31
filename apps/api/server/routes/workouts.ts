@@ -5,8 +5,7 @@ const router = Router();
 
 router.post('/', async (req, res) => {
   try {
-    const newWorkout = req.body;
-    const workout = await db.addWorkout(newWorkout);
+    const workout = await db.addWorkout();
     console.log(workout);
     res.status(201).json(workout);
   } catch (error) {

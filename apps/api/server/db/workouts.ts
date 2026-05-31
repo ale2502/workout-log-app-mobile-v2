@@ -8,7 +8,7 @@ const columns = [
 ];
 
 // addWorkout DB function doesn't need created_at because it is created automatically
-export async function addWorkout(newWorkout: WorkoutData) {
+export async function addWorkout(): Promise<Workout> {
   const newWorkoutArr = await db('workouts').insert({}).returning(columns);
   return newWorkoutArr[0];
 }

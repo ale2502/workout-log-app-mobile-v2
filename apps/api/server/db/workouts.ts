@@ -1,5 +1,5 @@
 import db from './connection';
-import { WorkoutData, Workout } from '../models/workout';
+import { Workout } from '../models/workout';
 
 const columns = [
   'id',

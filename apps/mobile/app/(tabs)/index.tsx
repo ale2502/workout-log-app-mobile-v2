@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Workout } from '../../../api/server/models/workout';
+
+interface Workout {
+  id: number;
+  performedOn: string;
+  createdAt: string;
+}
 
 export default function HomeScreen() {
   const router = useRouter();

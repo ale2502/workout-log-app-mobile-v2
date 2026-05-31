@@ -14,5 +14,5 @@ export async function addWorkout(newWorkout: WorkoutData) {
 }
 
 export async function getWorkouts(): Promise<Workout[]> {
-  return db('workouts').select(columns);
+  return db('workouts').orderBy('created_at', 'desc').select(columns);
 }

@@ -46,7 +46,7 @@ export default function HomeScreen() {
         disabled={isStartingWorkout}
       >
         <Text style={styles.startButtonText}>
-          {isStartingWorkout ? 'Starting...' : 'Start Workout'}
+          {isStartingWorkout ? 'Starting...' : 'Start New Workout'}
         </Text>
       </Pressable>
 

@@ -14,4 +14,15 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.get('/', async (req, res) => {
+  try {
+    const workoutsArr = await db.getWorkouts();
+    console.log(workoutsArr);
+    res.status(200).json(workoutsArr);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Something went wrong');
+  }
+});
+
 export default router;

@@ -1,5 +1,5 @@
 import db from './connection';
-import { WorkoutData } from '../models/workout';
+import { WorkoutData, Workout } from '../models/workout';
 
 const columns = [
   'id',
@@ -11,4 +11,8 @@ const columns = [
 export async function addWorkout(newWorkout: WorkoutData) {
   const newWorkoutArr = await db('workouts').insert({}).returning(columns);
   return newWorkoutArr[0];
+}
+
+export async function getWorkouts(): Promise<Workout[]> {
+  return db('workouts').select(columns);
 }

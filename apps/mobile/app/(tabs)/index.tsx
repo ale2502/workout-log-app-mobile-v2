@@ -9,6 +9,26 @@ export default function HomeScreen() {
   const [error, setError] = useState<string | null>(null);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
 
+  useEffect(() => {
+    async function loadWorkouts() {
+      try {
+        const response = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/workouts`,
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to load workouts');
+        }
+
+        const data = await response.json();
+        setWorkouts(data);
+      } catch {
+        setError('Could not load workouts');
+      }
+    }
+    loadWorkouts();
+  }, []);
+
   async function handleStartWorkout() {
     setError(null);
     setIsStartingWorkout(true);

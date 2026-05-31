@@ -78,6 +78,13 @@ export default function HomeScreen() {
       </Pressable>
 
       {error && <Text style={styles.errorText}>{error}</Text>}
+
+      {workouts.map((workout) => (
+        <View key={workout.id} style={styles.previousWorkouts}>
+          <Text>{workout.createdAt}</Text>
+          <Text>{workout.performedOn}</Text>
+        </View>
+      ))}
     </View>
   );
 }

@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Workout } from '../../../api/server/models/workout';
 
 export default function HomeScreen() {
   const router = useRouter();
   const [isStartingWorkout, setIsStartingWorkout] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
 
   async function handleStartWorkout() {
     setError(null);

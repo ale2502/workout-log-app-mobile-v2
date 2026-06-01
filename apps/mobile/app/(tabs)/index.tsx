@@ -79,6 +79,7 @@ export default function HomeScreen() {
 
       {error && <Text style={styles.errorText}>{error}</Text>}
 
+      <Text>Previous workouts</Text>
       {workouts.map((workout) => (
         <View key={workout.id} style={styles.previousWorkouts}>
           <Text>{workout.createdAt}</Text>

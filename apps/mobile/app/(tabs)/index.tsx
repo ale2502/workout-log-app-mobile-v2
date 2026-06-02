@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, ScrollView } from 'react-native';
 
 interface Workout {
   id: number;
@@ -64,7 +64,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Workout Log</Text>
 
       <Pressable
@@ -101,16 +101,15 @@ export default function HomeScreen() {
           </View>
         );
       })}
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     paddingHorizontal: 24,
     paddingTop: 48,
-    paddingBottom: 16,
+    paddingBottom: 24,
     gap: 16,
     backgroundColor: '#ffffff',
   },

@@ -86,7 +86,7 @@ export default function HomeScreen() {
         );
 
         return (
-          <View key={workout.id}>
+          <View key={workout.id} style={styles.prevWorkoutContainer}>
             <Text>{performedOn.toLocaleDateString('en-NZ')}</Text>
             <Text>
               {performedOn.toLocaleDateString('en-NZ', { weekday: 'long' })}
@@ -128,5 +128,20 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#dc2626',
+  },
+  prevWorkoutContainer: {
+    padding: 10,
+    backgroundColor: '#E8E8E8',
+    borderRadius: 8,
+    gap: 4,
+
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.12,
+    shadowRadius: 2,
+    elevation: 2,
   },
 });

@@ -14,7 +14,7 @@ This app will have an UI where the user can:
 Technical features:
 
 * This app stack consists in TypeScript, React Native, Node, Knex.js and SQLite3 as the local DB.
-* At this moment, TanStack Query hasn't been introduced yet, but I'm planning to do so once the basic functionalities are in place.
+* At this moment, TanStack Query hasn't been introduced yet, but I'm planning to do so once the basic functionalities are in place (currently using fetch).
 
 ## Setup notes
 

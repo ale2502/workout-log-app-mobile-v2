@@ -80,12 +80,27 @@ export default function HomeScreen() {
       {error && <Text style={styles.errorText}>{error}</Text>}
 
       <Text>Previous workouts</Text>
-      {workouts.map((workout) => (
-        <View key={workout.id} style={styles.previousWorkouts}>
-          <Text>{workout.createdAt}</Text>
-          <Text>{workout.performedOn}</Text>
-        </View>
-      ))}
+      {workouts.map((workout) => {
+        const performedOn = new Date(
+          workout.performedOn.replace(' ', 'T') + 'Z',
+        );
+
+        return (
+          <View key={workout.id}>
+            <Text>{performedOn.toLocaleDateString('en-NZ')}</Text>
+            <Text>
+              {performedOn.toLocaleDateString('en-NZ', { weekday: 'long' })}
+            </Text>
+            <Text>
+              {performedOn.toLocaleTimeString('en-NZ', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true,
+              })}
+            </Text>
+          </View>
+        );
+      })}
     </View>
   );
 }

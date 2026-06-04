@@ -3,6 +3,7 @@ import * as db from '../db/workouts';
 
 const router = Router();
 
+// Create new workout
 router.post('/', async (req, res) => {
   try {
     const workout = await db.addWorkout();
@@ -14,6 +15,7 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Get all workouts
 router.get('/', async (req, res) => {
   try {
     const workoutsArr = await db.getWorkouts();

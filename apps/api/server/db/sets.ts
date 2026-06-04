@@ -99,3 +99,16 @@ export async function deleteSetById(id: number): Promise<number> {
 
   return deletedCount;
 }
+
+// Get all the sets performed in one workout
+export async function getSetsByWorkoutId(
+  workoutId: number,
+): Promise<SetDisplay[]> {
+  const workoutSets = await db('sets')
+    .join('exercises', 'sets.exercise_id', 'exercises.id')
+    .join('workouts', 'sets.workout_id', 'workouts.id')
+    .where('sets.workout_id', workoutId)
+    .orderBy('set_number', 'desc')
+    .select(columnsSetDisplay);
+  return workoutSets as SetDisplay[];
+}

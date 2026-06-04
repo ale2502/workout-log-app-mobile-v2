@@ -1,5 +1,6 @@
 import db from './connection';
 import { Workout } from '../models/workout';
+import { SetDisplay } from '../models/set';
 
 const columns = [
   'id',

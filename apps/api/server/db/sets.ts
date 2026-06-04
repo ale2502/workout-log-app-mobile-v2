@@ -100,7 +100,7 @@ export async function deleteSetById(id: number): Promise<number> {
   return deletedCount;
 }
 
-// Get all the sets performed in one workout
+// Get all the sets performed in one workout and order them first by exercise name then after set number
 export async function getSetsByWorkoutId(
   workoutId: number,
 ): Promise<SetDisplay[]> {

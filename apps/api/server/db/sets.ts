@@ -108,7 +108,8 @@ export async function getSetsByWorkoutId(
     .join('exercises', 'sets.exercise_id', 'exercises.id')
     .join('workouts', 'sets.workout_id', 'workouts.id')
     .where('sets.workout_id', workoutId)
-    .orderBy('set_number', 'desc')
+    .orderBy('exercises.name', 'asc')
+    .orderBy('set_number', 'asc')
     .select(columnsSetDisplay);
   return workoutSets as SetDisplay[];
 }

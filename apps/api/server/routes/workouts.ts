@@ -33,7 +33,7 @@ router.get('/:id/sets', async (req, res) => {
     const id = Number(req.params.id);
 
     if (Number.isNaN(id)) {
-      res.status(400).json({ error: 'set id must be a number' });
+      res.status(400).json({ error: 'workout id must be a number' });
       return;
     }
 

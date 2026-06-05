@@ -15,7 +15,7 @@ export default function WorkoutDetailScreen() {
     async function loadWorkout() {
       try {
         const response = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/workout/${workoutId}/sets`,
+          `${process.env.EXPO_PUBLIC_API_URL}/workouts/${workoutId}/sets`,
         );
 
         if (!response.ok) {
@@ -25,11 +25,11 @@ export default function WorkoutDetailScreen() {
         const data = await response.json();
         setWorkoutSets(data);
       } catch {
-        setError('Could now load workout');
+        setError('Could not load workout');
       } finally {
         setIsLoading(false);
       }
     }
     loadWorkout();
-  }, []);
+  }, [workoutId]);
 }

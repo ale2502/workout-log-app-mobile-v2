@@ -32,4 +32,20 @@ export default function WorkoutDetailScreen() {
     }
     loadWorkout();
   }, [workoutId]);
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading exercises...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
 }

@@ -49,3 +49,15 @@ export default function WorkoutDetailScreen() {
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 24,
+    gap: 16,
+    backgroundColor: '#ffffff',
+  },
+  errorText: {
+    color: '#dc2626',
+  },
+});

@@ -86,7 +86,16 @@ export default function HomeScreen() {
         );
 
         return (
-          <View key={workout.id} style={styles.prevWorkoutContainer}>
+          <Pressable
+            key={workout.id}
+            style={styles.prevWorkoutContainer}
+            onPress={() => {
+              router.push({
+                pathname: '/workout/[workoutId]',
+                params: { workoutId: String(workout.id) },
+              });
+            }}
+          >
             <Text>{performedOn.toLocaleDateString('en-NZ')}</Text>
             <Text>
               {performedOn.toLocaleDateString('en-NZ', { weekday: 'long' })}
@@ -98,7 +107,7 @@ export default function HomeScreen() {
                 hour12: true,
               })}
             </Text>
-          </View>
+          </Pressable>
         );
       })}
     </ScrollView>

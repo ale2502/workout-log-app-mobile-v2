@@ -33,6 +33,22 @@ export default function WorkoutDetailScreen() {
     loadWorkout();
   }, [workoutId]);
 
+  const groupedSets = workoutSets.reduce<Record<string, SetDisplay[]>>(
+    // groups is the accumulator, is the thing we are building up over time. It starts as {}.
+    (groups, currentSet) => {
+      const exerciseName = currentSet.exerciseName;
+
+      if (groups[exerciseName] === undefined) {
+        groups[exerciseName] = [];
+      }
+
+      groups[exerciseName].push(currentSet);
+
+      return groups;
+    },
+    {},
+  );
+
   if (isLoading) {
     return (
       <View style={styles.container}>

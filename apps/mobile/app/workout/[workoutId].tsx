@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { SetDisplay } from '../../../api/server/models/set';
+import { SavedSetsTable } from '@/components/workout/SavedSetsTable';
 
 export default function WorkoutDetailScreen() {
   const params = useLocalSearchParams<{ workoutId: string }>();
@@ -82,7 +83,7 @@ export default function WorkoutDetailScreen() {
       {Object.entries(groupedSets).map(([exerciseName, sets]) => (
         <View key={exerciseName}>
           <Text>{exerciseName}</Text>
-          <Text>{JSON.stringify(sets)}</Text>
+          <SavedSetsTable sets={sets} />
         </View>
       ))}
     </View>

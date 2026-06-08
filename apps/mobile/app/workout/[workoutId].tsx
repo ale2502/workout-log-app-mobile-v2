@@ -70,7 +70,7 @@ export default function WorkoutDetailScreen() {
   }
 
   return (
-    <View>
+    <View style={styles.container}>
       {Object.entries(groupedSets).map(([exerciseName, sets]) => (
         <View key={exerciseName}>
           <Text>{exerciseName}</Text>

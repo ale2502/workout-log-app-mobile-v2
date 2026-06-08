@@ -39,6 +39,7 @@ export default function WorkoutDetailScreen() {
     (groups, currentSet) => {
       const exerciseName = currentSet.exerciseName;
 
+      // ex: if groups['Bench Press'] === undefined, the key in the obj doesn't exist yet and will be created
       if (groups[exerciseName] === undefined) {
         groups[exerciseName] = [];
       }
@@ -47,7 +48,7 @@ export default function WorkoutDetailScreen() {
 
       return groups;
     },
-    // {} is the starting value for the accumulator
+    // {} is the starting value for the accumulator (groups)
     {},
   );
 

@@ -68,6 +68,15 @@ export default function WorkoutDetailScreen() {
       </View>
     );
   }
+
+  return (
+      {Object.entries(groupedSets).map(([exerciseName, sets]) => (
+        <View key={exerciseName}>
+          <Text>{exerciseName}</Text>
+          <Text>{JSON.stringify(sets)}</Text>
+        </View>
+      ))}
+  );
 }
 
 const styles = StyleSheet.create({

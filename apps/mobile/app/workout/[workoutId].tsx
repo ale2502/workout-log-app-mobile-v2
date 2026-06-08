@@ -35,6 +35,7 @@ export default function WorkoutDetailScreen() {
 
   const groupedSets = workoutSets.reduce<Record<string, SetDisplay[]>>(
     // groups is the accumulator, is the thing we are building up over time. It starts as {}.
+    // currentSet is the current item from the array.
     (groups, currentSet) => {
       const exerciseName = currentSet.exerciseName;
 
@@ -46,6 +47,7 @@ export default function WorkoutDetailScreen() {
 
       return groups;
     },
+    // {} is the starting value for the accumulator
     {},
   );
 

@@ -56,7 +56,7 @@ export default function WorkoutDetailScreen() {
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <Text>Loading exercises...</Text>
+        <Text>Loading workout...</Text>
       </View>
     );
   }
@@ -70,12 +70,14 @@ export default function WorkoutDetailScreen() {
   }
 
   return (
+    <View>
       {Object.entries(groupedSets).map(([exerciseName, sets]) => (
         <View key={exerciseName}>
           <Text>{exerciseName}</Text>
           <Text>{JSON.stringify(sets)}</Text>
         </View>
       ))}
+    </View>
   );
 }
 

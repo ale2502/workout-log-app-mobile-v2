@@ -69,6 +69,14 @@ export default function WorkoutDetailScreen() {
     );
   }
 
+  if (workoutSets.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text>No sets found for this workout.</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       {Object.entries(groupedSets).map(([exerciseName, sets]) => (

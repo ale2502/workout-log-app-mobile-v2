@@ -33,7 +33,7 @@ export default function WorkoutDetailScreen() {
     loadWorkout();
   }, [workoutId]);
 
-  // Type explanation: an object where the keys are strings, and the values are arrays of SetDisplay.
+  // Record<string, SetDisplay[]> means an object where the keys are strings, and the values are arrays of SetDisplay.
   const groupedSets = workoutSets.reduce<Record<string, SetDisplay[]>>(
     // groups is the accumulator, is the thing we are building up over time. It starts as {}.
     // currentSet is the current item from the array.

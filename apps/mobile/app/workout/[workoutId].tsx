@@ -83,7 +83,12 @@ export default function WorkoutDetailScreen() {
       {Object.entries(groupedSets).map(([exerciseName, sets]) => (
         <View key={exerciseName}>
           <Text>{exerciseName}</Text>
-          <SavedSetsTable sets={sets} />
+          <SavedSetsTable
+            sets={sets}
+            // Pass placeholder props for now since they are not needed for display only
+            onLongPressSet={() => {}}
+            selectedSetId={null}
+          />
         </View>
       ))}
     </View>

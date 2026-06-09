@@ -1,6 +1,13 @@
 import { useState, useCallback } from 'react';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { Pressable, StyleSheet, Text, View, ScrollView } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  Alert,
+} from 'react-native';
 
 interface Workout {
   id: number;
@@ -13,6 +20,9 @@ export default function HomeScreen() {
   const [isStartingWorkout, setIsStartingWorkout] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [selectedWorkoutId, setSelectedWorkoutId] = useState<number | null>(
+    null,
+  );
 
   const loadWorkouts = useCallback(async () => {
     try {

@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    gap: 16,
+    gap: 20,
     backgroundColor: '#ffffff',
   },
   errorText: {
@@ -107,6 +107,19 @@ const styles = StyleSheet.create({
   },
   exerciseSection: {
     gap: 5,
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 0.5,
+    borderColor: '#90EE90',
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    elevation: 3,
   },
   exerciseTitle: {
     fontSize: 20,

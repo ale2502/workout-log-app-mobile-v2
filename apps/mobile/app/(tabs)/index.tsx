@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useRouter } from 'expo-router';
+import { useState, useCallback } from 'react';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Pressable, StyleSheet, Text, View, ScrollView } from 'react-native';
 
 interface Workout {
@@ -14,25 +14,29 @@ export default function HomeScreen() {
   const [error, setError] = useState<string | null>(null);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
 
-  useEffect(() => {
-    async function loadWorkouts() {
-      try {
-        const response = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/workouts`,
-        );
+  const loadWorkouts = useCallback(async () => {
+    try {
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/workouts`,
+      );
 
-        if (!response.ok) {
-          throw new Error('Failed to load workouts');
-        }
-
-        const data = await response.json();
-        setWorkouts(data);
-      } catch {
-        setError('Could not load workouts');
+      if (!response.ok) {
+        throw new Error('Failed to load workouts');
       }
+
+      const data = await response.json();
+      setWorkouts(data);
+    } catch {
+      setError('Could not load workouts');
     }
-    loadWorkouts();
   }, []);
+
+  // Reload workouts whenever Home comes back into focus so newly created workouts appear without restarting the app.
+  useFocusEffect(
+    useCallback(() => {
+      loadWorkouts();
+    }, [loadWorkouts]),
+  );
 
   async function handleStartWorkout() {
     setError(null);

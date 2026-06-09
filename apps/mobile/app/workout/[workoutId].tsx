@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { SetDisplay } from '../../../api/server/models/set';
+import { SavedSetsTable } from '@/components/workout/SavedSetsTable';
 
 export default function WorkoutDetailScreen() {
   const params = useLocalSearchParams<{ workoutId: string }>();
@@ -80,9 +81,14 @@ export default function WorkoutDetailScreen() {
   return (
     <View style={styles.container}>
       {Object.entries(groupedSets).map(([exerciseName, sets]) => (
-        <View key={exerciseName}>
-          <Text>{exerciseName}</Text>
-          <Text>{JSON.stringify(sets)}</Text>
+        <View key={exerciseName} style={styles.exerciseSection}>
+          <Text style={styles.exerciseTitle}>{exerciseName}</Text>
+          <SavedSetsTable
+            sets={sets}
+            // Pass placeholder props for now since they are not needed for display only
+            onLongPressSet={() => {}}
+            selectedSetId={null}
+          />
         </View>
       ))}
     </View>
@@ -93,10 +99,30 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    gap: 16,
+    gap: 20,
     backgroundColor: '#ffffff',
   },
   errorText: {
     color: '#dc2626',
+  },
+  exerciseSection: {
+    gap: 5,
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 0.5,
+    borderColor: '#90EE90',
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  exerciseTitle: {
+    fontSize: 20,
+    fontWeight: '700',
   },
 });

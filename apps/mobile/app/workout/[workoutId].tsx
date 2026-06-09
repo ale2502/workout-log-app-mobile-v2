@@ -81,8 +81,8 @@ export default function WorkoutDetailScreen() {
   return (
     <View style={styles.container}>
       {Object.entries(groupedSets).map(([exerciseName, sets]) => (
-        <View key={exerciseName}>
-          <Text>{exerciseName}</Text>
+        <View key={exerciseName} style={styles.exerciseSection}>
+          <Text style={styles.exerciseTitle}>{exerciseName}</Text>
           <SavedSetsTable
             sets={sets}
             // Pass placeholder props for now since they are not needed for display only
@@ -104,5 +104,12 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#dc2626',
+  },
+  exerciseSection: {
+    gap: 5,
+  },
+  exerciseTitle: {
+    fontSize: 20,
+    fontWeight: '700',
   },
 });

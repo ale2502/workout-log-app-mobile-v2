@@ -77,7 +77,9 @@ export default function HomeScreen() {
     }
   }
 
-  async function handleLongPress() {}
+  async function handleLongPressWorkout(workout: Workout) {
+    setSelectedWorkoutId(workout.id);
+  }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

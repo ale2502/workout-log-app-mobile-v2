@@ -77,6 +77,8 @@ export default function HomeScreen() {
     }
   }
 
+  async function handleLongPress() {}
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Workout Log</Text>

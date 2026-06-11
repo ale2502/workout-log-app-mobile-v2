@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import { useState, useCallback } from 'react';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -81,6 +82,7 @@ export default function HomeScreen() {
   // Set the selectedWorkoutId to the one long-pressed
   function handleLongPressWorkout(workout: Workout) {
     setSelectedWorkoutId(workout.id);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 
   return (
@@ -111,7 +113,10 @@ export default function HomeScreen() {
         return (
           <Pressable
             key={workout.id}
-            style={styles.prevWorkoutContainer}
+            style={[
+              styles.prevWorkoutContainer,
+              isSelected && styles.selectedWorkoutContainer,
+            ]}
             onLongPress={() => handleLongPressWorkout(workout)}
             onPress={() => {
               router.push({
@@ -121,7 +126,7 @@ export default function HomeScreen() {
             }}
           >
             {/* Left side of the prev workouts container */}
-            <View style={workoutTextContainer}>
+            <View style={styles.workoutTextContainer}>
               <Text>{performedOn.toLocaleDateString('en-NZ')}</Text>
               <Text>
                 {performedOn.toLocaleDateString('en-NZ', { weekday: 'long' })}
@@ -137,7 +142,11 @@ export default function HomeScreen() {
 
             {/* Right side of the prev workouts container */}
             <View style={styles.workoutActionContainer}>
-              <Text></Text>
+              {isSelected ? (
+                <Ionicons name="trash-outline" size={22} color="#dc2626" />
+              ) : (
+                <Ionicons name="chevron-forward" size={22} color="#6b7280" />
+              )}
             </View>
           </Pressable>
         );
@@ -173,12 +182,15 @@ const styles = StyleSheet.create({
   },
   prevWorkoutContainer: {
     padding: 10,
+    paddingRight: 25,
     backgroundColor: '#E8E8E8',
     borderRadius: 8,
     gap: 4,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'transparent',
 
     shadowColor: '#000',
     shadowOffset: {
@@ -192,5 +204,14 @@ const styles = StyleSheet.create({
   workoutTextContainer: {
     gap: 4,
     flex: 1,
+  },
+  workoutActionContainer: {
+    width: 40,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  selectedWorkoutContainer: {
+    borderWidth: 1,
+    borderColor: '#dc2626',
   },
 });

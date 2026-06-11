@@ -25,6 +25,7 @@ export default function HomeScreen() {
   const [selectedWorkoutId, setSelectedWorkoutId] = useState<number | null>(
     null,
   );
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   const loadWorkouts = useCallback(async () => {
     try {
@@ -170,7 +171,7 @@ export default function HomeScreen() {
             {/* Right side of the prev workouts container */}
             <View style={styles.workoutActionContainer}>
               {isSelected ? (
-                <Pressable onLongPress={handleDeleteWorkout}>
+                <Pressable onPress={handleDeleteWorkout}>
                   <Ionicons name="trash-outline" size={22} color="#dc2626" />
                 </Pressable>
               ) : (

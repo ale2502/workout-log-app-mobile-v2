@@ -77,6 +77,7 @@ export default function HomeScreen() {
     }
   }
 
+  // Set the selectedWorkoutId to the one long-pressed
   function handleLongPressWorkout(workout: Workout) {
     setSelectedWorkoutId(workout.id);
   }

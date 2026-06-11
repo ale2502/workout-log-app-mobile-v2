@@ -8,7 +8,7 @@ import {
   Text,
   View,
   ScrollView,
-  Alert,
+  Modal,
 } from 'react-native';
 
 interface Workout {
@@ -171,7 +171,7 @@ export default function HomeScreen() {
             {/* Right side of the prev workouts container */}
             <View style={styles.workoutActionContainer}>
               {isSelected ? (
-                <Pressable onPress={handleDeleteWorkout}>
+                <Pressable onPress={() => setIsDeleteModalVisible(true)}>
                   <Ionicons name="trash-outline" size={22} color="#dc2626" />
                 </Pressable>
               ) : (
@@ -181,6 +181,30 @@ export default function HomeScreen() {
           </Pressable>
         );
       })}
+
+      <Modal transparent visible={isDeleteModalVisible} animationType="fade">
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Delete workout?</Text>
+            <Text style={styles.modalMessage}>
+              This will delete the workout and all saved sets.
+            </Text>
+
+            <View style={styles.modalActions}>
+              <Pressable style={styles.modalCancelButton}>
+                <Text style={styles.modalCancelButtonText}>Cancel</Text>
+              </Pressable>
+
+              <Pressable
+                style={styles.modalDeleteButton}
+                onPress={handleDeleteWorkout}
+              >
+                <Text style={styles.modalDeleteButtonText}>Delete</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -243,5 +267,65 @@ const styles = StyleSheet.create({
   selectedWorkoutContainer: {
     borderWidth: 1,
     borderColor: '#dc2626',
+  },
+  // Modal
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 360,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 20,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  modalMessage: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: '#4b5563',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 12,
+    marginTop: 8,
+  },
+  modalCancelButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    backgroundColor: '#f3f4f6',
+  },
+  modalCancelButtonText: {
+    fontWeight: '700',
+    color: '#374151',
+  },
+  modalDeleteButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    backgroundColor: '#dc2626',
+  },
+  modalDeleteButtonText: {
+    fontWeight: '700',
+    color: '#ffffff',
   },
 });

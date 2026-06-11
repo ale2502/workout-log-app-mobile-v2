@@ -79,6 +79,33 @@ export default function HomeScreen() {
     }
   }
 
+  async function handleDeleteWorkout() {
+    // Prevent action when no workout is selected
+    if (selectedWorkoutId === null) {
+      return;
+    }
+
+    setError(null);
+
+    try {
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/workouts/${selectedWorkoutId}`,
+        {
+          method: 'DELETE',
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to delete workout');
+      }
+
+      setSelectedWorkoutId(null);
+      await loadWorkouts();
+    } catch {
+      setError('Could not delete workout');
+    }
+  }
+
   // Set the selectedWorkoutId to the one long-pressed
   function handleLongPressWorkout(workout: Workout) {
     setSelectedWorkoutId(workout.id);
@@ -143,7 +170,9 @@ export default function HomeScreen() {
             {/* Right side of the prev workouts container */}
             <View style={styles.workoutActionContainer}>
               {isSelected ? (
-                <Ionicons name="trash-outline" size={22} color="#dc2626" />
+                <Pressable onLongPress={handleDeleteWorkout}>
+                  <Ionicons name="trash-outline" size={22} color="#dc2626" />
+                </Pressable>
               ) : (
                 <Ionicons name="chevron-forward" size={22} color="#6b7280" />
               )}

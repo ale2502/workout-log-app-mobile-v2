@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useRouter, useFocusEffect } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import {
   Pressable,
   StyleSheet,
@@ -104,6 +105,9 @@ export default function HomeScreen() {
           workout.performedOn.replace(' ', 'T') + 'Z',
         );
 
+        // If isSelected is true, the style on the container changes and shows the delete icon button
+        const isSelected = selectedWorkoutId === workout.id;
+
         return (
           <Pressable
             key={workout.id}
@@ -116,17 +120,25 @@ export default function HomeScreen() {
               });
             }}
           >
-            <Text>{performedOn.toLocaleDateString('en-NZ')}</Text>
-            <Text>
-              {performedOn.toLocaleDateString('en-NZ', { weekday: 'long' })}
-            </Text>
-            <Text>
-              {performedOn.toLocaleTimeString('en-NZ', {
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true,
-              })}
-            </Text>
+            {/* Left side of the prev workouts container */}
+            <View style={workoutTextContainer}>
+              <Text>{performedOn.toLocaleDateString('en-NZ')}</Text>
+              <Text>
+                {performedOn.toLocaleDateString('en-NZ', { weekday: 'long' })}
+              </Text>
+              <Text>
+                {performedOn.toLocaleTimeString('en-NZ', {
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: true,
+                })}
+              </Text>
+            </View>
+
+            {/* Right side of the prev workouts container */}
+            <View style={styles.workoutActionContainer}>
+              <Text></Text>
+            </View>
           </Pressable>
         );
       })}
@@ -164,6 +176,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#E8E8E8',
     borderRadius: 8,
     gap: 4,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
 
     shadowColor: '#000',
     shadowOffset: {
@@ -173,5 +188,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 2,
     elevation: 2,
+  },
+  workoutTextContainer: {
+    gap: 4,
+    flex: 1,
   },
 });

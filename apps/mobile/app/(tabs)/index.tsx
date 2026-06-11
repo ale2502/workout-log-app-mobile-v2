@@ -77,7 +77,7 @@ export default function HomeScreen() {
     }
   }
 
-  async function handleLongPressWorkout(workout: Workout) {
+  function handleLongPressWorkout(workout: Workout) {
     setSelectedWorkoutId(workout.id);
   }
 
@@ -107,6 +107,7 @@ export default function HomeScreen() {
           <Pressable
             key={workout.id}
             style={styles.prevWorkoutContainer}
+            onLongPress={() => handleLongPressWorkout(workout)}
             onPress={() => {
               router.push({
                 pathname: '/workout/[workoutId]',

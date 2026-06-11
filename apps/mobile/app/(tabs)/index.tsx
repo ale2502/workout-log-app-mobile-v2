@@ -101,10 +101,16 @@ export default function HomeScreen() {
       }
 
       setSelectedWorkoutId(null);
+      setIsDeleteModalVisible(false);
       await loadWorkouts();
     } catch {
       setError('Could not delete workout');
     }
+  }
+
+  function handleCancelDeleteWorkout() {
+    setIsDeleteModalVisible(false);
+    setSelectedWorkoutId(null);
   }
 
   // Set the selectedWorkoutId to the one long-pressed
@@ -191,7 +197,10 @@ export default function HomeScreen() {
             </Text>
 
             <View style={styles.modalActions}>
-              <Pressable style={styles.modalCancelButton}>
+              <Pressable
+                style={styles.modalCancelButton}
+                onPress={handleCancelDeleteWorkout}
+              >
                 <Text style={styles.modalCancelButtonText}>Cancel</Text>
               </Pressable>
 

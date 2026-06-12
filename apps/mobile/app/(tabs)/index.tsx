@@ -188,6 +188,7 @@ export default function HomeScreen() {
         );
       })}
 
+      {/* Modal for confirming deletion of workout */}
       <Modal transparent visible={isDeleteModalVisible} animationType="fade">
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>

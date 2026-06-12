@@ -120,74 +120,75 @@ export default function HomeScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Workout Log</Text>
+    <>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Workout Log</Text>
 
-      <Pressable
-        style={styles.startButton}
-        onPress={handleStartWorkout}
-        disabled={isStartingWorkout}
-      >
-        <Text style={styles.startButtonText}>
-          {isStartingWorkout ? 'Starting...' : 'Start New Workout'}
-        </Text>
-      </Pressable>
+        <Pressable
+          style={styles.startButton}
+          onPress={handleStartWorkout}
+          disabled={isStartingWorkout}
+        >
+          <Text style={styles.startButtonText}>
+            {isStartingWorkout ? 'Starting...' : 'Start New Workout'}
+          </Text>
+        </Pressable>
 
-      {error && <Text style={styles.errorText}>{error}</Text>}
+        {error && <Text style={styles.errorText}>{error}</Text>}
 
-      <Text>Previous workouts</Text>
-      {workouts.map((workout) => {
-        const performedOn = new Date(
-          workout.performedOn.replace(' ', 'T') + 'Z',
-        );
+        <Text>Previous workouts</Text>
+        {workouts.map((workout) => {
+          const performedOn = new Date(
+            workout.performedOn.replace(' ', 'T') + 'Z',
+          );
 
-        // If isSelected is true, the style on the container changes and shows the delete icon button
-        const isSelected = selectedWorkoutId === workout.id;
+          // If isSelected is true, the style on the container changes and shows the delete icon button
+          const isSelected = selectedWorkoutId === workout.id;
 
-        return (
-          <Pressable
-            key={workout.id}
-            style={[
-              styles.prevWorkoutContainer,
-              isSelected && styles.selectedWorkoutContainer,
-            ]}
-            onLongPress={() => handleLongPressWorkout(workout)}
-            onPress={() => {
-              router.push({
-                pathname: '/workout/[workoutId]',
-                params: { workoutId: String(workout.id) },
-              });
-            }}
-          >
-            {/* Left side of the prev workouts container */}
-            <View style={styles.workoutTextContainer}>
-              <Text>{performedOn.toLocaleDateString('en-NZ')}</Text>
-              <Text>
-                {performedOn.toLocaleDateString('en-NZ', { weekday: 'long' })}
-              </Text>
-              <Text>
-                {performedOn.toLocaleTimeString('en-NZ', {
-                  hour: 'numeric',
-                  minute: '2-digit',
-                  hour12: true,
-                })}
-              </Text>
-            </View>
+          return (
+            <Pressable
+              key={workout.id}
+              style={[
+                styles.prevWorkoutContainer,
+                isSelected && styles.selectedWorkoutContainer,
+              ]}
+              onLongPress={() => handleLongPressWorkout(workout)}
+              onPress={() => {
+                router.push({
+                  pathname: '/workout/[workoutId]',
+                  params: { workoutId: String(workout.id) },
+                });
+              }}
+            >
+              {/* Left side of the prev workouts container */}
+              <View style={styles.workoutTextContainer}>
+                <Text>{performedOn.toLocaleDateString('en-NZ')}</Text>
+                <Text>
+                  {performedOn.toLocaleDateString('en-NZ', { weekday: 'long' })}
+                </Text>
+                <Text>
+                  {performedOn.toLocaleTimeString('en-NZ', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true,
+                  })}
+                </Text>
+              </View>
 
-            {/* Right side of the prev workouts container */}
-            <View style={styles.workoutActionContainer}>
-              {isSelected ? (
-                <Pressable onPress={() => setIsDeleteModalVisible(true)}>
-                  <Ionicons name="trash-outline" size={22} color="#dc2626" />
-                </Pressable>
-              ) : (
-                <Ionicons name="chevron-forward" size={22} color="#6b7280" />
-              )}
-            </View>
-          </Pressable>
-        );
-      })}
-
+              {/* Right side of the prev workouts container */}
+              <View style={styles.workoutActionContainer}>
+                {isSelected ? (
+                  <Pressable onPress={() => setIsDeleteModalVisible(true)}>
+                    <Ionicons name="trash-outline" size={22} color="#dc2626" />
+                  </Pressable>
+                ) : (
+                  <Ionicons name="chevron-forward" size={22} color="#6b7280" />
+                )}
+              </View>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
       {/* Modal for confirming deletion of workout */}
       <Modal transparent visible={isDeleteModalVisible} animationType="fade">
         <View style={styles.modalBackdrop}>
@@ -215,7 +216,7 @@ export default function HomeScreen() {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </>
   );
 }
 

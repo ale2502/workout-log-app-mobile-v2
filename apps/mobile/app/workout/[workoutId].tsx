@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SetDisplay } from '../../../api/server/models/set';
 import { SavedSetsTable } from '@/components/workout/SavedSetsTable';
@@ -16,27 +16,30 @@ export default function WorkoutDetailScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function loadWorkout() {
-      try {
-        const response = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/workouts/${workoutId}/sets`,
-        );
+  const loadWorkout = useCallback(async () => {
+    try {
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/workouts/${workoutId}/sets`,
+      );
 
-        if (!response.ok) {
-          throw new Error('Failed to load workout');
-        }
-
-        const data = await response.json();
-        setWorkoutSets(data);
-      } catch {
-        setError('Could not load workout');
-      } finally {
-        setIsLoading(false);
+      if (!response.ok) {
+        throw new Error('Failed to load workout');
       }
+
+      const data = await response.json();
+      setWorkoutSets(data);
+    } catch {
+      setError('Could not load workout');
+    } finally {
+      setIsLoading(false);
     }
-    loadWorkout();
   }, [workoutId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadWorkout();
+    }, [loadWorkout]),
+  );
 
   // Record<string, SetDisplay[]> means an object where the keys are strings, and the values are arrays of SetDisplay.
   const groupedSets = workoutSets.reduce<Record<string, SetDisplay[]>>(

@@ -4,6 +4,7 @@ import { SetDisplay } from '../../../api/server/models/set';
 type SavedSetsTableProps = {
   sets: SetDisplay[];
   onLongPressSet: (set: SetDisplay) => void;
+  onPressSet?: (set: SetDisplay) => void;
   selectedSetId: number | null;
 };
 
@@ -21,7 +22,11 @@ export function SavedSetsTable(props: SavedSetsTableProps) {
         const isSelected = set.id === props.selectedSetId;
 
         return (
-          <Pressable key={set.id} onLongPress={() => props.onLongPressSet(set)}>
+          <Pressable
+            key={set.id}
+            onLongPress={() => props.onLongPressSet(set)}
+            onPress={() => props.onPressSet?.(set)}
+          >
             <View style={[styles.tableRow, isSelected && styles.selectedRow]}>
               <Text style={styles.tableCell}>{set.setNumber}</Text>
               <Text style={styles.tableCell}>{set.reps}</Text>

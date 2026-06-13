@@ -110,6 +110,15 @@ export default function WorkoutDetailScreen() {
               // Pass placeholder props for now since they are not needed for display only
               onLongPressSet={() => {}}
               selectedSetId={null}
+              onPressSet={(set) => {
+                router.push({
+                  pathname: '/workout/log-set',
+                  params: {
+                    workoutId: String(workoutId),
+                    exerciseId: String(exerciseId),
+                  },
+                });
+              }}
             />
           </Pressable>
         );

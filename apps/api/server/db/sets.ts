@@ -114,3 +114,14 @@ export async function getSetsByWorkoutId(
     .select(columnsSetDisplay);
   return workoutSets as SetDisplay[];
 }
+
+export async function deleteSetsByWorkoutAndExercise(
+  workoutId: number,
+  exerciseId: number,
+): Promise<number> {
+  const deletedCount = await db('sets')
+    .where('workout_id', workoutId)
+    .where('exercise_id', exerciseId)
+    .delete();
+  return deletedCount;
+}

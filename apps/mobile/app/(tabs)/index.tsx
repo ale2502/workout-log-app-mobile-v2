@@ -120,14 +120,18 @@ export default function HomeScreen() {
   }
 
   function handlePressWorkout(workout: Workout) {
-    // If there's some workout selected and this id is the same as the workout in question, tapping it deselects it, otherwise select a different workout
+    // If a workout is already selected, tapping the same one deselects it;
+    // tapping a different one moves the selection instead of navigating.
     if (selectedWorkoutId !== null) {
       if (selectedWorkoutId === workout.id) {
         setSelectedWorkoutId(null);
-      } else {
-        setSelectedWorkoutId(workout.id);
+        return;
       }
+
+      setSelectedWorkoutId(workout.id);
+      return;
     }
+    // If no workout is selected, tapping it just nagavites to it
     router.push({
       pathname: '/workout/[workoutId]',
       params: { workoutId: String(workout.id) },

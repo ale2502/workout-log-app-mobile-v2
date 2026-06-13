@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SetDisplay } from '../../../api/server/models/set';
 import { SavedSetsTable } from '@/components/workout/SavedSetsTable';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function WorkoutDetailScreen() {
   const router = useRouter();
@@ -104,7 +105,10 @@ export default function WorkoutDetailScreen() {
               })
             }
           >
-            <Text style={styles.exerciseTitle}>{exerciseName}</Text>
+            <View style={styles.exerciseTitleContainer}>
+              <Text style={styles.exerciseTitle}>{exerciseName}</Text>
+              <Ionicons name="chevron-forward" size={22} color="#6b7280" />
+            </View>
             <SavedSetsTable
               sets={sets}
               // Pass placeholder props for now since they are not needed for display only
@@ -142,7 +146,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
     borderWidth: 0.5,
-    borderColor: '#90EE90',
+    borderColor: 'transparent',
     backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOffset: {
@@ -156,5 +160,13 @@ const styles = StyleSheet.create({
   exerciseTitle: {
     fontSize: 20,
     fontWeight: '700',
+    flex: 1,
+  },
+  exerciseTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: 5,
   },
 });

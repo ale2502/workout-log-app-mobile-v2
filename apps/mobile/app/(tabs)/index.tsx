@@ -120,6 +120,7 @@ export default function HomeScreen() {
   }
 
   function handlePressWorkout(workout: Workout) {
+    // If there's some workout selected and this id is the same as the workout in question, tapping it deselects it, otherwise select a different workout
     if (selectedWorkoutId !== null) {
       if (selectedWorkoutId === workout.id) {
         setSelectedWorkoutId(null);
@@ -127,6 +128,10 @@ export default function HomeScreen() {
         setSelectedWorkoutId(workout.id);
       }
     }
+    router.push({
+      pathname: '/workout/[workoutId]',
+      params: { workoutId: String(workout.id) },
+    });
   }
 
   return (

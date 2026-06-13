@@ -14,6 +14,7 @@ export interface Set extends SetData {
 
 export interface SetDisplay {
   id: number;
+  exerciseId: number;
   performedOn: string;
   exerciseName: string;
   setNumber: number;

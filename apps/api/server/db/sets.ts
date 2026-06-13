@@ -3,6 +3,7 @@ import { Set, SetDisplay, SetData } from '../models/set.ts';
 
 const columnsSetDisplay = [
   'sets.id as id',
+  'sets.exercise_id as exerciseId',
   'workouts.performed_on as performedOn',
   'exercises.name as exerciseName',
   'set_number as setNumber',

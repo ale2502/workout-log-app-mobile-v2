@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react';
-import { useLocalSearchParams } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SetDisplay } from '../../../api/server/models/set';
 import { SavedSetsTable } from '@/components/workout/SavedSetsTable';
 
 export default function WorkoutDetailScreen() {
-  const params = useLocalSearchParams<{ workoutId: string }>();
+  const router = useRouter();
+
+  const params = useLocalSearchParams<{
+    workoutId: string;
+  }>();
   const workoutId = params.workoutId;
 
   const [workoutSets, setWorkoutSets] = useState<SetDisplay[]>([]);
@@ -80,17 +84,33 @@ export default function WorkoutDetailScreen() {
 
   return (
     <View style={styles.container}>
-      {Object.entries(groupedSets).map(([exerciseName, sets]) => (
-        <View key={exerciseName} style={styles.exerciseSection}>
-          <Text style={styles.exerciseTitle}>{exerciseName}</Text>
-          <SavedSetsTable
-            sets={sets}
-            // Pass placeholder props for now since they are not needed for display only
-            onLongPressSet={() => {}}
-            selectedSetId={null}
-          />
-        </View>
-      ))}
+      {Object.entries(groupedSets).map(([exerciseName, sets]) => {
+        const exerciseId = sets[0].exerciseId;
+
+        return (
+          <Pressable
+            key={exerciseName}
+            style={styles.exerciseSection}
+            onPress={() =>
+              router.push({
+                pathname: '/workout/log-set',
+                params: {
+                  workoutId: String(workoutId),
+                  exerciseId: String(exerciseId),
+                },
+              })
+            }
+          >
+            <Text style={styles.exerciseTitle}>{exerciseName}</Text>
+            <SavedSetsTable
+              sets={sets}
+              // Pass placeholder props for now since they are not needed for display only
+              onLongPressSet={() => {}}
+              selectedSetId={null}
+            />
+          </Pressable>
+        );
+      })}
     </View>
   );
 }

@@ -71,4 +71,8 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+router.delete('/:workoutId/exercises/:exerciseId/sets', async (req, res) => {
+  try
+})
+
 export default router;

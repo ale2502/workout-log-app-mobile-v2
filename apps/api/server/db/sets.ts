@@ -115,6 +115,7 @@ export async function getSetsByWorkoutId(
   return workoutSets as SetDisplay[];
 }
 
+// Deleting sets for an exercise within a workout means deleting the entire exercise for the workout
 export async function deleteSetsByWorkoutAndExercise(
   workoutId: number,
   exerciseId: number,

@@ -119,6 +119,16 @@ export default function HomeScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 
+  function handlePressWorkout(workout: Workout) {
+    if (selectedWorkoutId !== null) {
+      if (selectedWorkoutId === workout.id) {
+        setSelectedWorkoutId(null);
+      } else {
+        setSelectedWorkoutId(workout.id);
+      }
+    }
+  }
+
   return (
     <>
       <ScrollView contentContainerStyle={styles.container}>

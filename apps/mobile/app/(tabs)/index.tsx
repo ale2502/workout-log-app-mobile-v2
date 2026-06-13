@@ -172,12 +172,7 @@ export default function HomeScreen() {
                 isSelected && styles.selectedWorkoutContainer,
               ]}
               onLongPress={() => handleLongPressWorkout(workout)}
-              onPress={() => {
-                router.push({
-                  pathname: '/workout/[workoutId]',
-                  params: { workoutId: String(workout.id) },
-                });
-              }}
+              onPress={() => handlePressWorkout(workout)}
             >
               {/* Left side of the prev workouts container */}
               <View style={styles.workoutTextContainer}>

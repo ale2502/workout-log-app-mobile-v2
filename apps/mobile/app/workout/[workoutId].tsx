@@ -147,17 +147,11 @@ export default function WorkoutDetailScreen() {
             <SavedSetsTable
               sets={sets}
               // Pass placeholder props for now since they are not needed for display only
-              onLongPressSet={() => {}}
+              onLongPressSet={() =>
+                handleLongPressExercise(exerciseId, exerciseName)
+              }
               selectedSetId={null}
-              onPressSet={(set) => {
-                router.push({
-                  pathname: '/workout/log-set',
-                  params: {
-                    workoutId: String(workoutId),
-                    exerciseId: String(exerciseId),
-                  },
-                });
-              }}
+              onPressSet={() => handlePressExercise(exerciseId, exerciseName)}
             />
           </Pressable>
         );
@@ -180,7 +174,7 @@ const styles = StyleSheet.create({
     gap: 5,
     padding: 10,
     borderRadius: 8,
-    borderWidth: 0.5,
+    borderWidth: 1,
     borderColor: 'transparent',
     backgroundColor: '#fff',
     shadowColor: '#000',

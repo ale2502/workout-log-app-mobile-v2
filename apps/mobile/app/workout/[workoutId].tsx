@@ -1,7 +1,14 @@
 import * as Haptics from 'expo-haptics';
 import { useCallback, useState } from 'react';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  Modal,
+} from 'react-native';
 import { SetDisplay } from '../../../api/server/models/set';
 import { SavedSetsTable } from '@/components/workout/SavedSetsTable';
 import { Ionicons } from '@expo/vector-icons';
@@ -118,45 +125,76 @@ export default function WorkoutDetailScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      {Object.entries(groupedSets).map(([exerciseName, sets]) => {
-        // groupedSets represent a group of sets for 1 exercise, so it's safe to take the exercise id from the first set
-        const exerciseId = sets[0].exerciseId;
-        const isSelected = selectedExerciseId === exerciseId;
+    <>
+      <ScrollView style={styles.container}>
+        {Object.entries(groupedSets).map(([exerciseName, sets]) => {
+          // groupedSets represent a group of sets for 1 exercise, so it's safe to take the exercise id from the first set
+          const exerciseId = sets[0].exerciseId;
+          const isSelected = selectedExerciseId === exerciseId;
 
-        return (
-          <Pressable
-            key={exerciseName}
-            style={[
-              styles.exerciseSection,
-              isSelected && styles.selectedExerciseContainer,
-            ]}
-            onPress={() => handlePressExercise(exerciseId, exerciseName)}
-            onLongPress={() =>
-              handleLongPressExercise(exerciseId, exerciseName)
-            }
-          >
-            <View style={styles.exerciseTitleContainer}>
-              <Text style={styles.exerciseTitle}>{exerciseName}</Text>
-              {isSelected ? (
-                <Ionicons name="trash-outline" size={22} color="#dc2626" />
-              ) : (
-                <Ionicons name="chevron-forward" size={22} color="#6b7280" />
-              )}
-            </View>
-            <SavedSetsTable
-              sets={sets}
-              // Pass placeholder props for now since they are not needed for display only
-              onLongPressSet={() =>
+          return (
+            <Pressable
+              key={exerciseName}
+              style={[
+                styles.exerciseSection,
+                isSelected && styles.selectedExerciseContainer,
+              ]}
+              onPress={() => handlePressExercise(exerciseId, exerciseName)}
+              onLongPress={() =>
                 handleLongPressExercise(exerciseId, exerciseName)
               }
-              selectedSetId={null}
-              onPressSet={() => handlePressExercise(exerciseId, exerciseName)}
-            />
-          </Pressable>
-        );
-      })}
-    </View>
+            >
+              <View style={styles.exerciseTitleContainer}>
+                <Text style={styles.exerciseTitle}>{exerciseName}</Text>
+                {isSelected ? (
+                  <Pressable onPress={() => setIsDeleteModalVisible(true)}>
+                    <Ionicons name="trash-outline" size={22} color="#dc2626" />
+                  </Pressable>
+                ) : (
+                  <Ionicons name="chevron-forward" size={22} color="#6b7280" />
+                )}
+              </View>
+              <SavedSetsTable
+                sets={sets}
+                // Pass placeholder props for now since they are not needed for display only
+                onLongPressSet={() =>
+                  handleLongPressExercise(exerciseId, exerciseName)
+                }
+                selectedSetId={null}
+                onPressSet={() => handlePressExercise(exerciseId, exerciseName)}
+              />
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+      {/* Modal for confirming deletion of exercise */}
+      <Modal transparent visible={isDeleteModalVisible} animationType="fade">
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Delete exercise?</Text>
+            <Text style={styles.modalMessage}>
+              This will delete the exercise and its saved sets.
+            </Text>
+
+            <View style={styles.modalActions}>
+              <Pressable
+                style={styles.modalCancelButton}
+                onPress={handleCancelDeleteExercise}
+              >
+                <Text style={styles.modalCancelButtonText}>Cancel</Text>
+              </Pressable>
+
+              <Pressable
+                style={styles.modalDeleteButton}
+                onPress={handleDeleteExercise}
+              >
+                <Text style={styles.modalDeleteButtonText}>Delete</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </>
   );
 }
 
@@ -201,5 +239,65 @@ const styles = StyleSheet.create({
   selectedExerciseContainer: {
     borderWidth: 1,
     borderColor: '#dc2626',
+  },
+  // Modal
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 360,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 20,
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  modalMessage: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: '#4b5563',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 12,
+    marginTop: 8,
+  },
+  modalCancelButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    backgroundColor: '#f3f4f6',
+  },
+  modalCancelButtonText: {
+    fontWeight: '700',
+    color: '#374151',
+  },
+  modalDeleteButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    backgroundColor: '#dc2626',
+  },
+  modalDeleteButtonText: {
+    fontWeight: '700',
+    color: '#ffffff',
   },
 });

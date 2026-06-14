@@ -83,6 +83,7 @@ export default function WorkoutDetailScreen() {
       }
 
       setSelectedExerciseId(exerciseId);
+      return;
     }
 
     router.push({

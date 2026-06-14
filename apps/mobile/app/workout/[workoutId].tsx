@@ -107,8 +107,29 @@ export default function WorkoutDetailScreen() {
 
   async function handleDeleteExercise() {
     // Prevent action when no exercise is selected
-    if (selectedWorkoutId === null) {
+    if (selectedExerciseId === null) {
       return;
+    }
+
+    setError(null);
+
+    try {
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/workouts/${workoutId}/exercises/${selectedExerciseId}/sets`,
+        {
+          method: 'DELETE',
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to delete exercise');
+      }
+
+      setSelectedExerciseId(null);
+      setIsDeleteModalVisible(false);
+      await loadWorkout();
+    } catch {
+      setError('Could not delete exercise');
     }
   }
 

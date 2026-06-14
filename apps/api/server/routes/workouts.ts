@@ -71,7 +71,7 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Delete exercises sets withing a workout
+// Delete exercises sets within a workout
 router.delete('/:workoutId/exercises/:exerciseId/sets', async (req, res) => {
   try {
     const workoutId = Number(req.params.workoutId);

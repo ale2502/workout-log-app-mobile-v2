@@ -16,6 +16,11 @@ export default function WorkoutDetailScreen() {
   const [workoutSets, setWorkoutSets] = useState<SetDisplay[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(
+    null,
+  );
+  const [selectExerciseName, setSelectExerciseName] = useState<string>('');
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   const loadWorkout = useCallback(async () => {
     try {
@@ -62,7 +67,7 @@ export default function WorkoutDetailScreen() {
     {},
   );
 
-  function handleLongPressExercise();
+  function handleLongPressExercise(exerciseId, exerciseName) {}
 
   if (isLoading) {
     return (

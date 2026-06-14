@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import { useCallback, useState } from 'react';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -67,7 +68,11 @@ export default function WorkoutDetailScreen() {
     {},
   );
 
-  function handleLongPressExercise(exerciseId, exerciseName) {}
+  function handleLongPressExercise(exerciseId: number, exerciseName: string) {
+    setSelectedExerciseId(exerciseId);
+    setSelectExerciseName(exerciseName);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }
 
   if (isLoading) {
     return (

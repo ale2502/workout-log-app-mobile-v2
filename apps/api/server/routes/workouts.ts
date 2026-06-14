@@ -72,7 +72,34 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.delete('/:workoutId/exercises/:exerciseId/sets', async (req, res) => {
-  try
-})
+  try {
+    const workoutId = Number(req.params.workoutId);
+    const exerciseId = Number(req.params.exerciseId);
+
+    if (Number.isNaN(workoutId) || Number.isNaN(exerciseId)) {
+      res
+        .status(400)
+        .json({ error: 'workout or exercise id must be a number' });
+      return;
+    }
+
+    const deletedCount = await setDb.deleteSetsByWorkoutAndExercise(
+      workoutId,
+      exerciseId,
+    );
+
+    if (deletedCount === 0) {
+      res
+        .status(404)
+        .json({ error: 'No sets found for that workout and exercise' });
+      return;
+    }
+
+    res.sendStatus(204);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Something went wrong');
+  }
+});
 
 export default router;

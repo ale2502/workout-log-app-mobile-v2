@@ -62,6 +62,8 @@ export default function WorkoutDetailScreen() {
     {},
   );
 
+  function handleLongPressExercise();
+
   if (isLoading) {
     return (
       <View style={styles.container}>

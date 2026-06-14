@@ -100,6 +100,18 @@ export default function WorkoutDetailScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 
+  function handleCancelDeleteExercise() {
+    setIsDeleteModalVisible(false);
+    setSelectedExerciseId(null);
+  }
+
+  async function handleDeleteExercise() {
+    // Prevent action when no exercise is selected
+    if (selectedWorkoutId === null) {
+      return;
+    }
+  }
+
   if (isLoading) {
     return (
       <View style={styles.container}>
@@ -173,7 +185,7 @@ export default function WorkoutDetailScreen() {
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>Delete exercise?</Text>
             <Text style={styles.modalMessage}>
-              This will delete the exercise and its saved sets.
+              This will delete the exercise and its saved sets for this workout.
             </Text>
 
             <View style={styles.modalActions}>

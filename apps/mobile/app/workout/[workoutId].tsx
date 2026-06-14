@@ -160,7 +160,10 @@ export default function WorkoutDetailScreen() {
 
   return (
     <>
-      <ScrollView style={styles.container}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+      >
         {Object.entries(groupedSets).map(([exerciseName, sets]) => {
           // groupedSets represent a group of sets for 1 exercise, so it's safe to take the exercise id from the first set
           const exerciseId = sets[0].exerciseId;
@@ -205,7 +208,9 @@ export default function WorkoutDetailScreen() {
       <Modal transparent visible={isDeleteModalVisible} animationType="fade">
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Delete exercise?</Text>
+            <Text style={styles.modalTitle}>
+              Delete {selectedExerciseName}?
+            </Text>
             <Text style={styles.modalMessage}>
               This will delete the exercise and its saved sets for this workout.
             </Text>
@@ -235,9 +240,11 @@ export default function WorkoutDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  scrollContent: {
     padding: 24,
     gap: 20,
-    backgroundColor: '#ffffff',
   },
   errorText: {
     color: '#dc2626',

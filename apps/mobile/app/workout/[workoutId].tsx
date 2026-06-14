@@ -20,7 +20,7 @@ export default function WorkoutDetailScreen() {
   const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(
     null,
   );
-  const [selectExerciseName, setSelectExerciseName] = useState<string>('');
+  const [selectedExerciseName, setSelectedExerciseName] = useState<string>('');
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   const loadWorkout = useCallback(async () => {
@@ -68,9 +68,28 @@ export default function WorkoutDetailScreen() {
     {},
   );
 
+  function handlePressExercise(exerciseId: number, exerciseName: string) {
+    if (selectedExerciseId !== null) {
+      if (selectedExerciseId === exerciseId) {
+        setSelectedExerciseId(null);
+        return;
+      }
+
+      setSelectedExerciseId(exerciseId);
+    }
+
+    router.push({
+      pathname: '/workout/log-set',
+      params: {
+        workoutId: String(workoutId),
+        exerciseId: String(exerciseId),
+      },
+    });
+  }
+
   function handleLongPressExercise(exerciseId: number, exerciseName: string) {
     setSelectedExerciseId(exerciseId);
-    setSelectExerciseName(exerciseName);
+    setSelectedExerciseName(exerciseName);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 
@@ -101,25 +120,29 @@ export default function WorkoutDetailScreen() {
   return (
     <View style={styles.container}>
       {Object.entries(groupedSets).map(([exerciseName, sets]) => {
+        // groupedSets represent a group of sets for 1 exercise, so it's safe to take the exercise id from the first set
         const exerciseId = sets[0].exerciseId;
+        const isSelected = selectedExerciseId === exerciseId;
 
         return (
           <Pressable
             key={exerciseName}
-            style={styles.exerciseSection}
-            onPress={() =>
-              router.push({
-                pathname: '/workout/log-set',
-                params: {
-                  workoutId: String(workoutId),
-                  exerciseId: String(exerciseId),
-                },
-              })
+            style={[
+              styles.exerciseSection,
+              isSelected && styles.selectedExerciseContainer,
+            ]}
+            onPress={() => handlePressExercise(exerciseId, exerciseName)}
+            onLongPress={() =>
+              handleLongPressExercise(exerciseId, exerciseName)
             }
           >
             <View style={styles.exerciseTitleContainer}>
               <Text style={styles.exerciseTitle}>{exerciseName}</Text>
-              <Ionicons name="chevron-forward" size={22} color="#6b7280" />
+              {isSelected ? (
+                <Ionicons name="trash-outline" size={22} color="#dc2626" />
+              ) : (
+                <Ionicons name="chevron-forward" size={22} color="#6b7280" />
+              )}
             </View>
             <SavedSetsTable
               sets={sets}
@@ -180,5 +203,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 12,
     marginBottom: 5,
+  },
+  selectedExerciseContainer: {
+    borderWidth: 1,
+    borderColor: '#dc2626',
   },
 });

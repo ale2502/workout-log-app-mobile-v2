@@ -132,8 +132,8 @@ export default function LogSetScreen() {
       }
 
       await loadSets();
-      // Turn off editing mode
-      setSelectedSetId(null);
+      // Turn off editing mode and clear the form
+      handleCancelEdit();
     } catch {
       setError('Could not update set');
     } finally {

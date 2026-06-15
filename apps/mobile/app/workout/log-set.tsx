@@ -224,15 +224,18 @@ export default function LogSetScreen() {
   }
 
   function handlePressSet(selectedSet: SetDisplay) {
+    // If no selected set, just return
     if (selectedSetId === null) {
       return;
     }
 
+    // If selected set is equal the one tapped, deselect it and return
     if (selectedSetId === selectedSet.id) {
       handleCancelEdit();
       return;
     }
 
+    // If there's a selected which is not the one tapped, selected this one
     selectSetForEditing(selectedSet);
   }
 

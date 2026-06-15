@@ -201,11 +201,7 @@ export default function LogSetScreen() {
 
   // Selecting sets and populate the set data into the text fields (ready for update)
   function handleLongPressSet(selectedSet: SetDisplay) {
-    setSelectedSetId(selectedSet.id);
-    setReps(String(selectedSet.reps));
-    setLoad(selectedSet.load === null ? '' : String(selectedSet.load));
-    setRir(selectedSet.rir === null ? '' : String(selectedSet.rir));
-    setNote(selectedSet.note ?? '');
+    selectSetForEditing(selectedSet);
     // Add light vibration to long press
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
@@ -217,6 +213,27 @@ export default function LogSetScreen() {
     setLoad('');
     setRir('');
     setNote('');
+  }
+
+  function selectSetForEditing(selectedSet: SetDisplay) {
+    setSelectedSetId(selectedSet.id);
+    setReps(String(selectedSet.reps));
+    setLoad(selectedSet.load === null ? '' : String(selectedSet.load));
+    setRir(selectedSet.rir === null ? '' : String(selectedSet.rir));
+    setNote(selectedSet.note ?? '');
+  }
+
+  function handlePressSet(selectedSet: SetDisplay) {
+    if (selectedSetId === null) {
+      return;
+    }
+
+    if (selectedSetId === selectedSet.id) {
+      handleCancelEdit();
+      return;
+    }
+
+    selectSetForEditing(selectedSet);
   }
 
   // Load exercise name, might need a refactor later
@@ -298,6 +315,7 @@ export default function LogSetScreen() {
       <SavedSetsTable
         sets={sets}
         onLongPressSet={handleLongPressSet}
+        onPressSet={handlePressSet}
         selectedSetId={selectedSetId}
       />
       {selectedSetId !== null && <Text>Selected set id: {selectedSetId}</Text>}

@@ -159,14 +159,6 @@ export default function WorkoutDetailScreen() {
     );
   }
 
-  if (workoutSets.length === 0) {
-    return (
-      <View style={styles.container}>
-        <Text>No sets found for this workout.</Text>
-      </View>
-    );
-  }
-
   return (
     <>
       <View style={styles.container}>
@@ -271,6 +263,9 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     gap: 20,
+    paddingBottom: 24,
+    paddingHorizontal: 3,
+    paddingTop: 3,
   },
   errorText: {
     color: '#dc2626',
@@ -304,7 +299,6 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   selectedExerciseContainer: {
-    borderWidth: 1,
     borderColor: '#dc2626',
   },
   // Modal

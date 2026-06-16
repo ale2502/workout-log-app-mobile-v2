@@ -75,6 +75,15 @@ export default function WorkoutDetailScreen() {
     {},
   );
 
+  function handleAddExercise() {
+    router.push({
+      pathname: '/workout/muscle-groups',
+      params: {
+        workoutId,
+      },
+    });
+  }
+
   function handlePressExercise(exerciseId: number, exerciseName: string) {
     if (selectedExerciseId !== null) {
       if (selectedExerciseId === exerciseId) {
@@ -160,50 +169,66 @@ export default function WorkoutDetailScreen() {
 
   return (
     <>
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {Object.entries(groupedSets).map(([exerciseName, sets]) => {
-          // groupedSets represent a group of sets for 1 exercise, so it's safe to take the exercise id from the first set
-          const exerciseId = sets[0].exerciseId;
-          const isSelected = selectedExerciseId === exerciseId;
+      <View style={styles.container}>
+        <Pressable style={styles.addButton} onPress={handleAddExercise}>
+          <Text style={styles.addButtonText}>Add exercise</Text>
+        </Pressable>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          {workoutSets.length === 0 ? (
+            <Text>No sets found for this workout.</Text>
+          ) : (
+            Object.entries(groupedSets).map(([exerciseName, sets]) => {
+              const exerciseId = sets[0].exerciseId;
+              const isSelected = selectedExerciseId === exerciseId;
 
-          return (
-            <Pressable
-              key={exerciseName}
-              style={[
-                styles.exerciseSection,
-                isSelected && styles.selectedExerciseContainer,
-              ]}
-              onPress={() => handlePressExercise(exerciseId, exerciseName)}
-              onLongPress={() =>
-                handleLongPressExercise(exerciseId, exerciseName)
-              }
-            >
-              <View style={styles.exerciseTitleContainer}>
-                <Text style={styles.exerciseTitle}>{exerciseName}</Text>
-                {isSelected ? (
-                  <Pressable onPress={() => setIsDeleteModalVisible(true)}>
-                    <Ionicons name="trash-outline" size={22} color="#dc2626" />
-                  </Pressable>
-                ) : (
-                  <Ionicons name="chevron-forward" size={22} color="#6b7280" />
-                )}
-              </View>
-              <SavedSetsTable
-                sets={sets}
-                // Pass placeholder props for now since they are not needed for display only
-                onLongPressSet={() =>
-                  handleLongPressExercise(exerciseId, exerciseName)
-                }
-                selectedSetId={null}
-                onPressSet={() => handlePressExercise(exerciseId, exerciseName)}
-              />
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+              return (
+                <Pressable
+                  key={exerciseName}
+                  style={[
+                    styles.exerciseSection,
+                    isSelected && styles.selectedExerciseContainer,
+                  ]}
+                  onPress={() => handlePressExercise(exerciseId, exerciseName)}
+                  onLongPress={() =>
+                    handleLongPressExercise(exerciseId, exerciseName)
+                  }
+                >
+                  <View style={styles.exerciseTitleContainer}>
+                    <Text style={styles.exerciseTitle}>{exerciseName}</Text>
+
+                    {isSelected ? (
+                      <Pressable onPress={() => setIsDeleteModalVisible(true)}>
+                        <Ionicons
+                          name="trash-outline"
+                          size={22}
+                          color="#dc2626"
+                        />
+                      </Pressable>
+                    ) : (
+                      <Ionicons
+                        name="chevron-forward"
+                        size={22}
+                        color="#6b7280"
+                      />
+                    )}
+                  </View>
+
+                  <SavedSetsTable
+                    sets={sets}
+                    onLongPressSet={() =>
+                      handleLongPressExercise(exerciseId, exerciseName)
+                    }
+                    selectedSetId={null}
+                    onPressSet={() =>
+                      handlePressExercise(exerciseId, exerciseName)
+                    }
+                  />
+                </Pressable>
+              );
+            })
+          )}
+        </ScrollView>
+      </View>
       {/* Modal for confirming deletion of exercise */}
       <Modal transparent visible={isDeleteModalVisible} animationType="fade">
         <View style={styles.modalBackdrop}>
@@ -241,9 +266,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#ffffff',
+    padding: 24,
+    gap: 20,
   },
   scrollContent: {
-    padding: 24,
     gap: 20,
   },
   errorText: {
@@ -340,5 +366,16 @@ const styles = StyleSheet.create({
   modalDeleteButtonText: {
     fontWeight: '700',
     color: '#ffffff',
+  },
+  // Add exercise button
+  addButton: {
+    backgroundColor: '#111827',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  addButtonText: {
+    color: '#ffffff',
+    fontWeight: '700',
   },
 });

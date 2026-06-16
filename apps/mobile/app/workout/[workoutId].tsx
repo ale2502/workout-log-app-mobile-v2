@@ -88,10 +88,12 @@ export default function WorkoutDetailScreen() {
     if (selectedExerciseId !== null) {
       if (selectedExerciseId === exerciseId) {
         setSelectedExerciseId(null);
+        setSelectedExerciseName('');
         return;
       }
 
       setSelectedExerciseId(exerciseId);
+      setSelectedExerciseName(exerciseName);
       return;
     }
 
@@ -113,6 +115,7 @@ export default function WorkoutDetailScreen() {
   function handleCancelDeleteExercise() {
     setIsDeleteModalVisible(false);
     setSelectedExerciseId(null);
+    setSelectedExerciseName('');
   }
 
   async function handleDeleteExercise() {

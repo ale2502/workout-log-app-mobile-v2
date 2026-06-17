@@ -4,10 +4,13 @@
     "type": "module",
     "main": "server/index.ts",
     "scripts": {
-      "dev": "tsx watch server/index.ts",
-      "start": "tsx server/index.ts",
-      "knex": "knex --knexfile ./server/db/knexfile.js"
-    },
+    "dev": "tsx watch server/index.ts",
+    "start": "tsx server/index.ts",
+    "knex": "knex --knexfile ./server/db/knexfile.js",
+    "db:migrate": "knex --knexfile ./server/db/knexfile.js migrate:latest",
+    "db:seed": "knex --knexfile ./server/db/knexfile.js seed:run",
+    "deploy": "npm run db:migrate && npm run db:seed && npm start"
+  },
     "dependencies": {
       "express": "^5.1.0",
       "knex": "^3.2.9",

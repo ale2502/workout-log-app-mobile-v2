@@ -16,6 +16,7 @@ This app will have an UI where the user can:
 * Only available for Android at the moment.
 * Allow installation from unknown sources.
 * Link: https://expo.dev/accounts/ale2502/projects/grind-notes/builds/96dcc7ce-3eb9-470c-8bd2-36565adf0d84
+* It might take a minute to receive a response on "Start workout" due to Render loading.
 
 Technical features:
 

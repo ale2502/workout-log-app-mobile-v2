@@ -4,23 +4,24 @@
     "type": "module",
     "main": "server/index.ts",
     "scripts": {
-      "dev": "tsx watch server/index.ts",
-      "start": "tsx server/index.ts",
-      "knex": "knex --knexfile ./server/db/knexfile.js",
-      "db:migrate": "knex --knexfile ./server/db/knexfile.js migrate:latest",
-      "db:seed": "knex --knexfile ./server/db/knexfile.js seed:run",
-      "deploy": "npm run db:migrate && npm run db:seed && npm start"
+        "dev": "tsx watch server/index.ts",
+        "start": "tsx server/index.ts",
+        "knex": "knex --knexfile ./server/db/knexfile.js",
+        "db:migrate": "knex --knexfile ./server/db/knexfile.js migrate:latest",
+        "db:seed": "knex --knexfile ./server/db/knexfile.js seed:run",
+        "deploy": "npm run db:migrate && npm run db:seed && npm start"
     },
     "dependencies": {
-      "express": "^5.1.0",
-      "knex": "^3.2.9",
-      "sqlite3": "^6.0.1"
+        "cors": "^2.8.6",
+        "express": "^5.1.0",
+        "knex": "^3.2.9",
+        "sqlite3": "^6.0.1"
     },
     "devDependencies": {
-      "@types/express": "^5.0.3",
-      "@types/node": "^24.6.0",
-      "ts-node-dev": "^2.0.0",
-      "tsx": "^4.21.0",
-      "typescript": "^5.9.2"
+        "@types/express": "^5.0.3",
+        "@types/node": "^24.6.0",
+        "ts-node-dev": "^2.0.0",
+        "tsx": "^4.21.0",
+        "typescript": "^5.9.2"
     }
 }

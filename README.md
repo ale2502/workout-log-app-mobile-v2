@@ -21,6 +21,7 @@ This app will have an UI where the user can:
 **Beta live demo - web app**
 
 * Link: https://workout-log-app-mobile-v2.onrender.com
+* Obs: give some time for the API to load
 
 Technical features:
 

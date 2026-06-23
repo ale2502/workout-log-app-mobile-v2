@@ -62,7 +62,18 @@ export default function ExercisesScreen() {
     <View style={styles.container}>
       <View style={styles.titleButtonContainer}>
         <Text style={styles.title}>Choose an exercise</Text>
-        <Pressable style={styles.addButton}>
+        <Pressable
+          style={styles.addButton}
+          onPress={() => {
+            router.push({
+              pathname: '/workout/add-exercise',
+              params: {
+                workoutId,
+                muscleGroup,
+              },
+            });
+          }}
+        >
           <Text style={styles.addText}>Add +</Text>
         </Pressable>
       </View>

@@ -13,4 +13,14 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.post('/', async (req, res) => {
+  try {
+    const newExercise = req.body;
+
+    if (
+      newExercise.name === undefined || newExercise.muscleGroup === undefined
+    )
+  }
+})
+
 export default router;

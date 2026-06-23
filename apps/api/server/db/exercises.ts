@@ -10,6 +10,7 @@ export async function getAllExercises(): Promise<Exercise[]> {
 export async function addNewExercise(
   newExercise: ExerciseData,
 ): Promise<Exercise> {
+  // Square brackets here take the first item from the returned array.
   const [newExerciseAdded] = await db('exercises')
     .insert({
       name: newExercise.name,

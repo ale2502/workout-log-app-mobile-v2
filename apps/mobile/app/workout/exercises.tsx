@@ -60,7 +60,12 @@ export default function ExercisesScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Choose an exercise</Text>
+      <View style={styles.titleButtonContainer}>
+        <Text style={styles.title}>Choose an exercise</Text>
+        <Pressable style={styles.addButton}>
+          <Text style={styles.addText}>Add +</Text>
+        </Pressable>
+      </View>
 
       <View style={styles.exerciseList}>
         {filteredExercises.map((exercise) => (
@@ -98,6 +103,25 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '700',
   },
+  // Add+ button
+  titleButtonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  addButton: {
+    backgroundColor: '#111827',
+    padding: 10,
+    paddingRight: 20,
+    paddingLeft: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  addText: {
+    color: '#ffffff',
+    fontWeight: '700',
+  },
+  // Exercises list
   exerciseButton: {
     padding: 12,
     borderWidth: 1,

@@ -19,8 +19,10 @@ router.post('/', async (req, res) => {
     const newExercise = req.body;
 
     if (
-      newExercise.name === undefined ||
-      newExercise.muscleGroup === undefined
+      typeof newExercise.name !== 'string' ||
+      typeof newExercise.muscleGroup !== 'string' ||
+      newExercise.name.trim() === '' ||
+      newExercise.muscleGroup.trim() === ''
     ) {
       res.status(400).json({
         error: 'name and muscleGroup are required',
@@ -29,7 +31,6 @@ router.post('/', async (req, res) => {
     }
 
     const exercise = await db.addNewExercise(newExercise);
-    console.log(exercise);
     res.status(201).json(exercise);
   } catch (error) {
     console.error(error);

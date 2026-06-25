@@ -19,3 +19,11 @@ export async function addNewExercise(
     .returning(exerciseColumns);
   return newExerciseAdded;
 }
+
+export async function getAllMuscleGroups(): Promise<string[]> {
+  const rows = await db('exercises')
+    .distinct('muscle_group as muscleGroup')
+    .orderBy('muscle_group', 'asc');
+
+  return rows.map((row) => row.muscleGroup);
+}

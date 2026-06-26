@@ -11,6 +11,9 @@ import {
   Modal,
 } from 'react-native';
 
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+
 interface Workout {
   id: number;
   performedOn: string;
@@ -19,6 +22,8 @@ interface Workout {
 
 export default function HomeScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
   const [isStartingWorkout, setIsStartingWorkout] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -140,22 +145,27 @@ export default function HomeScreen() {
 
   return (
     <>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Workout Log</Text>
+      <ScrollView
+        contentContainerStyle={[
+          styles.container,
+          { backgroundColor: colors.background },
+        ]}
+      >
+        <Text style={[styles.title, { color: colors.text }]}>Workout Log</Text>
 
         <Pressable
-          style={styles.startButton}
+          style={[styles.startButton, { backgroundColor: colors.primary }]}
           onPress={handleStartWorkout}
           disabled={isStartingWorkout}
         >
-          <Text style={styles.startButtonText}>
+          <Text style={[styles.startButtonText, { color: colors.onPrimary }]}>
             {isStartingWorkout ? 'Starting...' : 'Start New Workout'}
           </Text>
         </Pressable>
 
-        {error && <Text style={styles.errorText}>{error}</Text>}
+        {error && <Text style={[styles.errorText, { color: colors.destructive }]}>{error}</Text>}
 
-        <Text>Previous workouts</Text>
+        <Text style={{ color: colors.text }}>Previous workouts</Text>
         {workouts.map((workout) => {
           const performedOn = new Date(
             workout.performedOn.replace(' ', 'T') + 'Z',
@@ -169,18 +179,19 @@ export default function HomeScreen() {
               key={workout.id}
               style={[
                 styles.prevWorkoutContainer,
-                isSelected && styles.selectedWorkoutContainer,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+                isSelected && { borderColor: colors.destructive },
               ]}
               onLongPress={() => handleLongPressWorkout(workout)}
               onPress={() => handlePressWorkout(workout)}
             >
               {/* Left side of the prev workouts container */}
               <View style={styles.workoutTextContainer}>
-                <Text>{performedOn.toLocaleDateString('en-NZ')}</Text>
-                <Text>
+                <Text style={{ color: colors.text }}>{performedOn.toLocaleDateString('en-NZ')}</Text>
+                <Text style={{ color: colors.mutedText }}>
                   {performedOn.toLocaleDateString('en-NZ', { weekday: 'long' })}
                 </Text>
-                <Text>
+                <Text style={{ color: colors.mutedText }}>
                   {performedOn.toLocaleTimeString('en-NZ', {
                     hour: 'numeric',
                     minute: '2-digit',
@@ -193,10 +204,10 @@ export default function HomeScreen() {
               <View style={styles.workoutActionContainer}>
                 {isSelected ? (
                   <Pressable onPress={() => setIsDeleteModalVisible(true)}>
-                    <Ionicons name="trash-outline" size={22} color="#dc2626" />
+                    <Ionicons name="trash-outline" size={22} color={colors.destructive} />
                   </Pressable>
                 ) : (
-                  <Ionicons name="chevron-forward" size={22} color="#6b7280" />
+                  <Ionicons name="chevron-forward" size={22} color={colors.mutedText} />
                 )}
               </View>
             </Pressable>
@@ -206,25 +217,25 @@ export default function HomeScreen() {
       {/* Modal for confirming deletion of workout */}
       <Modal transparent visible={isDeleteModalVisible} animationType="fade">
         <View style={styles.modalBackdrop}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>Delete workout?</Text>
-            <Text style={styles.modalMessage}>
+          <View style={[styles.modalCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Delete workout?</Text>
+            <Text style={[styles.modalMessage, { color: colors.mutedText }]}>
               This will delete the workout and all saved sets.
             </Text>
 
             <View style={styles.modalActions}>
               <Pressable
-                style={styles.modalCancelButton}
+                style={[styles.modalCancelButton, { backgroundColor: colors.surfaceMuted }]}
                 onPress={handleCancelDeleteWorkout}
               >
-                <Text style={styles.modalCancelButtonText}>Cancel</Text>
+                <Text style={[styles.modalCancelButtonText, { color: colors.text }]}>Cancel</Text>
               </Pressable>
 
               <Pressable
-                style={styles.modalDeleteButton}
+                style={[styles.modalDeleteButton, { backgroundColor: colors.destructive }]}
                 onPress={handleDeleteWorkout}
               >
-                <Text style={styles.modalDeleteButtonText}>Delete</Text>
+                <Text style={[styles.modalDeleteButtonText, { color: colors.onPrimary }]}>Delete</Text>
               </Pressable>
             </View>
           </View>
@@ -240,36 +251,29 @@ const styles = StyleSheet.create({
     paddingTop: 48,
     paddingBottom: 24,
     gap: 16,
-    backgroundColor: '#ffffff',
   },
   title: {
     fontSize: 28,
     fontWeight: '700',
   },
   startButton: {
-    backgroundColor: '#111827',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
   },
   startButtonText: {
-    color: '#ffffff',
     fontWeight: '700',
   },
-  errorText: {
-    color: '#dc2626',
-  },
+  errorText: {},
   prevWorkoutContainer: {
     padding: 10,
     paddingRight: 25,
-    backgroundColor: '#E8E8E8',
     borderRadius: 8,
     gap: 4,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'transparent',
 
     shadowColor: '#000',
     shadowOffset: {
@@ -289,10 +293,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     justifyContent: 'center',
   },
-  selectedWorkoutContainer: {
-    borderWidth: 1,
-    borderColor: '#dc2626',
-  },
   // Modal
   modalBackdrop: {
     flex: 1,
@@ -304,7 +304,6 @@ const styles = StyleSheet.create({
   modalCard: {
     width: '100%',
     maxWidth: 360,
-    backgroundColor: '#ffffff',
     borderRadius: 12,
     padding: 20,
     gap: 12,
@@ -316,16 +315,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 6,
+    borderWidth: 1,
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#111827',
   },
   modalMessage: {
     fontSize: 15,
     lineHeight: 22,
-    color: '#4b5563',
   },
   modalActions: {
     flexDirection: 'row',
@@ -337,20 +335,16 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 8,
-    backgroundColor: '#f3f4f6',
   },
   modalCancelButtonText: {
     fontWeight: '700',
-    color: '#374151',
   },
   modalDeleteButton: {
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 8,
-    backgroundColor: '#dc2626',
   },
   modalDeleteButtonText: {
     fontWeight: '700',
-    color: '#ffffff',
   },
 });

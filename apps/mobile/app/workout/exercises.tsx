@@ -1,10 +1,15 @@
-import { useEffect, useState } from 'react';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Exercise } from '../../../api/server/models/exercise';
 
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+
 export default function ExercisesScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
   const params = useLocalSearchParams<{
     workoutId: string;
     muscleGroup: string;
@@ -16,27 +21,34 @@ export default function ExercisesScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function loadExercises() {
-      try {
-        const response = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/exercises`,
-        );
+  const loadExercises = useCallback(async () => {
+    try {
+      setError(null);
+      setIsLoading(true);
 
-        if (!response.ok) {
-          throw new Error('Failed to load exercises');
-        }
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/exercises`,
+      );
 
-        const data = await response.json();
-        setExercises(data);
-      } catch {
-        setError('Could not load exercises');
-      } finally {
-        setIsLoading(false);
+      if (!response.ok) {
+        throw new Error('Failed to load exercises');
       }
+
+      const data = await response.json();
+      setExercises(data);
+    } catch {
+      setError('Could not load exercises');
+    } finally {
+      setIsLoading(false);
     }
-    loadExercises();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      // Reload exercises whenever this screen comes back into focus so newly created exercises appear.
+      loadExercises();
+    }, [loadExercises]),
+  );
 
   const filteredExercises = exercises.filter(
     (exercise) => exercise.muscleGroup === muscleGroup,
@@ -44,26 +56,26 @@ export default function ExercisesScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.container}>
-        <Text>Loading exercises...</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={{ color: colors.text }}>Loading exercises...</Text>
       </View>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>{error}</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.destructive }]}>{error}</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.titleButtonContainer}>
-        <Text style={styles.title}>Choose an exercise</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Choose an exercise</Text>
         <Pressable
-          style={styles.addButton}
+          style={[styles.addButton, { backgroundColor: colors.primary }]}
           onPress={() => {
             router.push({
               pathname: '/workout/add-exercise',
@@ -74,7 +86,7 @@ export default function ExercisesScreen() {
             });
           }}
         >
-          <Text style={styles.addText}>Add +</Text>
+          <Text style={[styles.addText, { color: colors.onPrimary }]}>Add +</Text>
         </Pressable>
       </View>
 
@@ -82,7 +94,10 @@ export default function ExercisesScreen() {
         {filteredExercises.map((exercise) => (
           <Pressable
             key={exercise.id}
-            style={styles.exerciseButton}
+            style={[
+              styles.exerciseButton,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
             onPress={() => {
               router.push({
                 // "workout" refers to the folder inside of apps and "log-set" it's the set recording screen. The last path (log-set) is where you're navigating to.
@@ -95,7 +110,7 @@ export default function ExercisesScreen() {
               });
             }}
           >
-            <Text>{exercise.name}</Text>
+            <Text style={{ color: colors.text }}>{exercise.name}</Text>
           </Pressable>
         ))}
       </View>
@@ -108,7 +123,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 24,
     gap: 16,
-    backgroundColor: '#ffffff',
   },
   title: {
     fontSize: 28,
@@ -121,7 +135,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   addButton: {
-    backgroundColor: '#111827',
     padding: 10,
     paddingRight: 20,
     paddingLeft: 20,
@@ -129,20 +142,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addText: {
-    color: '#ffffff',
     fontWeight: '700',
   },
   // Exercises list
   exerciseButton: {
     padding: 12,
     borderWidth: 1,
-    borderColor: '#d1d5db',
     borderRadius: 8,
   },
   exerciseList: {
     gap: 8,
   },
   errorText: {
-    color: '#dc2626',
   },
 });

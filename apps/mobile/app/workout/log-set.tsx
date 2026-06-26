@@ -1,17 +1,21 @@
 import * as Haptics from 'expo-haptics';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { Exercise } from '../../../api/server/models/exercise';
 import { SetDisplay } from '../../../api/server/models/set';
 import { SavedSetsTable } from '@/components/workout/SavedSetsTable';
 import { SetForm } from '@/components/workout/SetForm';
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function LogSetScreen() {
   const params = useLocalSearchParams<{
     workoutId: string;
     exerciseId: string;
   }>();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
   const workoutId = params.workoutId;
   const exerciseId = params.exerciseId;
 
@@ -182,7 +186,7 @@ export default function LogSetScreen() {
   }
 
   // Load sets function
-  async function loadSets() {
+  const loadSets = useCallback(async () => {
     try {
       const response = await fetch(
         `${process.env.EXPO_PUBLIC_API_URL}/sets?workoutId=${workoutId}&exerciseId=${exerciseId}`,
@@ -197,7 +201,7 @@ export default function LogSetScreen() {
     } catch {
       setError('Could not load sets');
     }
-  }
+  }, [exerciseId, workoutId]);
 
   // Selecting sets and populate the set data into the text fields (ready for update)
   function handleLongPressSet(selectedSet: SetDisplay) {
@@ -265,7 +269,7 @@ export default function LogSetScreen() {
     // The linter warns because loadSets uses route params from outside the effect.
     // For now, workoutId and exerciseId are stable for this screen, so this is okay.
     // Later, clean this up with useCallback or a helper that receives the IDs as arguments.
-  }, []);
+  }, [loadSets]);
 
   const chosenExercise = exercises.find(
     (exercise) => exercise.id.toString() === exerciseId,
@@ -273,23 +277,23 @@ export default function LogSetScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.container}>
-        <Text>Loading exercises...</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={{ color: colors.text }}>Loading exercises...</Text>
       </View>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>{error}</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.destructive }]}>{error}</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{chosenExercise?.name}</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.title, { color: colors.text }]}>{chosenExercise?.name}</Text>
 
       <SetForm
         reps={reps}
@@ -331,11 +335,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 24,
     gap: 16,
-    backgroundColor: '#ffffff',
   },
-  errorText: {
-    color: '#dc2626',
-  },
+  errorText: {},
   title: {
     fontSize: 28,
     fontWeight: '700',

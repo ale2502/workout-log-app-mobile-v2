@@ -1,6 +1,9 @@
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 import { SetDisplay } from '../../../api/server/models/set';
 
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+
 type SavedSetsTableProps = {
   sets: SetDisplay[];
   onLongPressSet: (set: SetDisplay) => void;
@@ -9,13 +12,21 @@ type SavedSetsTableProps = {
 };
 
 export function SavedSetsTable(props: SavedSetsTableProps) {
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
+
   return (
-    <View style={styles.setsTable}>
-      <View style={styles.tableHeaderRow}>
-        <Text style={styles.tableHeaderCell}>Set</Text>
-        <Text style={styles.tableHeaderCell}>Reps</Text>
-        <Text style={styles.tableHeaderCell}>Load</Text>
-        <Text style={styles.tableHeaderCell}>RIR</Text>
+    <View
+      style={[
+        styles.setsTable,
+        { borderColor: colors.border, backgroundColor: colors.surface },
+      ]}
+    >
+      <View style={[styles.tableHeaderRow, { backgroundColor: colors.surfaceMuted }]}>
+        <Text style={[styles.tableHeaderCell, { color: colors.text }]}>Set</Text>
+        <Text style={[styles.tableHeaderCell, { color: colors.text }]}>Reps</Text>
+        <Text style={[styles.tableHeaderCell, { color: colors.text }]}>Load</Text>
+        <Text style={[styles.tableHeaderCell, { color: colors.text }]}>RIR</Text>
       </View>
 
       {props.sets.map((set) => {
@@ -27,11 +38,19 @@ export function SavedSetsTable(props: SavedSetsTableProps) {
             onLongPress={() => props.onLongPressSet(set)}
             onPress={() => props.onPressSet?.(set)}
           >
-            <View style={[styles.tableRow, isSelected && styles.selectedRow]}>
-              <Text style={styles.tableCell}>{set.setNumber}</Text>
-              <Text style={styles.tableCell}>{set.reps}</Text>
-              <Text style={styles.tableCell}>{set.load ?? '-'}</Text>
-              <Text style={styles.tableCell}>{set.rir ?? '-'}</Text>
+            <View
+              style={[
+                styles.tableRow,
+                { borderTopColor: colors.border },
+                isSelected && {
+                  backgroundColor: colorScheme === 'dark' ? '#12324a' : '#e0f2fe',
+                },
+              ]}
+            >
+              <Text style={[styles.tableCell, { color: colors.text }]}>{set.setNumber}</Text>
+              <Text style={[styles.tableCell, { color: colors.text }]}>{set.reps}</Text>
+              <Text style={[styles.tableCell, { color: colors.text }]}>{set.load ?? '-'}</Text>
+              <Text style={[styles.tableCell, { color: colors.text }]}>{set.rir ?? '-'}</Text>
             </View>
           </Pressable>
         );
@@ -43,18 +62,15 @@ export function SavedSetsTable(props: SavedSetsTableProps) {
 const styles = StyleSheet.create({
   setsTable: {
     borderWidth: 1,
-    borderColor: '#d1d5db',
     borderRadius: 8,
     overflow: 'hidden',
   },
   tableHeaderRow: {
     flexDirection: 'row',
-    backgroundColor: '#f3f4f6',
   },
   tableRow: {
     flexDirection: 'row',
     borderTopWidth: 1,
-    borderTopColor: '#d1d5db',
   },
   tableHeaderCell: {
     flex: 1,
@@ -64,8 +80,5 @@ const styles = StyleSheet.create({
   tableCell: {
     flex: 1,
     padding: 10,
-  },
-  selectedRow: {
-    backgroundColor: '#e0f2fe',
   },
 });

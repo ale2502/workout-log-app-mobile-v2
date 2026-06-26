@@ -3,6 +3,9 @@ import { useEffect, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+
 type Exercise = {
   id: number;
   name: string;
@@ -11,6 +14,8 @@ type Exercise = {
 
 export default function MuscleGroupScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
   const params = useLocalSearchParams<{ workoutId: string }>();
   const workoutId = params.workoutId;
   // Same as:
@@ -48,29 +53,32 @@ export default function MuscleGroupScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.container}>
-        <Text>Loading muscle groups...</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={{ color: colors.text }}>Loading muscle groups...</Text>
       </View>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>{error}</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.destructive }]}>{error}</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Choose a muscle group</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.title, { color: colors.text }]}>Choose a muscle group</Text>
 
       <View style={styles.muscleGroupList}>
         {muscleGroups.map((muscleGroup) => (
           <Pressable
             key={muscleGroup}
-            style={styles.muscleGroupButton}
+            style={[
+              styles.muscleGroupButton,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
             onPress={() => {
               router.push({
                 pathname: '/workout/exercises',
@@ -81,7 +89,7 @@ export default function MuscleGroupScreen() {
               });
             }}
           >
-            <Text>{muscleGroup}</Text>
+            <Text style={{ color: colors.text }}>{muscleGroup}</Text>
           </Pressable>
         ))}
       </View>
@@ -94,7 +102,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 24,
     gap: 16,
-    backgroundColor: '#ffffff',
   },
   title: {
     fontSize: 28,
@@ -103,13 +110,11 @@ const styles = StyleSheet.create({
   muscleGroupButton: {
     padding: 12,
     borderWidth: 1,
-    borderColor: '#d1d5db',
     borderRadius: 8,
   },
   muscleGroupList: {
     gap: 8,
   },
   errorText: {
-    color: '#dc2626',
   },
 });

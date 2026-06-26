@@ -12,9 +12,13 @@ import {
 import { SetDisplay } from '../../../api/server/models/set';
 import { SavedSetsTable } from '@/components/workout/SavedSetsTable';
 import { Ionicons } from '@expo/vector-icons';
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function WorkoutDetailScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
 
   const params = useLocalSearchParams<{
     workoutId: string;
@@ -148,29 +152,29 @@ export default function WorkoutDetailScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.container}>
-        <Text>Loading workout...</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={{ color: colors.text }}>Loading workout...</Text>
       </View>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>{error}</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorText, { color: colors.destructive }]}>{error}</Text>
       </View>
     );
   }
 
   return (
     <>
-      <View style={styles.container}>
-        <Pressable style={styles.addButton} onPress={handleAddExercise}>
-          <Text style={styles.addButtonText}>Add exercise</Text>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <Pressable style={[styles.addButton, { backgroundColor: colors.primary }]} onPress={handleAddExercise}>
+          <Text style={[styles.addButtonText, { color: colors.onPrimary }]}>Add exercise</Text>
         </Pressable>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {workoutSets.length === 0 ? (
-            <Text>No sets found for this workout.</Text>
+            <Text style={{ color: colors.text }}>No sets found for this workout.</Text>
           ) : (
             Object.entries(groupedSets).map(([exerciseName, sets]) => {
               const exerciseId = sets[0].exerciseId;
@@ -181,7 +185,8 @@ export default function WorkoutDetailScreen() {
                   key={exerciseName}
                   style={[
                     styles.exerciseSection,
-                    isSelected && styles.selectedExerciseContainer,
+                    { backgroundColor: colors.surface, borderColor: colors.border },
+                    isSelected && { borderColor: colors.destructive },
                   ]}
                   onPress={() => handlePressExercise(exerciseId, exerciseName)}
                   onLongPress={() =>
@@ -189,21 +194,21 @@ export default function WorkoutDetailScreen() {
                   }
                 >
                   <View style={styles.exerciseTitleContainer}>
-                    <Text style={styles.exerciseTitle}>{exerciseName}</Text>
+                    <Text style={[styles.exerciseTitle, { color: colors.text }]}>{exerciseName}</Text>
 
                     {isSelected ? (
                       <Pressable onPress={() => setIsDeleteModalVisible(true)}>
                         <Ionicons
                           name="trash-outline"
                           size={22}
-                          color="#dc2626"
+                          color={colors.destructive}
                         />
                       </Pressable>
                     ) : (
                       <Ionicons
                         name="chevron-forward"
                         size={22}
-                        color="#6b7280"
+                        color={colors.mutedText}
                       />
                     )}
                   </View>
@@ -227,27 +232,27 @@ export default function WorkoutDetailScreen() {
       {/* Modal for confirming deletion of exercise */}
       <Modal transparent visible={isDeleteModalVisible} animationType="fade">
         <View style={styles.modalBackdrop}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>
+          <View style={[styles.modalCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
               Delete {selectedExerciseName}?
             </Text>
-            <Text style={styles.modalMessage}>
+            <Text style={[styles.modalMessage, { color: colors.mutedText }]}>
               This will delete the exercise and its saved sets for this workout.
             </Text>
 
             <View style={styles.modalActions}>
               <Pressable
-                style={styles.modalCancelButton}
+                style={[styles.modalCancelButton, { backgroundColor: colors.surfaceMuted }]}
                 onPress={handleCancelDeleteExercise}
               >
-                <Text style={styles.modalCancelButtonText}>Cancel</Text>
+                <Text style={[styles.modalCancelButtonText, { color: colors.text }]}>Cancel</Text>
               </Pressable>
 
               <Pressable
-                style={styles.modalDeleteButton}
+                style={[styles.modalDeleteButton, { backgroundColor: colors.destructive }]}
                 onPress={handleDeleteExercise}
               >
-                <Text style={styles.modalDeleteButtonText}>Delete</Text>
+                <Text style={[styles.modalDeleteButtonText, { color: colors.onPrimary }]}>Delete</Text>
               </Pressable>
             </View>
           </View>
@@ -260,7 +265,6 @@ export default function WorkoutDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
     padding: 24,
     gap: 20,
   },
@@ -271,15 +275,12 @@ const styles = StyleSheet.create({
     paddingTop: 3,
   },
   errorText: {
-    color: '#dc2626',
   },
   exerciseSection: {
     gap: 5,
     padding: 10,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
-    backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -301,9 +302,6 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 5,
   },
-  selectedExerciseContainer: {
-    borderColor: '#dc2626',
-  },
   // Modal
   modalBackdrop: {
     flex: 1,
@@ -315,7 +313,6 @@ const styles = StyleSheet.create({
   modalCard: {
     width: '100%',
     maxWidth: 360,
-    backgroundColor: '#ffffff',
     borderRadius: 12,
     padding: 20,
     gap: 12,
@@ -327,16 +324,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 6,
+    borderWidth: 1,
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#111827',
   },
   modalMessage: {
     fontSize: 15,
     lineHeight: 22,
-    color: '#4b5563',
   },
   modalActions: {
     flexDirection: 'row',
@@ -348,31 +344,25 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 8,
-    backgroundColor: '#f3f4f6',
   },
   modalCancelButtonText: {
     fontWeight: '700',
-    color: '#374151',
   },
   modalDeleteButton: {
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 8,
-    backgroundColor: '#dc2626',
   },
   modalDeleteButtonText: {
     fontWeight: '700',
-    color: '#ffffff',
   },
   // Add exercise button
   addButton: {
-    backgroundColor: '#111827',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
   },
   addButtonText: {
-    color: '#ffffff',
     fontWeight: '700',
   },
 });

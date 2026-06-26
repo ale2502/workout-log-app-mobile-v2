@@ -1,4 +1,7 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { NumberStepperInput } from './NumberStepperInput';
 
 type SetFormProps = {
@@ -29,6 +32,9 @@ type SetFormProps = {
 };
 
 export function SetForm(props: SetFormProps) {
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
+
   return (
     <View style={styles.container}>
       <NumberStepperInput
@@ -59,12 +65,21 @@ export function SetForm(props: SetFormProps) {
       />
 
       <View style={styles.inputRow}>
-        <Text style={styles.label}>Notes</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Notes</Text>
         <TextInput
-          style={[styles.formInput, styles.rowInput]}
+          style={[
+            styles.formInput,
+            styles.rowInput,
+            {
+              backgroundColor: colors.surface,
+              borderColor: colors.border,
+              color: colors.text,
+            },
+          ]}
           value={props.note}
           onChangeText={props.onChangeNote}
           placeholder="Notes"
+          placeholderTextColor={colors.placeholder}
         />
       </View>
 
@@ -72,28 +87,28 @@ export function SetForm(props: SetFormProps) {
         <View style={styles.editButtonRow}>
           <Pressable
             onPress={props.onUpdate}
-            style={[styles.editButton, styles.updateButton]}
+            style={[styles.editButton, styles.updateButton, { backgroundColor: colors.primary }]}
           >
-            <Text style={styles.editButtonText}>Update Set</Text>
+            <Text style={[styles.editButtonText, { color: colors.onPrimary }]}>Update Set</Text>
           </Pressable>
 
           <Pressable
             onPress={props.onDelete}
-            style={[styles.editButton, styles.deleteButton]}
+            style={[styles.editButton, styles.deleteButton, { backgroundColor: colors.destructive }]}
           >
-            <Text style={styles.editButtonText}>Delete Set</Text>
+            <Text style={[styles.editButtonText, { color: colors.onPrimary }]}>Delete Set</Text>
           </Pressable>
 
           <Pressable
             onPress={props.onCancel}
-            style={[styles.editButton, styles.cancelButton]}
+            style={[styles.editButton, styles.cancelButton, { backgroundColor: colors.surfaceMuted }]}
           >
-            <Text style={styles.cancelButtonText}>Cancel</Text>
+            <Text style={[styles.cancelButtonText, { color: colors.text }]}>Cancel</Text>
           </Pressable>
         </View>
       ) : (
-        <Pressable onPress={props.onSave} style={styles.saveButton}>
-          <Text style={styles.saveButtonText}>
+        <Pressable onPress={props.onSave} style={[styles.saveButton, { backgroundColor: colors.primary }]}>
+          <Text style={[styles.saveButtonText, { color: colors.onPrimary }]}>
             {props.isSaving ? 'Saving...' : 'Save'}
           </Text>
         </Pressable>
@@ -109,7 +124,6 @@ const styles = StyleSheet.create({
   formInput: {
     padding: 12,
     borderWidth: 1,
-    borderColor: '#d1d5db',
     borderRadius: 8,
   },
   inputRow: {
@@ -130,13 +144,11 @@ const styles = StyleSheet.create({
   },
   // Save button
   saveButton: {
-    backgroundColor: '#111827',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
   },
   saveButtonText: {
-    color: '#ffffff',
     fontWeight: '700',
   },
   // Update/delete button
@@ -146,21 +158,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
   },
-  updateButton: {
-    backgroundColor: '#111827',
-  },
-  deleteButton: {
-    backgroundColor: '#dc2626',
-  },
-  cancelButton: {
-    backgroundColor: '#E8E8E8',
-  },
   editButtonText: {
-    color: '#ffffff',
     fontWeight: '700',
   },
   cancelButtonText: {
-    color: '#000000',
     fontWeight: '700',
   },
 });

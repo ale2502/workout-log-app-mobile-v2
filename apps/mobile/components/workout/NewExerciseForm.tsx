@@ -91,8 +91,7 @@ export function NewExerciseForm(props: NewExerciseFormProps) {
                       { borderBottomColor: colors.border },
                     ],
                     isSelected && {
-                      backgroundColor:
-                        colorScheme === 'dark' ? colors.surfaceMuted : '#f9fafb',
+                      backgroundColor: colors.surfaceMuted,
                     },
                   ]}
                   onPress={() => handleSelectMuscleGroup(muscleGroup)}

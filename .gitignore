@@ -21,3 +21,7 @@ coverage/*
 
 # Promptkit repository
 promptkit
+
+# Local Superpowers session state
+.superpowers/
+docs/superpowers/plans/

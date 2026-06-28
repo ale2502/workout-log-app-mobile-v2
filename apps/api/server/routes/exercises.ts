@@ -13,6 +13,16 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/muscle-groups', async (req, res) => {
+  try {
+    const muscleGroups = await db.getAllMuscleGroups();
+    res.json(muscleGroups);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Something went wrong');
+  }
+});
+
 // POST - Create new exercise
 router.post('/', async (req, res) => {
   try {

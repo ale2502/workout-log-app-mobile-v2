@@ -33,4 +33,10 @@ Do not commit local secrets. `apps/mobile/.env.local` is local configuration and
 
 ## Session start guidance
 
-Invoke @Using Promptkit at the start of everything session and continue where we left off.
+Use PromptKit as project memory at the start of each session: read
+`promptkit/notes/session-memory.md`, `promptkit/notes/learning-plan.md`, and recent
+`promptkit/notes/progress-journal.md` entries to continue where we left off.
+
+Do not activate the Tutor workflow by default. Build, edit, debug, and commit normally
+when asked. Use the Tutor or Reflect workflows only when the user explicitly asks for
+tutoring, guided learning, reflection, or journaling.

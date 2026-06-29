@@ -3,6 +3,10 @@ import * as db from '../db/exercise-variants.ts';
 
 const router = Router();
 
+function isUniqueConstraintError(error: unknown) {
+  return error instanceof Error && error.message.includes('SQLITE_CONSTRAINT');
+}
+
 router.get('/', async (req, res) => {
   try {
     const exerciseId = Number(req.query.exerciseId);
@@ -42,6 +46,45 @@ router.post('/', async (req, res) => {
     const variant = await db.addExerciseVariant({ exerciseId, gymId, label });
     res.status(201).json(variant);
   } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      res.status(409).json({ error: 'Machine label already exists' });
+      return;
+    }
+
+    console.error(error);
+    res.status(500).send('Something went wrong');
+  }
+});
+
+router.patch('/:id', async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const label = req.body.label;
+
+    if (Number.isNaN(id)) {
+      res.status(400).json({ error: 'exercise variant id must be a number' });
+      return;
+    }
+
+    if (typeof label !== 'string' || label.trim() === '') {
+      res.status(400).json({ error: 'label is required' });
+      return;
+    }
+
+    const variant = await db.updateExerciseVariantById(id, label);
+
+    if (!variant) {
+      res.status(404).json({ error: 'Machine not found' });
+      return;
+    }
+
+    res.json(variant);
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      res.status(409).json({ error: 'Machine label already exists' });
+      return;
+    }
+
     console.error(error);
     res.status(500).send('Something went wrong');
   }

@@ -7,3 +7,7 @@ export interface ExerciseVariantData {
 export interface ExerciseVariant extends ExerciseVariantData {
   id: number;
 }
+
+export interface ExerciseVariantDisplay extends ExerciseVariant {
+  exerciseName: string;
+}

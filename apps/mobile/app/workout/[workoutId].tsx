@@ -303,13 +303,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
-    gap: 20,
+    gap: 12,
   },
   scrollContent: {
     gap: 20,
     paddingBottom: 24,
     paddingHorizontal: 3,
-    paddingTop: 3,
+    paddingTop: 0,
   },
   errorText: {
   },

@@ -29,3 +29,15 @@ export async function addGym(newGym: GymData): Promise<Gym> {
 
   return gym;
 }
+
+export async function updateGymById(
+  id: number,
+  updatedGym: GymData,
+): Promise<Gym | undefined> {
+  const [gym] = await db('gyms')
+    .where('id', id)
+    .update({ name: updatedGym.name.trim() })
+    .returning(columns);
+
+  return gym;
+}

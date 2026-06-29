@@ -1,20 +1,55 @@
 import db from './connection';
-import { Workout } from '../models/workout';
+import { Workout, WorkoutData } from '../models/workout';
+import { getDefaultGym } from './gyms.ts';
 
 const columns = [
-  'id',
-  'performed_on as performedOn',
-  'created_at as createdAt',
+  'workouts.id as id',
+  'workouts.performed_on as performedOn',
+  'workouts.created_at as createdAt',
+  'workouts.gym_id as gymId',
+  'gyms.name as gymName',
 ];
 
-// addWorkout DB function doesn't need created_at because it is created automatically
-export async function addWorkout(): Promise<Workout> {
-  const newWorkoutArr = await db('workouts').insert({}).returning(columns);
-  return newWorkoutArr[0];
+export async function addWorkout(
+  newWorkout: WorkoutData = {},
+): Promise<Workout> {
+  const gymId = newWorkout.gymId ?? (await getDefaultGym()).id;
+
+  const insertData: { gym_id: number; performed_on?: string } = {
+    gym_id: gymId,
+  };
+
+  if (newWorkout.performedOn !== undefined) {
+    insertData.performed_on = newWorkout.performedOn;
+  }
+
+  const [newWorkoutRow] = await db('workouts')
+    .insert(insertData)
+    .returning('id');
+
+  const workout = await getWorkoutById(newWorkoutRow.id);
+
+  if (workout === undefined) {
+    throw new Error('Created workout could not be loaded');
+  }
+
+  return workout;
+}
+
+export async function getWorkoutById(
+  id: number,
+): Promise<Workout | undefined> {
+  return db('workouts')
+    .join('gyms', 'workouts.gym_id', 'gyms.id')
+    .where('workouts.id', id)
+    .first(columns);
 }
 
 export async function getWorkouts(): Promise<Workout[]> {
-  return db('workouts').orderBy('created_at', 'desc').select(columns);
+  return db('workouts')
+    .join('gyms', 'workouts.gym_id', 'gyms.id')
+    .orderBy('created_at', 'desc')
+    .select(columns);
 }
 
 export async function deleteWorkoutById(id: number): Promise<number> {

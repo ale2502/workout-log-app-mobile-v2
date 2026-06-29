@@ -4,8 +4,13 @@ import { Set, SetDisplay, SetData } from '../models/set.ts';
 const columnsSetDisplay = [
   'sets.id as id',
   'sets.exercise_id as exerciseId',
+  'sets.workout_id as workoutId',
+  'sets.exercise_variant_id as exerciseVariantId',
   'workouts.performed_on as performedOn',
+  'workouts.gym_id as gymId',
+  'gyms.name as gymName',
   'exercises.name as exerciseName',
+  'exercise_variants.label as exerciseVariantLabel',
   'set_number as setNumber',
   'reps',
   'load',
@@ -17,6 +22,7 @@ const columnsNewSet = [
   'id',
   'exercise_id as exerciseId',
   'workout_id as workoutId',
+  'exercise_variant_id as exerciseVariantId',
   'set_number as setNumber',
   'reps',
   'load',
@@ -29,6 +35,7 @@ export async function addSet(newSet: SetData): Promise<Set> {
     .insert({
       exercise_id: newSet.exerciseId,
       workout_id: newSet.workoutId,
+      exercise_variant_id: newSet.exerciseVariantId,
       set_number: newSet.setNumber,
       reps: newSet.reps,
       load: newSet.load,
@@ -46,6 +53,8 @@ export async function getSetsByWorkoutAndExercise(
   const sets = await db('sets')
     .join('exercises', 'sets.exercise_id', 'exercises.id')
     .join('workouts', 'sets.workout_id', 'workouts.id')
+    .join('exercise_variants', 'sets.exercise_variant_id', 'exercise_variants.id')
+    .join('gyms', 'workouts.gym_id', 'gyms.id')
     .where('sets.workout_id', workoutId)
     .where('sets.exercise_id', exerciseId)
     .orderBy('set_number', 'asc')
@@ -62,6 +71,7 @@ export async function updateSetById(
     .update({
       exercise_id: updatedSet.exerciseId,
       workout_id: updatedSet.workoutId,
+      exercise_variant_id: updatedSet.exerciseVariantId,
       set_number: updatedSet.setNumber,
       reps: updatedSet.reps,
       load: updatedSet.load,
@@ -86,6 +96,7 @@ export async function deleteSetById(id: number): Promise<number> {
   const remainingSets = await db('sets')
     .where('workout_id', setToDelete.workout_id)
     .where('exercise_id', setToDelete.exercise_id)
+    .where('exercise_variant_id', setToDelete.exercise_variant_id)
     .orderBy('set_number', 'asc');
 
   for (let index = 0; index < remainingSets.length; index++) {
@@ -108,8 +119,11 @@ export async function getSetsByWorkoutId(
   const workoutSets = await db('sets')
     .join('exercises', 'sets.exercise_id', 'exercises.id')
     .join('workouts', 'sets.workout_id', 'workouts.id')
+    .join('exercise_variants', 'sets.exercise_variant_id', 'exercise_variants.id')
+    .join('gyms', 'workouts.gym_id', 'gyms.id')
     .where('sets.workout_id', workoutId)
     .orderBy('exercises.name', 'asc')
+    .orderBy('exercise_variants.label', 'asc')
     .orderBy('set_number', 'asc')
     .select(columnsSetDisplay);
   return workoutSets as SetDisplay[];
@@ -123,6 +137,17 @@ export async function deleteSetsByWorkoutAndExercise(
   const deletedCount = await db('sets')
     .where('workout_id', workoutId)
     .where('exercise_id', exerciseId)
+    .delete();
+  return deletedCount;
+}
+
+export async function deleteSetsByWorkoutAndVariant(
+  workoutId: number,
+  exerciseVariantId: number,
+): Promise<number> {
+  const deletedCount = await db('sets')
+    .where('workout_id', workoutId)
+    .where('exercise_variant_id', exerciseVariantId)
     .delete();
   return deletedCount;
 }

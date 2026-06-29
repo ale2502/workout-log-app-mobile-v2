@@ -13,11 +13,27 @@ import {
 
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { getStoredDefaultGymId, storeDefaultGymId } from '@/lib/gyms';
 
 interface Workout {
   id: number;
   performedOn: string;
   createdAt: string;
+  gymId: number;
+  gymName: string;
+}
+
+interface Gym {
+  id: number;
+  name: string;
+}
+
+function parseApiDate(value: string) {
+  if (value.includes(' ')) {
+    return new Date(value.replace(' ', 'T') + 'Z');
+  }
+
+  return new Date(`${value}T00:00:00Z`);
 }
 
 export default function HomeScreen() {
@@ -27,6 +43,7 @@ export default function HomeScreen() {
   const [isStartingWorkout, setIsStartingWorkout] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [defaultGymId, setDefaultGymId] = useState<number | null>(null);
   const [selectedWorkoutId, setSelectedWorkoutId] = useState<number | null>(
     null,
   );
@@ -49,22 +66,54 @@ export default function HomeScreen() {
     }
   }, []);
 
+  const loadGyms = useCallback(async () => {
+    try {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/gyms`);
+
+      if (!response.ok) {
+        throw new Error('Failed to load gyms');
+      }
+
+      const data: Gym[] = await response.json();
+      const storedGymId = await getStoredDefaultGymId();
+      const nextDefaultGymId = storedGymId ?? data[0]?.id ?? null;
+
+      if (nextDefaultGymId !== null) {
+        setDefaultGymId(nextDefaultGymId);
+        await storeDefaultGymId(nextDefaultGymId);
+      }
+    } catch {
+      setError('Could not load gyms');
+    }
+  }, []);
+
   // Reload workouts whenever Home comes back into focus so newly created workouts appear without restarting the app.
   useFocusEffect(
     useCallback(() => {
+      loadGyms();
       loadWorkouts();
-    }, [loadWorkouts]),
+    }, [loadGyms, loadWorkouts]),
   );
 
   async function handleStartWorkout() {
     setError(null);
     setIsStartingWorkout(true);
 
+    if (defaultGymId === null) {
+      setError('Could not find a default gym');
+      setIsStartingWorkout(false);
+      return;
+    }
+
     try {
       const response = await fetch(
         `${process.env.EXPO_PUBLIC_API_URL}/workouts`,
         {
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ gymId: defaultGymId }),
         },
       );
 
@@ -167,9 +216,8 @@ export default function HomeScreen() {
 
         <Text style={{ color: colors.text }}>Previous workouts</Text>
         {workouts.map((workout) => {
-          const performedOn = new Date(
-            workout.performedOn.replace(' ', 'T') + 'Z',
-          );
+          const performedOn = parseApiDate(workout.performedOn);
+          const createdAt = parseApiDate(workout.createdAt);
 
           // If isSelected is true, the style on the container changes and shows the delete icon button
           const isSelected = selectedWorkoutId === workout.id;
@@ -189,10 +237,13 @@ export default function HomeScreen() {
               <View style={styles.workoutTextContainer}>
                 <Text style={{ color: colors.text }}>{performedOn.toLocaleDateString('en-NZ')}</Text>
                 <Text style={{ color: colors.mutedText }}>
+                  {workout.gymName}
+                </Text>
+                <Text style={{ color: colors.mutedText }}>
                   {performedOn.toLocaleDateString('en-NZ', { weekday: 'long' })}
                 </Text>
                 <Text style={{ color: colors.mutedText }}>
-                  {performedOn.toLocaleTimeString('en-NZ', {
+                  {createdAt.toLocaleTimeString('en-NZ', {
                     hour: 'numeric',
                     minute: '2-digit',
                     hour12: true,

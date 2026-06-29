@@ -1,9 +1,12 @@
 export interface WorkoutData {
-  performedOn: string;
+  performedOn?: string;
+  gymId?: number;
 }
 
-// createdAt exists only after the DB automatically creates it
-export interface Workout extends WorkoutData {
+export interface Workout {
   id: number;
+  performedOn: string;
   createdAt: string;
+  gymId: number;
+  gymName: string;
 }

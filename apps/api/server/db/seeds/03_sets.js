@@ -4,11 +4,15 @@
  */
 export const seed = async function (knex) {
   // Deletes ALL existing entries
+  await knex('exercise_variants').insert([
+    { id: 1, exercise_id: 1, gym_id: 1, label: 'Default machine' },
+  ]);
   await knex('sets').insert([
     {
       id: 1,
       exercise_id: 1,
       workout_id: 1,
+      exercise_variant_id: 1,
       set_number: 1,
       reps: 5,
       load: 10.5,
@@ -19,6 +23,7 @@ export const seed = async function (knex) {
       id: 2,
       exercise_id: 1,
       workout_id: 1,
+      exercise_variant_id: 1,
       set_number: 2,
       reps: 6,
       load: 8,
@@ -29,6 +34,7 @@ export const seed = async function (knex) {
       id: 3,
       exercise_id: 1,
       workout_id: 1,
+      exercise_variant_id: 1,
       set_number: 3,
       reps: 4,
       load: 8,

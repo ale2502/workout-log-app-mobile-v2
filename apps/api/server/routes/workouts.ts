@@ -7,8 +7,7 @@ const router = Router();
 // Create new workout
 router.post('/', async (req, res) => {
   try {
-    const workout = await db.addWorkout();
-    console.log(workout);
+    const workout = await db.addWorkout(req.body);
     res.status(201).json(workout);
   } catch (error) {
     console.error(error);
@@ -22,6 +21,29 @@ router.get('/', async (req, res) => {
     const workoutsArr = await db.getWorkouts();
     console.log(workoutsArr);
     res.status(200).json(workoutsArr);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Something went wrong');
+  }
+});
+
+router.get('/:id', async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+
+    if (Number.isNaN(id)) {
+      res.status(400).json({ error: 'workout id must be a number' });
+      return;
+    }
+
+    const workout = await db.getWorkoutById(id);
+
+    if (!workout) {
+      res.status(404).json({ error: 'Workout not found' });
+      return;
+    }
+
+    res.json(workout);
   } catch (error) {
     console.error(error);
     res.status(500).send('Something went wrong');
@@ -102,5 +124,39 @@ router.delete('/:workoutId/exercises/:exerciseId/sets', async (req, res) => {
     res.status(500).send('Something went wrong');
   }
 });
+
+router.delete(
+  '/:workoutId/exercise-variants/:exerciseVariantId/sets',
+  async (req, res) => {
+    try {
+      const workoutId = Number(req.params.workoutId);
+      const exerciseVariantId = Number(req.params.exerciseVariantId);
+
+      if (Number.isNaN(workoutId) || Number.isNaN(exerciseVariantId)) {
+        res
+          .status(400)
+          .json({ error: 'workout or exercise variant id must be a number' });
+        return;
+      }
+
+      const deletedCount = await setDb.deleteSetsByWorkoutAndVariant(
+        workoutId,
+        exerciseVariantId,
+      );
+
+      if (deletedCount === 0) {
+        res.status(404).json({
+          error: 'No sets found for that workout and exercise variant',
+        });
+        return;
+      }
+
+      res.sendStatus(204);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Something went wrong');
+    }
+  },
+);
 
 export default router;

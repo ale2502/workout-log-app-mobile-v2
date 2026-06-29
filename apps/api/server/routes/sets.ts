@@ -40,11 +40,13 @@ router.post('/', async (req, res) => {
     if (
       newSet.workoutId === undefined ||
       newSet.exerciseId === undefined ||
+      newSet.exerciseVariantId === undefined ||
       newSet.setNumber === undefined ||
       newSet.reps === undefined
     ) {
       res.status(400).json({
-        error: 'workoutId, exerciseId, setNumber and reps are required',
+        error:
+          'workoutId, exerciseId, exerciseVariantId, setNumber and reps are required',
       });
       return;
     }

@@ -28,9 +28,9 @@ export default function WorkoutDetailScreen() {
   const [workoutSets, setWorkoutSets] = useState<SetDisplay[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(
-    null,
-  );
+  const [selectedExerciseVariantId, setSelectedExerciseVariantId] = useState<
+    number | null
+  >(null);
   const [selectedExerciseName, setSelectedExerciseName] = useState<string>('');
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
@@ -64,14 +64,13 @@ export default function WorkoutDetailScreen() {
     // groups is the accumulator, is the thing we are building up over time. It starts as {}.
     // currentSet is the current item from the array.
     (groups, currentSet) => {
-      const exerciseName = currentSet.exerciseName;
+      const groupKey = `${currentSet.exerciseName} - ${currentSet.exerciseVariantLabel}`;
 
-      // ex: if groups['Bench Press'] === undefined, the key in the obj doesn't exist yet and will be created
-      if (groups[exerciseName] === undefined) {
-        groups[exerciseName] = [];
+      if (groups[groupKey] === undefined) {
+        groups[groupKey] = [];
       }
 
-      groups[exerciseName].push(currentSet);
+      groups[groupKey].push(currentSet);
 
       return groups;
     },
@@ -88,15 +87,19 @@ export default function WorkoutDetailScreen() {
     });
   }
 
-  function handlePressExercise(exerciseId: number, exerciseName: string) {
-    if (selectedExerciseId !== null) {
-      if (selectedExerciseId === exerciseId) {
-        setSelectedExerciseId(null);
+  function handlePressExercise(
+    exerciseId: number,
+    exerciseVariantId: number,
+    exerciseName: string,
+  ) {
+    if (selectedExerciseVariantId !== null) {
+      if (selectedExerciseVariantId === exerciseVariantId) {
+        setSelectedExerciseVariantId(null);
         setSelectedExerciseName('');
         return;
       }
 
-      setSelectedExerciseId(exerciseId);
+      setSelectedExerciseVariantId(exerciseVariantId);
       setSelectedExerciseName(exerciseName);
       return;
     }
@@ -106,25 +109,29 @@ export default function WorkoutDetailScreen() {
       params: {
         workoutId: String(workoutId),
         exerciseId: String(exerciseId),
+        exerciseVariantId: String(exerciseVariantId),
       },
     });
   }
 
-  function handleLongPressExercise(exerciseId: number, exerciseName: string) {
-    setSelectedExerciseId(exerciseId);
+  function handleLongPressExercise(
+    exerciseVariantId: number,
+    exerciseName: string,
+  ) {
+    setSelectedExerciseVariantId(exerciseVariantId);
     setSelectedExerciseName(exerciseName);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 
   function handleCancelDeleteExercise() {
     setIsDeleteModalVisible(false);
-    setSelectedExerciseId(null);
+    setSelectedExerciseVariantId(null);
     setSelectedExerciseName('');
   }
 
   async function handleDeleteExercise() {
     // Prevent action when no exercise is selected
-    if (selectedExerciseId === null) {
+    if (selectedExerciseVariantId === null) {
       return;
     }
 
@@ -132,7 +139,7 @@ export default function WorkoutDetailScreen() {
 
     try {
       const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/workouts/${workoutId}/exercises/${selectedExerciseId}/sets`,
+        `${process.env.EXPO_PUBLIC_API_URL}/workouts/${workoutId}/exercise-variants/${selectedExerciseVariantId}/sets`,
         {
           method: 'DELETE',
         },
@@ -142,13 +149,16 @@ export default function WorkoutDetailScreen() {
         throw new Error('Failed to delete exercise');
       }
 
-      setSelectedExerciseId(null);
+      setSelectedExerciseVariantId(null);
+      setSelectedExerciseName('');
       setIsDeleteModalVisible(false);
       await loadWorkout();
     } catch {
       setError('Could not delete exercise');
     }
   }
+
+  const gymName = workoutSets[0]?.gymName;
 
   if (isLoading) {
     return (
@@ -172,29 +182,52 @@ export default function WorkoutDetailScreen() {
         <Pressable style={[styles.addButton, { backgroundColor: colors.primary }]} onPress={handleAddExercise}>
           <Text style={[styles.addButtonText, { color: colors.onPrimary }]}>Add exercise</Text>
         </Pressable>
+        {gymName && <Text style={{ color: colors.mutedText }}>{gymName}</Text>}
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {workoutSets.length === 0 ? (
             <Text style={{ color: colors.text }}>No sets found for this workout.</Text>
           ) : (
-            Object.entries(groupedSets).map(([exerciseName, sets]) => {
+            Object.entries(groupedSets).map(([sectionTitle, sets]) => {
               const exerciseId = sets[0].exerciseId;
-              const isSelected = selectedExerciseId === exerciseId;
+              const exerciseVariantId = sets[0].exerciseVariantId;
+              const exerciseName = sets[0].exerciseName;
+              const exerciseVariantLabel = sets[0].exerciseVariantLabel;
+              const isSelected =
+                selectedExerciseVariantId === exerciseVariantId;
 
               return (
                 <Pressable
-                  key={exerciseName}
+                  key={sectionTitle}
                   style={[
                     styles.exerciseSection,
                     { backgroundColor: colors.surface, borderColor: colors.border },
                     isSelected && { borderColor: colors.destructive },
                   ]}
-                  onPress={() => handlePressExercise(exerciseId, exerciseName)}
+                  onPress={() =>
+                    handlePressExercise(
+                      exerciseId,
+                      exerciseVariantId,
+                      exerciseName,
+                    )
+                  }
                   onLongPress={() =>
-                    handleLongPressExercise(exerciseId, exerciseName)
+                    handleLongPressExercise(exerciseVariantId, exerciseName)
                   }
                 >
                   <View style={styles.exerciseTitleContainer}>
-                    <Text style={[styles.exerciseTitle, { color: colors.text }]}>{exerciseName}</Text>
+                    <View style={styles.exerciseTitleTextContainer}>
+                      <Text style={[styles.exerciseTitle, { color: colors.text }]}>
+                        {exerciseName}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.exerciseVariantLabel,
+                          { color: colors.mutedText },
+                        ]}
+                      >
+                        {exerciseVariantLabel}
+                      </Text>
+                    </View>
 
                     {isSelected ? (
                       <Pressable onPress={() => setIsDeleteModalVisible(true)}>
@@ -216,11 +249,15 @@ export default function WorkoutDetailScreen() {
                   <SavedSetsTable
                     sets={sets}
                     onLongPressSet={() =>
-                      handleLongPressExercise(exerciseId, exerciseName)
+                      handleLongPressExercise(exerciseVariantId, exerciseName)
                     }
                     selectedSetId={null}
                     onPressSet={() =>
-                      handlePressExercise(exerciseId, exerciseName)
+                      handlePressExercise(
+                        exerciseId,
+                        exerciseVariantId,
+                        exerciseName,
+                      )
                     }
                   />
                 </Pressable>
@@ -293,7 +330,13 @@ const styles = StyleSheet.create({
   exerciseTitle: {
     fontSize: 20,
     fontWeight: '700',
+  },
+  exerciseVariantLabel: {
+    fontSize: 14,
+  },
+  exerciseTitleTextContainer: {
     flex: 1,
+    gap: 2,
   },
   exerciseTitleContainer: {
     flexDirection: 'row',

@@ -212,7 +212,11 @@ export default function HomeScreen() {
           </Text>
         </Pressable>
 
-        {error && <Text style={[styles.errorText, { color: colors.destructive }]}>{error}</Text>}
+        {error && (
+          <Text style={[styles.errorText, { color: colors.destructive }]}>
+            {error}
+          </Text>
+        )}
 
         <Text style={{ color: colors.text }}>Previous workouts</Text>
         {workouts.map((workout) => {
@@ -235,7 +239,9 @@ export default function HomeScreen() {
             >
               {/* Left side of the prev workouts container */}
               <View style={styles.workoutTextContainer}>
-                <Text style={{ color: colors.text }}>{performedOn.toLocaleDateString('en-NZ')}</Text>
+                <Text style={{ color: colors.text }}>
+                  {performedOn.toLocaleDateString('en-NZ')}
+                </Text>
                 <Text style={{ color: colors.mutedText }}>
                   {workout.gymName}
                 </Text>
@@ -255,10 +261,18 @@ export default function HomeScreen() {
               <View style={styles.workoutActionContainer}>
                 {isSelected ? (
                   <Pressable onPress={() => setIsDeleteModalVisible(true)}>
-                    <Ionicons name="trash-outline" size={22} color={colors.destructive} />
+                    <Ionicons
+                      name="trash-outline"
+                      size={22}
+                      color={colors.destructive}
+                    />
                   </Pressable>
                 ) : (
-                  <Ionicons name="chevron-forward" size={22} color={colors.mutedText} />
+                  <Ionicons
+                    name="chevron-forward"
+                    size={22}
+                    color={colors.mutedText}
+                  />
                 )}
               </View>
             </Pressable>
@@ -268,25 +282,49 @@ export default function HomeScreen() {
       {/* Modal for confirming deletion of workout */}
       <Modal transparent visible={isDeleteModalVisible} animationType="fade">
         <View style={styles.modalBackdrop}>
-          <View style={[styles.modalCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-            <Text style={[styles.modalTitle, { color: colors.text }]}>Delete workout?</Text>
+          <View
+            style={[
+              styles.modalCard,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+          >
+            <Text style={[styles.modalTitle, { color: colors.text }]}>
+              Delete workout?
+            </Text>
             <Text style={[styles.modalMessage, { color: colors.mutedText }]}>
               This will delete the workout and all saved sets.
             </Text>
 
             <View style={styles.modalActions}>
               <Pressable
-                style={[styles.modalCancelButton, { backgroundColor: colors.surfaceMuted }]}
+                style={[
+                  styles.modalCancelButton,
+                  { backgroundColor: colors.surfaceMuted },
+                ]}
                 onPress={handleCancelDeleteWorkout}
               >
-                <Text style={[styles.modalCancelButtonText, { color: colors.text }]}>Cancel</Text>
+                <Text
+                  style={[styles.modalCancelButtonText, { color: colors.text }]}
+                >
+                  Cancel
+                </Text>
               </Pressable>
 
               <Pressable
-                style={[styles.modalDeleteButton, { backgroundColor: colors.destructive }]}
+                style={[
+                  styles.modalDeleteButton,
+                  { backgroundColor: colors.destructive },
+                ]}
                 onPress={handleDeleteWorkout}
               >
-                <Text style={[styles.modalDeleteButtonText, { color: colors.onPrimary }]}>Delete</Text>
+                <Text
+                  style={[
+                    styles.modalDeleteButtonText,
+                    { color: colors.onPrimary },
+                  ]}
+                >
+                  Delete
+                </Text>
               </Pressable>
             </View>
           </View>
@@ -299,7 +337,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 24,
-    paddingTop: 48,
+    paddingTop: 60,
     paddingBottom: 24,
     gap: 16,
   },

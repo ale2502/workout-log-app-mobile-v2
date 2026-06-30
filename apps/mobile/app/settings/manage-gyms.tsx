@@ -49,6 +49,12 @@ function sortVariants(variants: ExerciseVariantDisplay[]) {
   });
 }
 
+function sortGyms(gyms: Gym[]) {
+  return [...gyms].sort((firstGym, secondGym) =>
+    firstGym.name.localeCompare(secondGym.name),
+  );
+}
+
 async function getErrorMessage(response: Response, fallback: string) {
   try {
     const data = await response.json();
@@ -74,20 +80,44 @@ export default function ManageGymsScreen() {
   const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(
     null,
   );
+  const [editingGymName, setEditingGymName] = useState('');
+  const [isSavingGymName, setIsSavingGymName] = useState(false);
+  const [newGymName, setNewGymName] = useState('');
+  const [isAddingGym, setIsAddingGym] = useState(false);
   const [machineLabel, setMachineLabel] = useState('');
+  const [selectedManageExerciseId, setSelectedManageExerciseId] = useState<
+    number | null
+  >(null);
   const [editingVariantId, setEditingVariantId] = useState<number | null>(null);
   const [editingVariantLabel, setEditingVariantLabel] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isGymDropdownOpen, setIsGymDropdownOpen] = useState(false);
   const [isExerciseDropdownOpen, setIsExerciseDropdownOpen] = useState(false);
+  const [isManageExerciseDropdownOpen, setIsManageExerciseDropdownOpen] =
+    useState(false);
+  const [isDefaultGymTooltipVisible, setIsDefaultGymTooltipVisible] =
+    useState(false);
+  const [isMachineTooltipVisible, setIsMachineTooltipVisible] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const selectedGym = gyms.find((gym) => gym.id === selectedGymId);
   const selectedExercise = exercises.find(
     (exercise) => exercise.id === selectedExerciseId,
   );
+  const selectedManageExercise = exercises.find(
+    (exercise) => exercise.id === selectedManageExerciseId,
+  );
+  const manageExerciseOptions = exercises.filter((exercise) =>
+    variants.some((variant) => variant.exerciseId === exercise.id),
+  );
+  const filteredVariants =
+    selectedManageExerciseId === null
+      ? []
+      : variants.filter(
+          (variant) => variant.exerciseId === selectedManageExerciseId,
+        );
 
-  const groupedVariants = variants.reduce<
+  const groupedVariants = filteredVariants.reduce<
     Record<string, ExerciseVariantDisplay[]>
   >((groups, variant) => {
     if (groups[variant.exerciseName] === undefined) {
@@ -159,6 +189,26 @@ export default function ManageGymsScreen() {
     loadVariants(selectedGymId);
   }, [loadVariants, selectedGymId]);
 
+  useEffect(() => {
+    setEditingGymName(selectedGym?.name ?? '');
+  }, [selectedGym?.id, selectedGym?.name]);
+
+  useEffect(() => {
+    if (selectedManageExerciseId === null) {
+      return;
+    }
+
+    const selectedExerciseHasVariants = variants.some(
+      (variant) => variant.exerciseId === selectedManageExerciseId,
+    );
+
+    if (!selectedExerciseHasVariants) {
+      setSelectedManageExerciseId(null);
+      setIsManageExerciseDropdownOpen(false);
+      handleCancelEditVariant();
+    }
+  }, [selectedManageExerciseId, variants]);
+
   async function handleSelectGym(gym: Gym) {
     setSelectedGymId(gym.id);
     setIsGymDropdownOpen(false);
@@ -166,6 +216,93 @@ export default function ManageGymsScreen() {
     setEditingVariantLabel('');
     setError(null);
     await storeDefaultGymId(gym.id);
+  }
+
+  async function handleSaveGymName() {
+    if (selectedGymId === null) {
+      setError('Select a gym first');
+      return;
+    }
+
+    if (editingGymName.trim() === '') {
+      setError('Gym name is required');
+      return;
+    }
+
+    try {
+      setIsSavingGymName(true);
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/gyms/${selectedGymId}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: editingGymName }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          await getErrorMessage(response, 'Could not update gym'),
+        );
+      }
+
+      const updatedGym: Gym = await response.json();
+      setGyms((currentGyms) =>
+        sortGyms(
+          currentGyms.map((gym) =>
+            gym.id === updatedGym.id ? updatedGym : gym,
+          ),
+        ),
+      );
+      setEditingGymName(updatedGym.name);
+      setError(null);
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : 'Could not update gym',
+      );
+    } finally {
+      setIsSavingGymName(false);
+    }
+  }
+
+  async function handleAddGym() {
+    if (newGymName.trim() === '') {
+      setError('Gym name is required');
+      return;
+    }
+
+    try {
+      setIsAddingGym(true);
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/gyms`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newGymName }),
+      });
+
+      if (!response.ok) {
+        throw new Error(await getErrorMessage(response, 'Could not add gym'));
+      }
+
+      const createdGym: Gym = await response.json();
+      setGyms((currentGyms) => sortGyms([...currentGyms, createdGym]));
+      setSelectedGymId(createdGym.id);
+      setNewGymName('');
+      setIsGymDropdownOpen(false);
+      setEditingVariantId(null);
+      setEditingVariantLabel('');
+      setError(null);
+      await storeDefaultGymId(createdGym.id);
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : 'Could not add gym',
+      );
+    } finally {
+      setIsAddingGym(false);
+    }
   }
 
   async function handleAddMachine() {
@@ -311,284 +448,551 @@ export default function ManageGymsScreen() {
             Manage Gyms and Machines
           </ThemedText>
 
-        <View
-          style={[
-            styles.card,
-            { backgroundColor: colors.surface, borderColor: colors.border },
-          ]}
-        >
-          <ThemedText type="defaultSemiBold">Default gym</ThemedText>
-
-          <View style={styles.dropdownContainer}>
-            <Pressable
+          <View
+            style={[
+              styles.card,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+          >
+            <View
               style={[
-                styles.field,
-                styles.dropdownButton,
-                isGymDropdownOpen && styles.dropdownButtonOpen,
-                {
-                  backgroundColor: colors.background,
-                  borderColor: colors.border,
-                },
+                styles.gymControlGroup,
+                isGymDropdownOpen && styles.dropdownGroupOpen,
               ]}
-              onPress={() =>
-                setIsGymDropdownOpen((currentValue) => !currentValue)
-              }
             >
-              <Text style={[styles.fieldText, { color: colors.text }]}>
-                {selectedGym?.name ?? 'Select gym'}
-              </Text>
-              <Ionicons
-                name={isGymDropdownOpen ? 'chevron-up' : 'chevron-down'}
-                size={20}
-                color={colors.mutedText}
-              />
-            </Pressable>
-
-            {isGymDropdownOpen && (
-              <View
-                style={[
-                  styles.dropdownMenu,
-                  {
-                    backgroundColor: colors.surface,
-                    borderColor: colors.border,
-                  },
-                ]}
-              >
-                {gyms.map((gym, index) => {
-                  const isSelected = gym.id === selectedGymId;
-                  const isLastOption = index === gyms.length - 1;
-
-                  return (
-                    <Pressable
-                      key={gym.id}
-                      style={[
-                        styles.dropdownOption,
-                        { backgroundColor: colors.surface },
-                        !isLastOption && [
-                          styles.dropdownOptionBorder,
-                          { borderBottomColor: colors.border },
-                        ],
-                        isSelected && { backgroundColor: colors.surfaceMuted },
-                      ]}
-                      onPress={() => handleSelectGym(gym)}
-                    >
-                      <Text style={[styles.fieldText, { color: colors.text }]}>
-                        {gym.name}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
+              <View style={styles.sectionTitleRow}>
+                <ThemedText type="defaultSemiBold">Default gym</ThemedText>
+                <Pressable
+                  style={[styles.helpButton, { borderColor: colors.border }]}
+                  onPress={() =>
+                    setIsDefaultGymTooltipVisible(
+                      (currentValue) => !currentValue,
+                    )
+                  }
+                >
+                  <Text
+                    style={[styles.helpButtonText, { color: colors.mutedText }]}
+                  >
+                    ?
+                  </Text>
+                </Pressable>
               </View>
-            )}
-          </View>
-        </View>
 
-        <View
-          style={[
-            styles.card,
-            { backgroundColor: colors.surface, borderColor: colors.border },
-          ]}
-        >
-          <ThemedText type="defaultSemiBold">Add machine</ThemedText>
+              {isDefaultGymTooltipVisible && (
+                <View
+                  style={[
+                    styles.helpBubble,
+                    {
+                      backgroundColor: colors.background,
+                      borderColor: colors.border,
+                    },
+                  ]}
+                >
+                  <Text
+                    style={[styles.helpBubbleText, { color: colors.mutedText }]}
+                  >
+                    This gym is used automatically when you start your next
+                    workout. Change it here before starting if you are training
+                    somewhere else.
+                  </Text>
+                </View>
+              )}
 
-          <View style={styles.dropdownContainer}>
-            <Pressable
-              style={[
-                styles.field,
-                styles.dropdownButton,
-                isExerciseDropdownOpen && styles.dropdownButtonOpen,
-                {
-                  backgroundColor: colors.background,
-                  borderColor: colors.border,
-                },
-              ]}
-              onPress={() =>
-                setIsExerciseDropdownOpen((currentValue) => !currentValue)
-              }
-            >
-              <Text style={[styles.fieldText, { color: colors.text }]}>
-                {selectedExercise?.name ?? 'Select exercise'}
-              </Text>
-              <Ionicons
-                name={isExerciseDropdownOpen ? 'chevron-up' : 'chevron-down'}
-                size={20}
-                color={colors.mutedText}
-              />
-            </Pressable>
+              <View style={styles.dropdownContainer}>
+                <Pressable
+                  style={[
+                    styles.field,
+                    styles.dropdownButton,
+                    isGymDropdownOpen && styles.dropdownButtonOpen,
+                    {
+                      backgroundColor: colors.background,
+                      borderColor: colors.border,
+                    },
+                  ]}
+                  onPress={() =>
+                    setIsGymDropdownOpen((currentValue) => !currentValue)
+                  }
+                >
+                  <Text style={[styles.fieldText, { color: colors.text }]}>
+                    {selectedGym?.name ?? 'Select gym'}
+                  </Text>
+                  <Ionicons
+                    name={isGymDropdownOpen ? 'chevron-up' : 'chevron-down'}
+                    size={20}
+                    color={colors.mutedText}
+                  />
+                </Pressable>
 
-            {isExerciseDropdownOpen && (
-              <View
-                style={[
-                  styles.dropdownMenu,
-                  {
-                    backgroundColor: colors.surface,
-                    borderColor: colors.border,
-                  },
-                ]}
-              >
-                {exercises.map((exercise, index) => {
-                  const isSelected = exercise.id === selectedExerciseId;
-                  const isLastOption = index === exercises.length - 1;
+                {isGymDropdownOpen && (
+                  <View
+                    style={[
+                      styles.dropdownMenu,
+                      {
+                        backgroundColor: colors.surface,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                  >
+                    {gyms.map((gym, index) => {
+                      const isSelected = gym.id === selectedGymId;
+                      const isLastOption = index === gyms.length - 1;
 
-                  return (
-                    <Pressable
-                      key={exercise.id}
-                      style={[
-                        styles.dropdownOption,
-                        { backgroundColor: colors.surface },
-                        !isLastOption && [
-                          styles.dropdownOptionBorder,
-                          { borderBottomColor: colors.border },
-                        ],
-                        isSelected && { backgroundColor: colors.surfaceMuted },
-                      ]}
-                      onPress={() => {
-                        setSelectedExerciseId(exercise.id);
-                        setIsExerciseDropdownOpen(false);
-                      }}
-                    >
-                      <Text style={[styles.fieldText, { color: colors.text }]}>
-                        {exercise.name}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            )}
-          </View>
-
-          <View style={styles.inlineForm}>
-            <TextInput
-              style={[
-                styles.field,
-                styles.input,
-                styles.inlineInput,
-                {
-                  color: colors.text,
-                  borderColor: colors.border,
-                  backgroundColor: colors.background,
-                },
-              ]}
-              placeholder="Machine label"
-              placeholderTextColor={colors.mutedText}
-              value={machineLabel}
-              onChangeText={setMachineLabel}
-            />
-            <Pressable
-              style={[styles.iconButton, { backgroundColor: colors.primary }]}
-              onPress={handleAddMachine}
-            >
-              <Ionicons name="add" size={24} color={colors.onPrimary} />
-            </Pressable>
-          </View>
-        </View>
-
-        <View
-          style={[
-            styles.card,
-            { backgroundColor: colors.surface, borderColor: colors.border },
-          ]}
-        >
-          <ThemedText type="defaultSemiBold">Machines</ThemedText>
-
-          {variants.length === 0 ? (
-            <Text style={{ color: colors.mutedText }}>No machines found.</Text>
-          ) : (
-            Object.entries(groupedVariants).map(([exerciseName, machines]) => (
-              <View key={exerciseName} style={styles.exerciseSection}>
-                <Text style={[styles.exerciseTitle, { color: colors.text }]}>
-                  {exerciseName}
-                </Text>
-
-                {machines.map((machine) => {
-                  const isEditing = machine.id === editingVariantId;
-
-                  return (
-                    <View
-                      key={machine.id}
-                      style={[
-                        styles.machineRow,
-                        { borderColor: colors.border },
-                      ]}
-                    >
-                      {isEditing ? (
-                        <>
-                          <TextInput
-                            style={[
-                              styles.field,
-                              styles.input,
-                              styles.inlineInput,
-                              {
-                                color: colors.text,
-                                borderColor: colors.border,
-                                backgroundColor: colors.background,
-                              },
-                            ]}
-                            value={editingVariantLabel}
-                            onChangeText={setEditingVariantLabel}
-                          />
-                          <Pressable
-                            style={[
-                              styles.smallIconButton,
-                              { backgroundColor: colors.primary },
-                            ]}
-                            onPress={handleSaveVariant}
-                          >
-                            <Ionicons
-                              name="checkmark"
-                              size={20}
-                              color={colors.onPrimary}
-                            />
-                          </Pressable>
-                          <Pressable
-                            style={[
-                              styles.smallIconButton,
-                              { backgroundColor: colors.surfaceMuted },
-                            ]}
-                            onPress={handleCancelEditVariant}
-                          >
-                            <Ionicons
-                              name="close"
-                              size={20}
-                              color={colors.text}
-                            />
-                          </Pressable>
-                        </>
-                      ) : (
-                        <>
+                      return (
+                        <Pressable
+                          key={gym.id}
+                          style={[
+                            styles.dropdownOption,
+                            { backgroundColor: colors.surface },
+                            !isLastOption && [
+                              styles.dropdownOptionBorder,
+                              { borderBottomColor: colors.border },
+                            ],
+                            isSelected && {
+                              backgroundColor: colors.surfaceMuted,
+                            },
+                          ]}
+                          onPress={() => handleSelectGym(gym)}
+                        >
                           <Text
-                            style={[styles.machineLabel, { color: colors.text }]}
+                            style={[styles.fieldText, { color: colors.text }]}
                           >
-                            {machine.label}
+                            {gym.name}
                           </Text>
-                          <Pressable
-                            style={[
-                              styles.smallIconButton,
-                              { backgroundColor: colors.surfaceMuted },
-                            ]}
-                            onPress={() => handleStartEditVariant(machine)}
-                          >
-                            <Ionicons
-                              name="create-outline"
-                              size={19}
-                              color={colors.text}
-                            />
-                          </Pressable>
-                        </>
-                      )}
-                    </View>
-                  );
-                })}
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                )}
               </View>
-            ))
-          )}
-        </View>
+            </View>
 
-        {error && (
-          <Text style={[styles.errorText, { color: colors.destructive }]}>
-            {error}
-          </Text>
-        )}
+            <View style={styles.gymControlGroup}>
+              <ThemedText type="defaultSemiBold">Edit gym name</ThemedText>
+
+              <View style={styles.inlineForm}>
+                <TextInput
+                  style={[
+                    styles.field,
+                    styles.input,
+                    styles.inlineInput,
+                    {
+                      color: colors.text,
+                      borderColor: colors.border,
+                      backgroundColor: colors.background,
+                    },
+                  ]}
+                  placeholder="Gym name"
+                  placeholderTextColor={colors.mutedText}
+                  value={editingGymName}
+                  onChangeText={setEditingGymName}
+                />
+                <Pressable
+                  style={[
+                    styles.iconButton,
+                    { backgroundColor: colors.primary },
+                    isSavingGymName && styles.disabledButton,
+                  ]}
+                  onPress={handleSaveGymName}
+                  disabled={isSavingGymName}
+                >
+                  <Ionicons
+                    name="checkmark"
+                    size={24}
+                    color={colors.onPrimary}
+                  />
+                </Pressable>
+              </View>
+            </View>
+
+            <View style={styles.gymControlGroup}>
+              <ThemedText type="defaultSemiBold">Add gym</ThemedText>
+
+              <View style={styles.inlineForm}>
+                <TextInput
+                  style={[
+                    styles.field,
+                    styles.input,
+                    styles.inlineInput,
+                    {
+                      color: colors.text,
+                      borderColor: colors.border,
+                      backgroundColor: colors.background,
+                    },
+                  ]}
+                  placeholder="New gym name"
+                  placeholderTextColor={colors.mutedText}
+                  value={newGymName}
+                  onChangeText={setNewGymName}
+                />
+                <Pressable
+                  style={[
+                    styles.iconButton,
+                    { backgroundColor: colors.primary },
+                    isAddingGym && styles.disabledButton,
+                  ]}
+                  onPress={handleAddGym}
+                  disabled={isAddingGym}
+                >
+                  <Ionicons
+                    name="checkmark"
+                    size={24}
+                    color={colors.onPrimary}
+                  />
+                </Pressable>
+              </View>
+            </View>
+          </View>
+
+          <View
+            style={[
+              styles.card,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+          >
+            <View style={styles.gymControlGroup}>
+              <View style={styles.sectionTitleRow}>
+                <ThemedText type="defaultSemiBold">Add machine</ThemedText>
+                <Pressable
+                  style={[styles.helpButton, { borderColor: colors.border }]}
+                  onPress={() =>
+                    setIsMachineTooltipVisible((currentValue) => !currentValue)
+                  }
+                >
+                  <Text
+                    style={[styles.helpButtonText, { color: colors.mutedText }]}
+                  >
+                    ?
+                  </Text>
+                </Pressable>
+              </View>
+
+              {isMachineTooltipVisible && (
+                <View
+                  style={[
+                    styles.helpBubble,
+                    {
+                      backgroundColor: colors.background,
+                      borderColor: colors.border,
+                    },
+                  ]}
+                >
+                  <Text
+                    style={[styles.helpBubbleText, { color: colors.mutedText }]}
+                  >
+                    Add a gym-specific version of the selected exercise, such as
+                    Pulldown 1 or Pulldown 2 when this gym has more than one
+                  machine.
+                </Text>
+              </View>
+            )}
+
+              <Text style={{ color: colors.mutedText }}>
+                {selectedGym?.name ?? 'No gym selected'}
+              </Text>
+
+              <View style={styles.dropdownContainer}>
+                <Pressable
+                  style={[
+                    styles.field,
+                    styles.dropdownButton,
+                    isExerciseDropdownOpen && styles.dropdownButtonOpen,
+                    {
+                      backgroundColor: colors.background,
+                      borderColor: colors.border,
+                    },
+                  ]}
+                  onPress={() =>
+                    setIsExerciseDropdownOpen((currentValue) => !currentValue)
+                  }
+                >
+                  <Text style={[styles.fieldText, { color: colors.text }]}>
+                    {selectedExercise?.name ?? 'Select exercise'}
+                  </Text>
+                  <Ionicons
+                    name={
+                      isExerciseDropdownOpen ? 'chevron-up' : 'chevron-down'
+                    }
+                    size={20}
+                    color={colors.mutedText}
+                  />
+                </Pressable>
+
+                {isExerciseDropdownOpen && (
+                  <View
+                    style={[
+                      styles.dropdownMenu,
+                      {
+                        backgroundColor: colors.surface,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                  >
+                    {exercises.map((exercise, index) => {
+                      const isSelected = exercise.id === selectedExerciseId;
+                      const isLastOption = index === exercises.length - 1;
+
+                      return (
+                        <Pressable
+                          key={exercise.id}
+                          style={[
+                            styles.dropdownOption,
+                            { backgroundColor: colors.surface },
+                            !isLastOption && [
+                              styles.dropdownOptionBorder,
+                              { borderBottomColor: colors.border },
+                            ],
+                            isSelected && {
+                              backgroundColor: colors.surfaceMuted,
+                            },
+                          ]}
+                          onPress={() => {
+                            setSelectedExerciseId(exercise.id);
+                            setIsExerciseDropdownOpen(false);
+                          }}
+                        >
+                          <Text
+                            style={[styles.fieldText, { color: colors.text }]}
+                          >
+                            {exercise.name}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                )}
+              </View>
+            </View>
+
+            <View style={styles.inlineForm}>
+              <TextInput
+                style={[
+                  styles.field,
+                  styles.input,
+                  styles.inlineInput,
+                  {
+                    color: colors.text,
+                    borderColor: colors.border,
+                    backgroundColor: colors.background,
+                  },
+                ]}
+                placeholder="Machine label"
+                placeholderTextColor={colors.mutedText}
+                value={machineLabel}
+                onChangeText={setMachineLabel}
+              />
+              <Pressable
+                style={[styles.iconButton, { backgroundColor: colors.primary }]}
+                onPress={handleAddMachine}
+              >
+                <Ionicons name="add" size={24} color={colors.onPrimary} />
+              </Pressable>
+            </View>
+          </View>
+
+          <View
+            style={[
+              styles.card,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+          >
+            <View style={styles.gymControlGroup}>
+              <ThemedText type="defaultSemiBold">Manage machines</ThemedText>
+              <Text style={{ color: colors.mutedText }}>
+                {selectedGym?.name ?? 'No gym selected'}
+              </Text>
+              <Text
+                style={[styles.sectionHelpText, { color: colors.mutedText }]}
+              >
+                Select a generic exercise to edit its variant label.
+              </Text>
+
+              <View style={styles.dropdownContainer}>
+                <Pressable
+                  style={[
+                    styles.field,
+                    styles.dropdownButton,
+                    isManageExerciseDropdownOpen && styles.dropdownButtonOpen,
+                    {
+                      backgroundColor: colors.background,
+                      borderColor: colors.border,
+                    },
+                  ]}
+                  onPress={() =>
+                    setIsManageExerciseDropdownOpen(
+                      (currentValue) => !currentValue,
+                    )
+                  }
+                >
+                  <Text style={[styles.fieldText, { color: colors.text }]}>
+                    {selectedManageExercise?.name ?? 'Select generic exercise'}
+                  </Text>
+                  <Ionicons
+                    name={
+                      isManageExerciseDropdownOpen
+                        ? 'chevron-up'
+                        : 'chevron-down'
+                    }
+                    size={20}
+                    color={colors.mutedText}
+                  />
+                </Pressable>
+
+                {isManageExerciseDropdownOpen && (
+                  <View
+                    style={[
+                      styles.inlineDropdownMenu,
+                      {
+                        backgroundColor: colors.surface,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                  >
+                    {manageExerciseOptions.map((exercise, index) => {
+                      const isSelected =
+                        exercise.id === selectedManageExerciseId;
+                      const isLastOption =
+                        index === manageExerciseOptions.length - 1;
+
+                      return (
+                        <Pressable
+                          key={exercise.id}
+                          style={[
+                            styles.dropdownOption,
+                            { backgroundColor: colors.surface },
+                            !isLastOption && [
+                              styles.dropdownOptionBorder,
+                              { borderBottomColor: colors.border },
+                            ],
+                            isSelected && {
+                              backgroundColor: colors.surfaceMuted,
+                            },
+                          ]}
+                          onPress={() => {
+                            setSelectedManageExerciseId(exercise.id);
+                            setIsManageExerciseDropdownOpen(false);
+                            handleCancelEditVariant();
+                          }}
+                        >
+                          <Text
+                            style={[styles.fieldText, { color: colors.text }]}
+                          >
+                            {exercise.name}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                )}
+              </View>
+            </View>
+
+            {variants.length === 0 ? (
+              <Text style={{ color: colors.mutedText }}>
+                No machines found.
+              </Text>
+            ) : selectedManageExerciseId === null ? null : (
+              Object.entries(groupedVariants).map(
+                ([exerciseName, machines]) => (
+                  <View key={exerciseName} style={styles.exerciseSection}>
+                    <Text
+                      style={[styles.exerciseTitle, { color: colors.text }]}
+                    >
+                      {exerciseName}
+                    </Text>
+
+                    {machines.map((machine) => {
+                      const isEditing = machine.id === editingVariantId;
+
+                      return (
+                        <View
+                          key={machine.id}
+                          style={[
+                            styles.machineRow,
+                            { borderColor: colors.border },
+                          ]}
+                        >
+                          {isEditing ? (
+                            <>
+                              <TextInput
+                                style={[
+                                  styles.field,
+                                  styles.input,
+                                  styles.inlineInput,
+                                  {
+                                    color: colors.text,
+                                    borderColor: colors.border,
+                                    backgroundColor: colors.background,
+                                  },
+                                ]}
+                                value={editingVariantLabel}
+                                onChangeText={setEditingVariantLabel}
+                              />
+                              <Pressable
+                                style={[
+                                  styles.smallIconButton,
+                                  { backgroundColor: colors.primary },
+                                ]}
+                                onPress={handleSaveVariant}
+                              >
+                                <Ionicons
+                                  name="checkmark"
+                                  size={20}
+                                  color={colors.onPrimary}
+                                />
+                              </Pressable>
+                              <Pressable
+                                style={[
+                                  styles.smallIconButton,
+                                  { backgroundColor: colors.surfaceMuted },
+                                ]}
+                                onPress={handleCancelEditVariant}
+                              >
+                                <Ionicons
+                                  name="close"
+                                  size={20}
+                                  color={colors.text}
+                                />
+                              </Pressable>
+                            </>
+                          ) : (
+                            <>
+                              <Text
+                                style={[
+                                  styles.machineLabel,
+                                  { color: colors.text },
+                                ]}
+                              >
+                                {machine.label}
+                              </Text>
+                              <Pressable
+                                style={[
+                                  styles.smallIconButton,
+                                  { backgroundColor: colors.surfaceMuted },
+                                ]}
+                                onPress={() => handleStartEditVariant(machine)}
+                              >
+                                <Ionicons
+                                  name="create-outline"
+                                  size={19}
+                                  color={colors.text}
+                                />
+                              </Pressable>
+                            </>
+                          )}
+                        </View>
+                      );
+                    })}
+                  </View>
+                ),
+              )
+            )}
+          </View>
+
+          {error && (
+            <Text style={[styles.errorText, { color: colors.destructive }]}>
+              {error}
+            </Text>
+          )}
         </ScrollView>
       </ThemedView>
     </>
@@ -655,11 +1059,56 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 8,
     overflow: 'hidden',
   },
+  inlineDropdownMenu: {
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    overflow: 'hidden',
+  },
   dropdownOption: {
     padding: 12,
   },
   dropdownOptionBorder: {
     borderBottomWidth: 1,
+  },
+  gymControlGroup: {
+    gap: 6,
+  },
+  dropdownGroupOpen: {
+    zIndex: 4,
+    elevation: 4,
+  },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  helpButton: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  helpButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  helpBubble: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+  },
+  helpBubbleText: {
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  sectionHelpText: {
+    fontSize: 14,
+    lineHeight: 19,
   },
   input: {
     fontSize: 16,
@@ -678,6 +1127,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  disabledButton: {
+    opacity: 0.6,
   },
   smallIconButton: {
     width: 40,

@@ -1,10 +1,5 @@
 import { useRouter } from 'expo-router';
-import {
-  Pressable,
-  Switch,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Pressable, Switch, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { ThemedText } from '@/components/themed-text';
@@ -62,7 +57,7 @@ export default function SettingsScreen() {
       >
         <View style={styles.settingCopy}>
           <ThemedText type="defaultSemiBold">
-            Manage Gyms and Machines
+            Manage gyms and machines
           </ThemedText>
         </View>
 

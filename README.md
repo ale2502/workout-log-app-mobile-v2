@@ -9,7 +9,7 @@ This app will have an UI where the user can:
 * Pick an exercise
 * Add sets, reps, load, RIR (reps in reserve) and notes
 * Access past workouts
-* Create new exercises
+* Create new exercises 
 
 **Beta live demo (downloadable):**
 

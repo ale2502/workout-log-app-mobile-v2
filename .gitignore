@@ -19,8 +19,6 @@ coverage/*
 # Build directory
 /dist
 
-# Promptkit repository
-promptkit
 
 # Local Superpowers session state
 .superpowers/

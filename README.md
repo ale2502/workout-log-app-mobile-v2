@@ -1,5 +1,5 @@
 # TypeScript/React Native/Node/SQLite3/Knex.js - Workout Log Mobile App #
-
+ 
 ## A work-in-progress mobile app for gym enthusiasts, where the users can track their workout and assess their progress ## 
 
 This app will have an UI where the user can:
@@ -9,7 +9,7 @@ This app will have an UI where the user can:
 * Pick an exercise
 * Add sets, reps, load, RIR (reps in reserve) and notes
 * Access past workouts
-* Create new exercises
+* Create new exercises 
 
 **Beta live demo (downloadable):**
 

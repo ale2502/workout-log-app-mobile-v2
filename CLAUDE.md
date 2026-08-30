@@ -62,4 +62,6 @@ This repo exists so I (the user) can **learn** full-stack/mobile development by 
 
 ## Project Journal
 
-`PROGRESS_JOURNAL.md` at the repo root is the running log of sessions: what was explored, learned, and the next action. Skim recent entries at the start of a session to pick up context, and add a new row after a focused session (date, what was done, what was learned, next action).
+`PROGRESS_JOURNAL.md` at the repo root is the running log of sessions: what was explored, learned, and the next action. Skim recent entries at the start of a session to pick up context.
+
+To wrap up a session, use the `save` skill (`.claude/skills/save/SKILL.md`, invoked with `/save` or by asking to save/wrap up): it appends a new journal row, commits, and pushes to GitHub.

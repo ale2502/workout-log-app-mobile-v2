@@ -87,27 +87,51 @@ export function SetForm(props: SetFormProps) {
         <View style={styles.editButtonRow}>
           <Pressable
             onPress={props.onUpdate}
-            style={[styles.editButton, styles.updateButton, { backgroundColor: colors.primary }]}
+            style={[
+              styles.editButton,
+              styles.updateButton,
+              { backgroundColor: colors.primary },
+            ]}
           >
-            <Text style={[styles.editButtonText, { color: colors.onPrimary }]}>Update Set</Text>
+            <Text style={[styles.editButtonText, { color: colors.onPrimary }]}>
+              Update Set
+            </Text>
           </Pressable>
 
           <Pressable
             onPress={props.onDelete}
-            style={[styles.editButton, styles.deleteButton, { backgroundColor: colors.destructive }]}
+            style={[
+              styles.editButton,
+              styles.deleteButton,
+              { backgroundColor: colors.destructive },
+            ]}
           >
-            <Text style={[styles.editButtonText, { color: colors.onPrimary }]}>Delete Set</Text>
+            <Text style={[styles.editButtonText, { color: colors.onPrimary }]}>
+              Delete Set
+            </Text>
           </Pressable>
 
           <Pressable
             onPress={props.onCancel}
-            style={[styles.editButton, styles.cancelButton, { backgroundColor: colors.surfaceMuted }]}
+            style={[
+              styles.editButton,
+              styles.cancelButton,
+              {
+                backgroundColor: colors.surfaceMuted,
+                borderColor: colors.border,
+              },
+            ]}
           >
-            <Text style={[styles.cancelButtonText, { color: colors.text }]}>Cancel</Text>
+            <Text style={[styles.cancelButtonText, { color: colors.text }]}>
+              Cancel
+            </Text>
           </Pressable>
         </View>
       ) : (
-        <Pressable onPress={props.onSave} style={[styles.saveButton, { backgroundColor: colors.primary }]}>
+        <Pressable
+          onPress={props.onSave}
+          style={[styles.saveButton, { backgroundColor: colors.primary }]}
+        >
           <Text style={[styles.saveButtonText, { color: colors.onPrimary }]}>
             {props.isSaving ? 'Saving...' : 'Save'}
           </Text>
@@ -160,6 +184,9 @@ const styles = StyleSheet.create({
   },
   editButtonText: {
     fontWeight: '700',
+  },
+  cancelButton: {
+    borderWidth: 1,
   },
   cancelButtonText: {
     fontWeight: '700',

@@ -87,11 +87,7 @@ export function SetForm(props: SetFormProps) {
         <View style={styles.editButtonRow}>
           <Pressable
             onPress={props.onUpdate}
-            style={[
-              styles.editButton,
-              styles.updateButton,
-              { backgroundColor: colors.primary },
-            ]}
+            style={[styles.editButton, { backgroundColor: colors.primary }]}
           >
             <Text style={[styles.editButtonText, { color: colors.onPrimary }]}>
               Update Set
@@ -100,11 +96,7 @@ export function SetForm(props: SetFormProps) {
 
           <Pressable
             onPress={props.onDelete}
-            style={[
-              styles.editButton,
-              styles.deleteButton,
-              { backgroundColor: colors.destructive },
-            ]}
+            style={[styles.editButton, { backgroundColor: colors.destructive }]}
           >
             <Text style={[styles.editButtonText, { color: colors.onPrimary }]}>
               Delete Set

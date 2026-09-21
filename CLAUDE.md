@@ -26,6 +26,10 @@ Prefer colocated component code in `components/workout` or `components/ui` befor
 - `npm run db:seed -w apps/api` — seed the API database.
 - iOS Simulator: `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer` is needed if `xcode-select` points at Command Line Tools instead of Xcode.
 
+### Auto-starting the dev environment
+
+A `SessionStart` hook (`.claude/settings.local.json`, personal/gitignored, running `.claude/hooks/start-dev-environment.sh`) launches the API server, refreshes the mobile env, and opens Expo + the iOS Simulator automatically at the start of every Claude Code session in this repo — no need to ask for it each time. It's idempotent: it checks ports 3001 (API) and 8081 (Metro) before starting anything, so it won't spawn duplicates if the stack is already running. Logs land in `.claude/logs/` (gitignored). To change or disable it, edit or remove the hook entry in `.claude/settings.local.json`.
+
 ## Coding Style & Naming Conventions
 
 - TypeScript throughout. Two-space indentation in the mobile app; four-space indentation in API package JSON/config files where already present.

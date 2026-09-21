@@ -23,3 +23,7 @@ coverage/*
 # Local Superpowers session state
 .superpowers/
 docs/superpowers/plans/
+
+# Claude Code personal/local settings
+.claude/settings.local.json
+.claude/logs/

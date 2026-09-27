@@ -1,12 +1,15 @@
 #!/bin/bash
-# SessionStart hook: launches the API server, Expo/Metro, and the iOS Simulator
-# for the Grind Notes app so a fresh Claude Code session has the dev stack
-# already running. Safe to re-run: skips anything already listening on its port.
+# SessionStart hook: launches the API server, Expo/Metro, the iOS Simulator,
+# and VS Code for the Grind Notes app so a fresh Claude Code session has the
+# dev stack already running. Safe to re-run: skips anything already listening
+# on its port; opening VS Code on an already-open folder just focuses it.
 set -uo pipefail
 
 REPO="/Users/ale/devacademy/personal-projects/workout-log-app-mobile-v2"
 LOG_DIR="$REPO/.claude/logs"
 mkdir -p "$LOG_DIR"
+
+open -a "Visual Studio Code" "$REPO"
 
 port_listening() {
   lsof -nP -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1

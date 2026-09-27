@@ -76,7 +76,10 @@ export function SavedSetsTable(props: SavedSetsTableProps) {
               <Text style={[styles.tableCell, { color: colors.text }]}>
                 {set.rir ?? '-'}
               </Text>
-              <Pressable style={styles.notesCell}>
+              <Pressable
+                onPress={() => props.onPressNotes?.(set)}
+                style={styles.notesCell}
+              >
                 <Ionicons
                   name="document-text-outline"
                   size={22}

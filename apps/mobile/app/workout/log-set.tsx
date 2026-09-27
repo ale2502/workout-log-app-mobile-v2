@@ -62,6 +62,8 @@ export default function LogSetScreen() {
   const [rir, setRir] = useState('');
   const [note, setNote] = useState('');
   const [selectedSetId, setSelectedSetId] = useState<number | null>(null);
+  const [notesModalSetId, setNotesModalSetId] = useState<number | null>(null);
+  const [notesDraft, setNotesDraft] = useState('');
 
   function changeNumberValue(
     value: string,
@@ -342,6 +344,16 @@ export default function LogSetScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 
+  function handleOpenNotes(selectedSet: SetDisplay) {
+    setNotesModalSetId(selectedSet.id);
+    setNotesDraft(selectedSet.note ?? '');
+  }
+
+  function handleCloseNotes() {
+    setNotesModalSetId(null);
+    setNotesDraft('');
+  }
+
   // Reset input fields and cancel edit mode
   function handleCancelEdit() {
     setSelectedSetId(null);
@@ -432,14 +444,18 @@ export default function LogSetScreen() {
   if (error) {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={[styles.errorText, { color: colors.destructive }]}>{error}</Text>
+        <Text style={[styles.errorText, { color: colors.destructive }]}>
+          {error}
+        </Text>
       </View>
     );
   }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.text }]}>{chosenExercise?.name}</Text>
+      <Text style={[styles.title, { color: colors.text }]}>
+        {chosenExercise?.name}
+      </Text>
       {workout && (
         <Text style={[styles.gymName, { color: colors.mutedText }]}>
           {workout.gymName}

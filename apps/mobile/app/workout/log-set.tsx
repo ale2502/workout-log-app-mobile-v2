@@ -6,6 +6,7 @@ import { Exercise } from '../../../api/server/models/exercise';
 import { SetDisplay } from '../../../api/server/models/set';
 import { SavedSetsTable } from '@/components/workout/SavedSetsTable';
 import { SetForm } from '@/components/workout/SetForm';
+import { SetNotesModal } from '@/components/workout/SetNotesModal';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -64,6 +65,7 @@ export default function LogSetScreen() {
   const [selectedSetId, setSelectedSetId] = useState<number | null>(null);
   const [notesModalSetId, setNotesModalSetId] = useState<number | null>(null);
   const [notesDraft, setNotesDraft] = useState('');
+  const [isSavingNote, setIsSavingNote] = useState(false);
 
   function changeNumberValue(
     value: string,
@@ -352,6 +354,55 @@ export default function LogSetScreen() {
   function handleCloseNotes() {
     setNotesModalSetId(null);
     setNotesDraft('');
+  }
+
+  // Saving notes
+  async function handleSaveNotes() {
+    if (notesModalSetId === null) {
+      return;
+    }
+
+    const selectedSet = sets.find((set) => set.id === notesModalSetId);
+
+    if (selectedSet === undefined) {
+      setError('Could not finde selected set');
+      return;
+    }
+
+    setIsSavingNote(true);
+
+    const requestBody = {
+      workoutId: Number(workoutId),
+      exerciseId: Number(exerciseId),
+      exerciseVariantId: selectedSet.exerciseVariantId,
+      setNumber: selectedSet.setNumber,
+      reps: selectedSet.reps,
+      load: selectedSet.load,
+      rir: selectedSet.rir,
+      note: notesDraft === '' ? null : notesDraft,
+    };
+
+    try {
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/sets/${notesModalSetId}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to save note');
+      }
+
+      await loadSets();
+      handleCloseNotes();
+    } catch {
+      setError('Could not save note');
+    } finally {
+      setIsSavingNote(false);
+    }
   }
 
   // Reset input fields and cancel edit mode

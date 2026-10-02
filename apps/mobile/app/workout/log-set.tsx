@@ -405,6 +405,10 @@ export default function LogSetScreen() {
     }
   }
 
+  function handleClearNotes() {
+    setNotesDraft('');
+  }
+
   // Reset input fields and cancel edit mode
   function handleCancelEdit() {
     setSelectedSetId(null);

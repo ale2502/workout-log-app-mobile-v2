@@ -365,7 +365,7 @@ export default function LogSetScreen() {
     const selectedSet = sets.find((set) => set.id === notesModalSetId);
 
     if (selectedSet === undefined) {
-      setError('Could not finde selected set');
+      setError('Could not find selected set');
       return;
     }
 

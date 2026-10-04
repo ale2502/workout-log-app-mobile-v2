@@ -25,6 +25,7 @@ export const Colors = {
     success: '#166534',
     mutedText: '#4b5563',
     placeholder: '#6b7280',
+    noteIndicator: '#7c3aed',
   },
   dark: {
     background: '#0b1117',
@@ -42,6 +43,7 @@ export const Colors = {
     success: '#4ade80',
     mutedText: '#a1a8b3',
     placeholder: '#8a93a0',
+    noteIndicator: '#c4b5fd',
   },
 };
 
@@ -65,7 +67,8 @@ export const Fonts = Platform.select({
   web: {
     sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
     serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
+    rounded:
+      "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   },
 });

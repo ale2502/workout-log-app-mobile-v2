@@ -83,7 +83,7 @@ export function SavedSetsTable(props: SavedSetsTableProps) {
                 <Ionicons
                   name="document-text-outline"
                   size={22}
-                  color={colors.mutedText}
+                  color={set.note ? colors.noteIndicator : colors.mutedText}
                 ></Ionicons>
               </Pressable>
             </View>

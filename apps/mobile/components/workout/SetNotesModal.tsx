@@ -58,7 +58,10 @@ export function SetNotesModal(props: SetNotesModalProps) {
             <Pressable
               style={[
                 styles.modalCancelButton,
-                { backgroundColor: colors.surfaceMuted },
+                {
+                  backgroundColor: colors.surfaceMuted,
+                  borderColor: colors.border,
+                },
               ]}
               onPress={props.onClose}
             >
@@ -151,6 +154,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 8,
+    borderWidth: 1,
   },
   modalCancelButtonText: {
     fontWeight: '700',

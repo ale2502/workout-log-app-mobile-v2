@@ -10,6 +10,7 @@ import { SetNotesModal } from '@/components/workout/SetNotesModal';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useSetNotes } from '@/hooks/useSetNotes';
 
 interface Workout {
   id: number;
@@ -63,9 +64,6 @@ export default function LogSetScreen() {
   const [rir, setRir] = useState('');
   const [note, setNote] = useState('');
   const [selectedSetId, setSelectedSetId] = useState<number | null>(null);
-  const [notesModalSetId, setNotesModalSetId] = useState<number | null>(null);
-  const [notesDraft, setNotesDraft] = useState('');
-  const [isSavingNote, setIsSavingNote] = useState(false);
 
   function changeNumberValue(
     value: string,
@@ -339,74 +337,26 @@ export default function LogSetScreen() {
     }
   }, [exerciseId, workoutId]);
 
+  const {
+    notesModalSetId,
+    notesDraft,
+    isSavingNote,
+    setNotesDraft,
+    openNotes,
+    closeNotes,
+    clearNotes,
+    saveNotes,
+  } = useSetNotes({
+    sets,
+    onSaved: loadSets,
+    onError: setError,
+  });
+
   // Selecting sets and populate the set data into the text fields (ready for update)
   function handleLongPressSet(selectedSet: SetDisplay) {
     selectSetForEditing(selectedSet);
     // Add light vibration to long press
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  }
-
-  function handleOpenNotes(selectedSet: SetDisplay) {
-    setNotesModalSetId(selectedSet.id);
-    setNotesDraft(selectedSet.note ?? '');
-  }
-
-  function handleCloseNotes() {
-    setNotesModalSetId(null);
-    setNotesDraft('');
-  }
-
-  // Saving notes
-  async function handleSaveNotes() {
-    if (notesModalSetId === null) {
-      return;
-    }
-
-    const selectedSet = sets.find((set) => set.id === notesModalSetId);
-
-    if (selectedSet === undefined) {
-      setError('Could not find selected set');
-      return;
-    }
-
-    setIsSavingNote(true);
-
-    const requestBody = {
-      workoutId: Number(workoutId),
-      exerciseId: Number(exerciseId),
-      exerciseVariantId: selectedSet.exerciseVariantId,
-      setNumber: selectedSet.setNumber,
-      reps: selectedSet.reps,
-      load: selectedSet.load,
-      rir: selectedSet.rir,
-      note: notesDraft === '' ? null : notesDraft,
-    };
-
-    try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/sets/${notesModalSetId}`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to save note');
-      }
-
-      await loadSets();
-      handleCloseNotes();
-    } catch {
-      setError('Could not save note');
-    } finally {
-      setIsSavingNote(false);
-    }
-  }
-
-  function handleClearNotes() {
-    setNotesDraft('');
   }
 
   // Reset input fields and cancel edit mode
@@ -680,7 +630,7 @@ export default function LogSetScreen() {
         onLongPressSet={handleLongPressSet}
         onPressSet={handlePressSet}
         selectedSetId={selectedSetId}
-        onPressNotes={handleOpenNotes}
+        onPressNotes={openNotes}
       />
 
       <SetNotesModal
@@ -688,9 +638,9 @@ export default function LogSetScreen() {
         note={notesDraft}
         isSaving={isSavingNote}
         onChangeNote={setNotesDraft}
-        onClose={handleCloseNotes}
-        onSave={handleSaveNotes}
-        onDelete={handleClearNotes}
+        onClose={closeNotes}
+        onSave={saveNotes}
+        onDelete={clearNotes}
       />
 
       {selectedSetId !== null && <Text>Selected set id: {selectedSetId}</Text>}

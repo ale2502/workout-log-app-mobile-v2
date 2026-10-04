@@ -680,7 +680,19 @@ export default function LogSetScreen() {
         onLongPressSet={handleLongPressSet}
         onPressSet={handlePressSet}
         selectedSetId={selectedSetId}
+        onPressNotes={handleOpenNotes}
       />
+
+      <SetNotesModal
+        visible={notesModalSetId !== null}
+        note={notesDraft}
+        isSaving={isSavingNote}
+        onChangeNote={setNotesDraft}
+        onClose={handleCloseNotes}
+        onSave={handleSaveNotes}
+        onDelete={handleClearNotes}
+      />
+
       {selectedSetId !== null && <Text>Selected set id: {selectedSetId}</Text>}
     </View>
   );

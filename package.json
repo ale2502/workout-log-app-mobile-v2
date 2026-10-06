@@ -11,6 +11,7 @@
   },
   "scripts": {
     "update:mobile-env": "node scripts/update-mobile-env.mjs",
+    "update:mobile-env:sim": "node scripts/update-mobile-env.mjs --localhost",
     "dev:api": "npm run dev -w apps/api",
     "dev:mobile": "npm run update:mobile-env && npm start -w apps/mobile"
   }

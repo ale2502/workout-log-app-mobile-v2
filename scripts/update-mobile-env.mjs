@@ -2,11 +2,17 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
-const ipAddress = execFileSync('ipconfig', ['getifaddr', 'en0'], {
-  encoding: 'utf8',
-}).trim();
+// Default: LAN IP (for Expo Go on a physical phone).
+// With --localhost: the iOS Simulator shares the Mac's network, so localhost works.
+const useLocalhost = process.argv.includes('--localhost');
 
-const apiURL = `http://${ipAddress}:3001`;
+const host = useLocalhost
+  ? 'localhost'
+  : execFileSync('ipconfig', ['getifaddr', 'en0'], {
+      encoding: 'utf8',
+    }).trim();
+
+const apiURL = `http://${host}:3001`;
 const envLine = `EXPO_PUBLIC_API_URL=${apiURL}`;
 const envPath = path.join(process.cwd(), 'apps/mobile/.env.local');
 

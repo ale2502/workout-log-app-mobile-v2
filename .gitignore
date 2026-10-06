@@ -24,6 +24,6 @@ coverage/*
 .superpowers/
 docs/superpowers/plans/
 
-# Claude Code personal/local settings
-.claude/settings.local.json
-.claude/logs/
+# Claude Code (personal dev environment, not part of the app)
+.claude/
+CLAUDE.md

@@ -12,6 +12,8 @@ import {
 import { SetDisplay } from '../../../api/server/models/set';
 import { SavedSetsTable } from '@/components/workout/SavedSetsTable';
 import { Ionicons } from '@expo/vector-icons';
+import { SetNotesModal } from '@/components/workout/SetNotesModal';
+import { useSetNotes } from '@/hooks/useSetNotes';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
@@ -52,6 +54,21 @@ export default function WorkoutDetailScreen() {
       setIsLoading(false);
     }
   }, [workoutId]);
+
+  const {
+    notesModalSetId,
+    notesDraft,
+    isSavingNote,
+    setNotesDraft,
+    openNotes,
+    closeNotes,
+    clearNotes,
+    saveNotes,
+  } = useSetNotes({
+    sets: workoutSets,
+    onSaved: loadWorkout,
+    onError: setError,
+  });
 
   useFocusEffect(
     useCallback(() => {
@@ -171,7 +188,9 @@ export default function WorkoutDetailScreen() {
   if (error) {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={[styles.errorText, { color: colors.destructive }]}>{error}</Text>
+        <Text style={[styles.errorText, { color: colors.destructive }]}>
+          {error}
+        </Text>
       </View>
     );
   }
@@ -179,13 +198,20 @@ export default function WorkoutDetailScreen() {
   return (
     <>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Pressable style={[styles.addButton, { backgroundColor: colors.primary }]} onPress={handleAddExercise}>
-          <Text style={[styles.addButtonText, { color: colors.onPrimary }]}>Add exercise</Text>
+        <Pressable
+          style={[styles.addButton, { backgroundColor: colors.primary }]}
+          onPress={handleAddExercise}
+        >
+          <Text style={[styles.addButtonText, { color: colors.onPrimary }]}>
+            Add exercise
+          </Text>
         </Pressable>
         {gymName && <Text style={{ color: colors.mutedText }}>{gymName}</Text>}
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {workoutSets.length === 0 ? (
-            <Text style={{ color: colors.text }}>No sets found for this workout.</Text>
+            <Text style={{ color: colors.text }}>
+              No sets found for this workout.
+            </Text>
           ) : (
             Object.entries(groupedSets).map(([sectionTitle, sets]) => {
               const exerciseId = sets[0].exerciseId;
@@ -200,7 +226,10 @@ export default function WorkoutDetailScreen() {
                   key={sectionTitle}
                   style={[
                     styles.exerciseSection,
-                    { backgroundColor: colors.surface, borderColor: colors.border },
+                    {
+                      backgroundColor: colors.surface,
+                      borderColor: colors.border,
+                    },
                     isSelected && { borderColor: colors.destructive },
                   ]}
                   onPress={() =>
@@ -216,7 +245,9 @@ export default function WorkoutDetailScreen() {
                 >
                   <View style={styles.exerciseTitleContainer}>
                     <View style={styles.exerciseTitleTextContainer}>
-                      <Text style={[styles.exerciseTitle, { color: colors.text }]}>
+                      <Text
+                        style={[styles.exerciseTitle, { color: colors.text }]}
+                      >
                         {exerciseName}
                       </Text>
                       <Text
@@ -252,6 +283,7 @@ export default function WorkoutDetailScreen() {
                       handleLongPressExercise(exerciseVariantId, exerciseName)
                     }
                     selectedSetId={null}
+                    onPressNotes={openNotes}
                     onPressSet={() =>
                       handlePressExercise(
                         exerciseId,
@@ -269,7 +301,12 @@ export default function WorkoutDetailScreen() {
       {/* Modal for confirming deletion of exercise */}
       <Modal transparent visible={isDeleteModalVisible} animationType="fade">
         <View style={styles.modalBackdrop}>
-          <View style={[styles.modalCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View
+            style={[
+              styles.modalCard,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+            ]}
+          >
             <Text style={[styles.modalTitle, { color: colors.text }]}>
               Delete {selectedExerciseName}?
             </Text>
@@ -279,22 +316,48 @@ export default function WorkoutDetailScreen() {
 
             <View style={styles.modalActions}>
               <Pressable
-                style={[styles.modalCancelButton, { backgroundColor: colors.surfaceMuted }]}
+                style={[
+                  styles.modalCancelButton,
+                  { backgroundColor: colors.surfaceMuted },
+                ]}
                 onPress={handleCancelDeleteExercise}
               >
-                <Text style={[styles.modalCancelButtonText, { color: colors.text }]}>Cancel</Text>
+                <Text
+                  style={[styles.modalCancelButtonText, { color: colors.text }]}
+                >
+                  Cancel
+                </Text>
               </Pressable>
 
               <Pressable
-                style={[styles.modalDeleteButton, { backgroundColor: colors.destructive }]}
+                style={[
+                  styles.modalDeleteButton,
+                  { backgroundColor: colors.destructive },
+                ]}
                 onPress={handleDeleteExercise}
               >
-                <Text style={[styles.modalDeleteButtonText, { color: colors.onPrimary }]}>Delete</Text>
+                <Text
+                  style={[
+                    styles.modalDeleteButtonText,
+                    { color: colors.onPrimary },
+                  ]}
+                >
+                  Delete
+                </Text>
               </Pressable>
             </View>
           </View>
         </View>
       </Modal>
+      <SetNotesModal
+        visible={notesModalSetId !== null}
+        note={notesDraft}
+        isSaving={isSavingNote}
+        onChangeNote={setNotesDraft}
+        onClose={closeNotes}
+        onSave={saveNotes}
+        onDelete={clearNotes}
+      />
     </>
   );
 }
@@ -311,8 +374,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 3,
     paddingTop: 0,
   },
-  errorText: {
-  },
+  errorText: {},
   exerciseSection: {
     gap: 5,
     padding: 10,

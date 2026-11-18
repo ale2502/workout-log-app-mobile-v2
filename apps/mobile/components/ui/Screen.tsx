@@ -21,13 +21,16 @@ export function Screen({ children, scroll = false, contentStyle }: ScreenProps) 
   const topPadding = { paddingTop: insets.top };
 
   if (scroll) {
+    // Keep the last content clear of the home indicator on screens without a tab bar.
+    const bottomPadding = { paddingBottom: Spacing.xxl + insets.bottom };
+
     return (
       <ScrollView
         style={styles.screen}
         contentContainerStyle={[
           styles.content,
-          styles.scrollContent,
           topPadding,
+          bottomPadding,
           contentStyle,
         ]}
         keyboardShouldPersistTaps="handled"
@@ -51,8 +54,5 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: Spacing.xl,
-  },
-  scrollContent: {
-    paddingBottom: Spacing.xxl,
   },
 });

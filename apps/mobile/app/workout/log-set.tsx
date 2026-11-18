@@ -1,15 +1,17 @@
 import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useState } from 'react';
-import { useLocalSearchParams } from 'expo-router';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Exercise } from '../../../api/server/models/exercise';
 import { SetDisplay } from '../../../api/server/models/set';
+import { AppText } from '@/components/ui/AppText';
+import { IconButton } from '@/components/ui/IconButton';
+import { Screen } from '@/components/ui/Screen';
 import { SavedSetsTable } from '@/components/workout/SavedSetsTable';
 import { SetForm } from '@/components/workout/SetForm';
 import { SetNotesModal } from '@/components/workout/SetNotesModal';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useSetNotes } from '@/hooks/useSetNotes';
 
 interface Workout {
@@ -33,8 +35,7 @@ export default function LogSetScreen() {
     exerciseId: string;
     exerciseVariantId?: string;
   }>();
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme];
+  const router = useRouter();
   const workoutId = params.workoutId;
   const exerciseId = params.exerciseId;
   const initialExerciseVariantId =
@@ -54,20 +55,23 @@ export default function LogSetScreen() {
   const [newVariantLabel, setNewVariantLabel] = useState('');
   const [isAddingVariant, setIsAddingVariant] = useState(false);
   const [isMachineDropdownOpen, setIsMachineDropdownOpen] = useState(false);
-  const [isMachineHelpVisible, setIsMachineHelpVisible] = useState(false);
+  // isLoading is only for the first load of the screen; isSaving is for save/update/delete.
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // They start as a string because React Native inputs give text
   const [reps, setReps] = useState('');
   const [load, setLoad] = useState('');
-  const [rir, setRir] = useState('');
+  // RIR comes from the slider, so it is already a number (null = not recorded).
+  const [rir, setRir] = useState<number | null>(null);
+  // No UI until step 10 replaces this; it carries an edited set's note through the PATCH.
   const [note, setNote] = useState('');
   const [selectedSetId, setSelectedSetId] = useState<number | null>(null);
 
   function changeNumberValue(
     value: string,
-    // This is the state setter function. For reps, it would be setReps. For load, setLoad. For RIR, setRir.
+    // This is the state setter function. For reps, it would be setReps. For load, setLoad.
     // This lets the helper update whichever input you pass in.
     setValue: (newValue: string) => void,
     amount: number,
@@ -177,11 +181,11 @@ export default function LogSetScreen() {
   // Save set function
   async function handleSaveSet() {
     setError(null);
-    setIsLoading(true);
+    setIsSaving(true);
 
     if (selectedExerciseVariantId === null) {
       setError('Choose or add a machine before saving');
-      setIsLoading(false);
+      setIsSaving(false);
       return;
     }
 
@@ -197,7 +201,7 @@ export default function LogSetScreen() {
       setNumber: nextSetNumber,
       reps: Number(reps),
       load: load === '' ? null : Number(load),
-      rir: rir === '' ? null : Number(rir),
+      rir,
       note: note === '' ? null : note,
     };
 
@@ -219,7 +223,7 @@ export default function LogSetScreen() {
     } catch {
       setError('Could not save set');
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   }
 
@@ -240,7 +244,7 @@ export default function LogSetScreen() {
     }
 
     setError(null);
-    setIsLoading(true);
+    setIsSaving(true);
 
     const requestBody = {
       workoutId: Number(workoutId),
@@ -249,7 +253,7 @@ export default function LogSetScreen() {
       setNumber: selectedSet.setNumber,
       reps: Number(reps),
       load: load === '' ? null : Number(load),
-      rir: rir === '' ? null : Number(rir),
+      rir,
       note: note === '' ? null : note,
     };
 
@@ -275,7 +279,7 @@ export default function LogSetScreen() {
     } catch {
       setError('Could not update set');
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   }
 
@@ -296,7 +300,7 @@ export default function LogSetScreen() {
     }
 
     setError(null);
-    setIsLoading(true);
+    setIsSaving(true);
 
     try {
       const response = await fetch(
@@ -315,7 +319,7 @@ export default function LogSetScreen() {
     } catch {
       setError('Could not delete set');
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   }
 
@@ -364,7 +368,7 @@ export default function LogSetScreen() {
     setSelectedSetId(null);
     setReps('');
     setLoad('');
-    setRir('');
+    setRir(null);
     setNote('');
   }
 
@@ -372,7 +376,10 @@ export default function LogSetScreen() {
     setSelectedSetId(selectedSet.id);
     setReps(String(selectedSet.reps));
     setLoad(selectedSet.load === null ? '' : String(selectedSet.load));
-    setRir(selectedSet.rir === null ? '' : String(selectedSet.rir));
+    // The slider only has 0-4+, so older values above 4 load as 4 (and save back as 4).
+    setRir(
+      selectedSet.rir === null ? null : Math.min(4, Math.round(selectedSet.rir)),
+    );
     setNote(selectedSet.note ?? '');
     setSelectedExerciseVariantId(selectedSet.exerciseVariantId);
   }
@@ -437,201 +444,166 @@ export default function LogSetScreen() {
   const selectedExerciseVariant = exerciseVariants.find(
     (variant) => variant.id === selectedExerciseVariantId,
   );
+  const nextSetNumber = setsForSelectedVariant.length + 1;
+  const editingSetNumber =
+    sets.find((set) => set.id === selectedSetId)?.setNumber ?? null;
 
+  const backButton = (
+    <IconButton accessibilityLabel="Go back" onPress={() => router.back()}>
+      <Ionicons name="chevron-back" size={22} color={Colors.dark.text} />
+    </IconButton>
+  );
+
+  // The stack header is hidden on every state, so loading and error keep a back button.
   if (isLoading) {
     return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.text }}>Loading exercises...</Text>
-      </View>
+      <>
+        <Stack.Screen options={{ headerShown: false }} />
+        <Screen contentStyle={styles.content}>
+          {backButton}
+          <AppText color="mutedText">Loading exercises...</AppText>
+        </Screen>
+      </>
     );
   }
 
   if (error) {
     return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={[styles.errorText, { color: colors.destructive }]}>
-          {error}
-        </Text>
-      </View>
+      <>
+        <Stack.Screen options={{ headerShown: false }} />
+        <Screen contentStyle={styles.content}>
+          {backButton}
+          <AppText color="destructive">{error}</AppText>
+        </Screen>
+      </>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.text }]}>
-        {chosenExercise?.name}
-      </Text>
-      {workout && (
-        <Text style={[styles.gymName, { color: colors.mutedText }]}>
-          {workout.gymName}
-        </Text>
-      )}
-
-      <View style={styles.variantSection}>
-        <View style={styles.variantLabelRow}>
-          <Text style={[styles.variantLabel, { color: colors.text }]}>
-            Machine
-          </Text>
-          <Pressable
-            style={[styles.helpButton, { borderColor: colors.border }]}
-            onPress={() =>
-              setIsMachineHelpVisible((currentValue) => !currentValue)
-            }
-          >
-            <Text style={[styles.helpButtonText, { color: colors.mutedText }]}>
-              ?
-            </Text>
-          </Pressable>
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <Screen scroll contentStyle={styles.content}>
+        <View style={styles.headerRow}>
+          {backButton}
+          <View style={styles.setPill}>
+            <AppText variant="label" color="accent" style={styles.setPillText}>
+              {editingSetNumber === null
+                ? `Set ${nextSetNumber}`
+                : `Editing set ${editingSetNumber}`}
+            </AppText>
+          </View>
         </View>
 
-        {isMachineHelpVisible && (
-          <View
-            style={[
-              styles.helpBubble,
-              {
-                backgroundColor: colors.surface,
-                borderColor: colors.border,
-              },
-            ]}
-          >
-            <Text style={[styles.helpBubbleText, { color: colors.mutedText }]}>
+        <View style={styles.titleBlock}>
+          <AppText variant="title">{chosenExercise?.name}</AppText>
+          {/* Tapping the machine name opens the machine picker below. */}
+          <AppText variant="caption" color="mutedText">
+            {chosenExercise?.muscleGroup} · {workout?.gymName} ·{' '}
+            <AppText
+              variant="caption"
+              color="accent"
+              accessibilityRole="button"
+              accessibilityLabel="Choose machine"
+              onPress={() =>
+                setIsMachineDropdownOpen((currentValue) => !currentValue)
+              }
+            >
+              {selectedExerciseVariant?.label ?? 'Choose machine'}{' '}
+              {isMachineDropdownOpen ? '▴' : '▾'}
+            </AppText>
+          </AppText>
+        </View>
+
+        {isMachineDropdownOpen && (
+          <View style={styles.machinePanel}>
+            <AppText
+              variant="caption"
+              color="mutedText"
+              style={styles.machinePanelRow}
+            >
               A gym might have different machines for the same exercise and it
               can change the movement, load feel, and effort, so tracking the
               exact machine keeps your history accurate.
-            </Text>
+            </AppText>
+
+            {exerciseVariants.map((variant) => {
+              const isSelected = variant.id === selectedExerciseVariantId;
+
+              return (
+                <Pressable
+                  key={variant.id}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isSelected }}
+                  style={[
+                    styles.machinePanelRow,
+                    styles.machineOption,
+                    isSelected && styles.machineOptionSelected,
+                  ]}
+                  onPress={() => handleSelectExerciseVariant(variant.id)}
+                >
+                  <AppText variant="body">{variant.label}</AppText>
+                </Pressable>
+              );
+            })}
+
+            <View style={[styles.machinePanelRow, styles.machineOption]}>
+              {isAddingVariant ? (
+                <View style={styles.addMachine}>
+                  <TextInput
+                    style={styles.machineInput}
+                    placeholder="Machine label"
+                    placeholderTextColor={Colors.dark.placeholder}
+                    value={newVariantLabel}
+                    onChangeText={setNewVariantLabel}
+                  />
+                  <View style={styles.addMachineActions}>
+                    <Pressable onPress={() => setIsAddingVariant(false)}>
+                      <AppText color="mutedText">Cancel</AppText>
+                    </Pressable>
+                    <Pressable onPress={handleAddExerciseVariant}>
+                      <AppText color="accent">Add</AppText>
+                    </Pressable>
+                  </View>
+                </View>
+              ) : (
+                <Pressable onPress={() => setIsAddingVariant(true)}>
+                  <AppText color="accent">+ Add machine</AppText>
+                </Pressable>
+              )}
+            </View>
           </View>
         )}
 
-        <View style={styles.dropdownContainer}>
-          <Pressable
-            style={[
-              styles.machineDropdownButton,
-              isMachineDropdownOpen && styles.dropdownButtonOpen,
-              {
-                backgroundColor: colors.surface,
-                borderColor: colors.border,
-              },
-            ]}
-            onPress={() =>
-              setIsMachineDropdownOpen((currentValue) => !currentValue)
-            }
-          >
-            <Text style={[styles.machineDropdownText, { color: colors.text }]}>
-              {selectedExerciseVariant?.label ?? 'Select machine'}
-            </Text>
-            <Ionicons
-              name={isMachineDropdownOpen ? 'chevron-up' : 'chevron-down'}
-              size={20}
-              color={colors.mutedText}
-            />
-          </Pressable>
+        <SetForm
+          reps={reps}
+          load={load}
+          rir={rir}
+          onChangeReps={setReps}
+          onChangeLoad={setLoad}
+          onChangeRir={setRir}
+          onDecreaseReps={() => changeNumberValue(reps, setReps, -1)}
+          onIncreaseReps={() => changeNumberValue(reps, setReps, 1)}
+          onDecreaseLoad={() => changeNumberValue(load, setLoad, -2.5)}
+          onIncreaseLoad={() => changeNumberValue(load, setLoad, 2.5)}
+          onSave={handleSaveSet}
+          onUpdate={handleUpdateSet}
+          onDelete={handleDeleteSet}
+          onCancel={handleCancelEdit}
+          isSaving={isSaving}
+          // If selectedSetId is different than null, this becomes true, which means edit mode is active
+          isEditing={selectedSetId !== null}
+          nextSetNumber={nextSetNumber}
+          editingSetNumber={editingSetNumber}
+        />
 
-          {isMachineDropdownOpen && (
-            <View
-              style={[
-                styles.dropdownMenu,
-                {
-                  backgroundColor: colors.surface,
-                  borderColor: colors.border,
-                },
-              ]}
-            >
-              {exerciseVariants.map((variant, index) => {
-                const isSelected = variant.id === selectedExerciseVariantId;
-                const isLastOption = index === exerciseVariants.length - 1;
-
-                return (
-                  <Pressable
-                    key={variant.id}
-                    style={[
-                      styles.dropdownOption,
-                      { backgroundColor: colors.surface },
-                      !isLastOption && [
-                        styles.dropdownOptionBorder,
-                        { borderBottomColor: colors.border },
-                      ],
-                      isSelected && { backgroundColor: colors.surfaceMuted },
-                    ]}
-                    onPress={() => handleSelectExerciseVariant(variant.id)}
-                  >
-                    <Text
-                      style={[
-                        styles.machineDropdownText,
-                        { color: colors.text },
-                      ]}
-                    >
-                      {variant.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          )}
-        </View>
-
-        {isAddingVariant ? (
-          <View style={styles.addVariantContainer}>
-            <TextInput
-              style={[
-                styles.variantInput,
-                {
-                  color: colors.text,
-                  borderColor: colors.border,
-                  backgroundColor: colors.surface,
-                },
-              ]}
-              placeholder="Machine label"
-              placeholderTextColor={colors.mutedText}
-              value={newVariantLabel}
-              onChangeText={setNewVariantLabel}
-            />
-            <View style={styles.addVariantActions}>
-              <Pressable onPress={() => setIsAddingVariant(false)}>
-                <Text style={{ color: colors.mutedText }}>Cancel</Text>
-              </Pressable>
-              <Pressable onPress={handleAddExerciseVariant}>
-                <Text style={{ color: colors.primary }}>Add</Text>
-              </Pressable>
-            </View>
-          </View>
-        ) : (
-          <Pressable onPress={() => setIsAddingVariant(true)}>
-            <Text style={{ color: colors.primary }}>+ Add machine</Text>
-          </Pressable>
-        )}
-      </View>
-
-      <SetForm
-        reps={reps}
-        load={load}
-        rir={rir}
-        note={note}
-        onChangeReps={setReps}
-        onChangeLoad={setLoad}
-        onChangeRir={setRir}
-        onChangeNote={setNote}
-        onDecreaseReps={() => changeNumberValue(reps, setReps, -1)}
-        onIncreaseReps={() => changeNumberValue(reps, setReps, 1)}
-        onDecreaseLoad={() => changeNumberValue(load, setLoad, -1)}
-        onIncreaseLoad={() => changeNumberValue(load, setLoad, 1)}
-        onDecreaseRir={() => changeNumberValue(rir, setRir, -0.5, 10)}
-        onIncreaseRir={() => changeNumberValue(rir, setRir, 0.5, 10)}
-        onUpdate={handleUpdateSet}
-        onDelete={handleDeleteSet}
-        onCancel={handleCancelEdit}
-        onSave={handleSaveSet}
-        isSaving={isLoading}
-        // If selectedSetId is different than null, this becomes true, which means edit mode is active
-        isEditing={selectedSetId !== null}
-      />
-
-      <SavedSetsTable
-        sets={setsForSelectedVariant}
-        onLongPressSet={handleLongPressSet}
-        onPressSet={handlePressSet}
-        selectedSetId={selectedSetId}
-        onPressNotes={openNotes}
-      />
+        <SavedSetsTable
+          sets={setsForSelectedVariant}
+          onLongPressSet={handleLongPressSet}
+          onPressSet={handlePressSet}
+          selectedSetId={selectedSetId}
+          onPressNotes={openNotes}
+        />
+      </Screen>
 
       <SetNotesModal
         visible={notesModalSetId !== null}
@@ -642,114 +614,64 @@ export default function LogSetScreen() {
         onSave={saveNotes}
         onDelete={clearNotes}
       />
-
-      {selectedSetId !== null && <Text>Selected set id: {selectedSetId}</Text>}
-    </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    gap: 16,
+  content: {
+    gap: Spacing.lg,
   },
-  errorText: {},
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: -10,
-  },
-  gymName: {
-    marginBottom: 4,
-  },
-  variantSection: {
-    gap: 8,
-  },
-  variantLabel: {
-    fontWeight: '700',
-  },
-  variantLabelRow: {
+  headerRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  helpButton: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  helpButtonText: {
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  helpBubble: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
-  },
-  helpBubbleText: {
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  dropdownContainer: {
-    position: 'relative',
-    zIndex: 2,
-  },
-  machineDropdownButton: {
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 9,
-    minHeight: 42,
-    flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 12,
+    alignItems: 'center',
   },
-  machineDropdownText: {
-    fontSize: 16,
-    flex: 1,
+  setPill: {
+    borderWidth: 1,
+    borderColor: Colors.dark.accent,
+    borderRadius: Radius.pill,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
   },
-  dropdownButtonOpen: {
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
+  setPillText: {
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 1.2,
   },
-  dropdownMenu: {
-    position: 'absolute',
-    top: 42,
-    left: 0,
-    right: 0,
-    zIndex: 3,
-    elevation: 3,
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderBottomWidth: 1,
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
+  titleBlock: {
+    gap: Spacing.xs,
+  },
+  machinePanel: {
+    backgroundColor: Colors.dark.surface,
+    borderRadius: Radius.md,
     overflow: 'hidden',
   },
-  dropdownOption: {
-    paddingHorizontal: 12,
-    paddingVertical: 9,
+  machinePanelRow: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
   },
-  dropdownOptionBorder: {
-    borderBottomWidth: 1,
+  machineOption: {
+    borderTopWidth: 1,
+    borderTopColor: Colors.dark.border,
   },
-  addVariantContainer: {
-    gap: 8,
+  machineOptionSelected: {
+    backgroundColor: Colors.dark.surfaceMuted,
   },
-  addVariantActions: {
+  addMachine: {
+    gap: Spacing.sm,
+  },
+  addMachineActions: {
     flexDirection: 'row',
-    gap: 16,
+    gap: Spacing.lg,
   },
-  variantInput: {
+  machineInput: {
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    borderColor: Colors.dark.border,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.dark.surface,
+    color: Colors.dark.text,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
   },
 });

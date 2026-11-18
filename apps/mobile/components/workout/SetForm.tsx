@@ -1,133 +1,115 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { NumberStepperInput } from './NumberStepperInput';
+import { AppText } from '@/components/ui/AppText';
+import { Button } from '@/components/ui/Button';
+import { RirSlider } from '@/components/workout/RirSlider';
+import { Stepper } from '@/components/workout/Stepper';
+import { Spacing } from '@/constants/theme';
 
 type SetFormProps = {
   reps: string;
   load: string;
-  rir: string;
-  note: string;
+  rir: number | null;
 
   onChangeReps: (newValue: string) => void;
   onChangeLoad: (newValue: string) => void;
-  onChangeRir: (newValue: string) => void;
-  onChangeNote: (newValue: string) => void;
+  onChangeRir: (newValue: number | null) => void;
 
   onDecreaseReps: () => void;
   onIncreaseReps: () => void;
   onDecreaseLoad: () => void;
   onIncreaseLoad: () => void;
-  onDecreaseRir: () => void;
-  onIncreaseRir: () => void;
 
+  onSave: () => void;
   onUpdate: () => void;
   onDelete: () => void;
   onCancel: () => void;
 
-  onSave: () => void;
   isSaving: boolean;
   isEditing: boolean;
+  nextSetNumber: number;
+  editingSetNumber: number | null;
 };
 
 export function SetForm(props: SetFormProps) {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme];
-
   return (
     <View style={styles.container}>
-      <NumberStepperInput
-        label="Reps"
-        value={props.reps}
-        onChangeText={props.onChangeReps}
-        placeholder="Reps"
-        onDecrease={props.onDecreaseReps}
-        onIncrease={props.onIncreaseReps}
-      />
+      <View style={styles.stepperRow}>
+        <View style={styles.stepper}>
+          <Stepper
+            label="Reps"
+            value={props.reps}
+            onChangeText={props.onChangeReps}
+            onDecrease={props.onDecreaseReps}
+            onIncrease={props.onIncreaseReps}
+            accessibilityNoun="reps"
+          />
+        </View>
+        <View style={styles.stepper}>
+          <Stepper
+            label="Load · kg"
+            value={props.load}
+            onChangeText={props.onChangeLoad}
+            onDecrease={props.onDecreaseLoad}
+            onIncrease={props.onIncreaseLoad}
+            accessibilityNoun="load"
+          />
+        </View>
+      </View>
 
-      <NumberStepperInput
-        label="Load"
-        value={props.load}
-        onChangeText={props.onChangeLoad}
-        placeholder="Load"
-        onDecrease={props.onDecreaseLoad}
-        onIncrease={props.onIncreaseLoad}
-      />
-
-      <NumberStepperInput
-        label="RIR"
-        value={props.rir}
-        onChangeText={props.onChangeRir}
-        placeholder="RIR"
-        onDecrease={props.onDecreaseRir}
-        onIncrease={props.onIncreaseRir}
-      />
-
-      <View style={styles.inputRow}>
-        <Text style={[styles.label, { color: colors.text }]}>Notes</Text>
-        <TextInput
-          style={[
-            styles.formInput,
-            styles.rowInput,
-            {
-              backgroundColor: colors.surface,
-              borderColor: colors.border,
-              color: colors.text,
-            },
-          ]}
-          value={props.note}
-          onChangeText={props.onChangeNote}
-          placeholder="Notes"
-          placeholderTextColor={colors.placeholder}
-        />
+      <View style={styles.rirSection}>
+        {/* The right side of this row is left free for the mesocycle target later. */}
+        <View style={styles.rirLabelRow}>
+          <AppText variant="label">RIR · Reps in reserve</AppText>
+        </View>
+        <RirSlider value={props.rir} onChange={props.onChangeRir} />
       </View>
 
       {props.isEditing ? (
-        <View style={styles.editButtonRow}>
-          <Pressable
+        <View style={styles.actions}>
+          <Button
+            title={
+              props.editingSetNumber === null
+                ? 'Update set'
+                : `Update set ${props.editingSetNumber}`
+            }
+            size="md"
             onPress={props.onUpdate}
-            style={[styles.editButton, { backgroundColor: colors.primary }]}
-          >
-            <Text style={[styles.editButtonText, { color: colors.onPrimary }]}>
-              Update Set
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={props.onDelete}
-            style={[styles.editButton, { backgroundColor: colors.destructive }]}
-          >
-            <Text style={[styles.editButtonText, { color: colors.onPrimary }]}>
-              Delete Set
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={props.onCancel}
-            style={[
-              styles.editButton,
-              styles.cancelButton,
-              {
-                backgroundColor: colors.surfaceMuted,
-                borderColor: colors.border,
-              },
-            ]}
-          >
-            <Text style={[styles.cancelButtonText, { color: colors.text }]}>
-              Cancel
-            </Text>
-          </Pressable>
+            loading={props.isSaving}
+          />
+          <View style={styles.actionRow}>
+            <View style={styles.actionRowItem}>
+              <Button
+                title="Delete"
+                variant="destructive"
+                size="md"
+                onPress={props.onDelete}
+                disabled={props.isSaving}
+              />
+            </View>
+            <View style={styles.actionRowItem}>
+              <Button
+                title="Cancel"
+                variant="secondary"
+                size="md"
+                onPress={props.onCancel}
+                disabled={props.isSaving}
+              />
+            </View>
+          </View>
         </View>
       ) : (
-        <Pressable
-          onPress={props.onSave}
-          style={[styles.saveButton, { backgroundColor: colors.primary }]}
-        >
-          <Text style={[styles.saveButtonText, { color: colors.onPrimary }]}>
-            {props.isSaving ? 'Saving...' : 'Save'}
-          </Text>
-        </Pressable>
+        // A row so step 10 can put the note button to the left of "Log set".
+        <View style={styles.actionRow}>
+          <View style={styles.actionRowItem}>
+            <Button
+              title={`Log set ${props.nextSetNumber}`}
+              size="md"
+              onPress={props.onSave}
+              loading={props.isSaving}
+            />
+          </View>
+        </View>
       )}
     </View>
   );
@@ -135,52 +117,31 @@ export function SetForm(props: SetFormProps) {
 
 const styles = StyleSheet.create({
   container: {
-    gap: 16,
+    gap: Spacing.lg,
   },
-  formInput: {
-    padding: 12,
-    borderWidth: 1,
-    borderRadius: 8,
-  },
-  inputRow: {
+  stepperRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
+    gap: Spacing.md,
   },
-  rowInput: {
+  stepper: {
     flex: 1,
   },
-  label: {
-    width: 50,
-    fontWeight: '600',
+  rirSection: {
+    gap: Spacing.sm,
   },
-  editButtonRow: {
+  rirLabelRow: {
     flexDirection: 'row',
-    gap: 10,
-  },
-  // Save button
-  saveButton: {
-    padding: 16,
-    borderRadius: 8,
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
-  saveButtonText: {
-    fontWeight: '700',
+  actions: {
+    gap: Spacing.md,
   },
-  // Update/delete button
-  editButton: {
+  actionRow: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+  },
+  actionRowItem: {
     flex: 1,
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  editButtonText: {
-    fontWeight: '700',
-  },
-  cancelButton: {
-    borderWidth: 1,
-  },
-  cancelButtonText: {
-    fontWeight: '700',
   },
 });

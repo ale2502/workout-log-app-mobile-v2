@@ -182,6 +182,7 @@ Rebuild the render with the primitives. Keep all the data and handlers (load, st
 
 ### Step 9: Log Set layout
 **Files:** `apps/mobile/app/workout/log-set.tsx`, `apps/mobile/components/workout/SetForm.tsx`.
+- Hide the default navigation header for this route (`<Stack.Screen options={{ headerShown: false }} />` inside the screen, the same pattern `manage-gyms.tsx` uses for its title). Otherwise there are two back buttons. The iOS swipe-back gesture still works.
 - Wrap the screen in `Screen scroll`. Header row: back `IconButton` (`chevron-back`, `router.back()`) on the left, and a "SET {next}" pill on the right (1px `accent` border, `accent` text, 12px/700, letterSpacing 1.2, radius pill).
 - Title: the exercise name (`title` variant). Subtitle (`caption` `mutedText`): "Muscle · Gym · Machine ▾". Tapping the machine name toggles the existing machine dropdown and add-machine UI (D6), restyled with `surface` / `surfaceMuted`, radius `md`, `accent` text for "+ Add machine".
 - `SetForm` rewritten: two `Stepper`s side by side (gap `md`, flex 1 each), then the label row "RIR · REPS IN RESERVE", then `RirSlider`, then the action row. Props change: `rir` becomes `number | null` with `onChangeRir`; remove `onDecreaseRir`, `onIncreaseRir` and the note props (the note moves to step 10). Action row when not editing: a primary `Button` "Log set {next}" (flex 1, size `md`). When editing: "Update set {n}" primary, then `Button` destructive "Delete" and secondary "Cancel" in a row underneath.
@@ -205,7 +206,7 @@ Rebuild the render with the primitives. Keep all the data and handlers (load, st
 
 ### Step 11: Workout detail
 **Files:** `apps/mobile/app/workout/[workoutId].tsx`.
-- `Screen scroll`. Header: back `IconButton`, the workout date (`title` variant, e.g. "TUE 17 NOV") and the gym name (`caption` `mutedText`). Primary `Button` `md` "Add exercise".
+- Hide the default header the same way as in step 9. `Screen scroll`. Header: back `IconButton`, the workout date (`title` variant, e.g. "TUE 17 NOV") and the gym name (`caption` `mutedText`). Primary `Button` `md` "Add exercise".
 - Each exercise section: `Card`, with the exercise name (display 22 uppercase), the machine label (`caption` `mutedText`), a chevron or the trash icon (long-press selection, as today), then `SavedSetsTable`. Selected section: 1px `destructive` border.
 - Restyle the delete modal like Home's (step 5). Leave the logic alone.
 

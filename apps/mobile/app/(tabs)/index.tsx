@@ -2,18 +2,16 @@ import * as Haptics from 'expo-haptics';
 import { useState, useCallback } from 'react';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  Modal,
-} from 'react-native';
+import { Pressable, StyleSheet, View, Modal } from 'react-native';
 
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AppText } from '@/components/ui/AppText';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Screen } from '@/components/ui/Screen';
+import { WeekStrip } from '@/components/workout/WeekStrip';
+import { Colors, Radius, Spacing } from '@/constants/theme';
 import { getStoredDefaultGymId, storeDefaultGymId } from '@/lib/gyms';
+import { countSessionsThisWeek, getWeekStrip } from '@/lib/week';
 
 interface Workout {
   id: number;
@@ -28,18 +26,26 @@ interface Gym {
   name: string;
 }
 
+// "YYYY-MM-DD HH:MM:SS" is a UTC timestamp from SQLite, so it becomes local time.
+// A date-only "YYYY-MM-DD" has no time zone, so it means that calendar day locally.
 function parseApiDate(value: string) {
   if (value.includes(' ')) {
     return new Date(value.replace(' ', 'T') + 'Z');
   }
 
-  return new Date(`${value}T00:00:00Z`);
+  const [year, month, day] = value.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+// "THURSDAY 19 NOV" (the label variant uppercases it; built from parts so there is no comma).
+function formatDateLabel(date: Date) {
+  const weekday = date.toLocaleDateString('en-NZ', { weekday: 'long' });
+  const month = date.toLocaleDateString('en-NZ', { month: 'short' });
+  return `${weekday} ${date.getDate()} ${month}`;
 }
 
 export default function HomeScreen() {
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme];
   const [isStartingWorkout, setIsStartingWorkout] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -192,142 +198,137 @@ export default function HomeScreen() {
     });
   }
 
+  // The screen is allowed to read the clock; lib/week.ts is not.
+  const today = new Date();
+  const workoutDates = workouts.map((workout) =>
+    parseApiDate(workout.performedOn),
+  );
+  const sessionCount = countSessionsThisWeek(workoutDates, today);
+
   return (
     <>
-      <ScrollView
-        contentContainerStyle={[
-          styles.container,
-          { backgroundColor: colors.background },
-        ]}
-      >
-        <Text style={[styles.title, { color: colors.text }]}>Workout Log</Text>
+      <Screen scroll contentStyle={{ gap: Spacing.xl }}>
+        <View style={styles.header}>
+          <AppText variant="label">{formatDateLabel(today)}</AppText>
+          <AppText variant="hero">Grind Notes</AppText>
+        </View>
 
-        <Pressable
-          style={[styles.startButton, { backgroundColor: colors.primary }]}
+        <Button
+          title="Start workout"
+          icon={<Ionicons name="play" size={20} color={Colors.dark.onAccent} />}
           onPress={handleStartWorkout}
-          disabled={isStartingWorkout}
-        >
-          <Text style={[styles.startButtonText, { color: colors.onPrimary }]}>
-            {isStartingWorkout ? 'Starting...' : 'Start New Workout'}
-          </Text>
-        </Pressable>
+          loading={isStartingWorkout}
+        />
 
         {error && (
-          <Text style={[styles.errorText, { color: colors.destructive }]}>
+          <AppText variant="caption" color="destructive">
             {error}
-          </Text>
+          </AppText>
         )}
 
-        <Text style={{ color: colors.text }}>Previous workouts</Text>
-        {workouts.map((workout) => {
-          const performedOn = parseApiDate(workout.performedOn);
-          const createdAt = parseApiDate(workout.createdAt);
+        <Card>
+          <View style={styles.weekHeader}>
+            <AppText variant="label">This week</AppText>
+            <AppText variant="button" style={styles.sessionCount}>
+              {sessionCount} {sessionCount === 1 ? 'session' : 'sessions'}
+            </AppText>
+          </View>
+          <WeekStrip days={getWeekStrip(workoutDates, today)} />
+        </Card>
 
-          // If isSelected is true, the style on the container changes and shows the delete icon button
-          const isSelected = selectedWorkoutId === workout.id;
+        <AppText variant="label" style={styles.historyLabel}>
+          History
+        </AppText>
+        <View style={styles.historyList}>
+          {workouts.map((workout, index) => {
+            const performedOn = workoutDates[index];
+            const createdAt = parseApiDate(workout.createdAt);
 
-          return (
-            <Pressable
-              key={workout.id}
-              style={[
-                styles.prevWorkoutContainer,
-                { backgroundColor: colors.surface, borderColor: colors.border },
-                isSelected && { borderColor: colors.destructive },
-              ]}
-              onLongPress={() => handleLongPressWorkout(workout)}
-              onPress={() => handlePressWorkout(workout)}
-            >
-              {/* Left side of the prev workouts container */}
-              <View style={styles.workoutTextContainer}>
-                <Text style={{ color: colors.text }}>
-                  {performedOn.toLocaleDateString('en-NZ')}
-                </Text>
-                <Text style={{ color: colors.mutedText }}>
-                  {workout.gymName}
-                </Text>
-                <Text style={{ color: colors.mutedText }}>
-                  {performedOn.toLocaleDateString('en-NZ', { weekday: 'long' })}
-                </Text>
-                <Text style={{ color: colors.mutedText }}>
-                  {createdAt.toLocaleTimeString('en-NZ', {
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true,
-                  })}
-                </Text>
-              </View>
+            // If isSelected is true, the border turns red and the delete icon button replaces the chevron
+            const isSelected = selectedWorkoutId === workout.id;
 
-              {/* Right side of the prev workouts container */}
-              <View style={styles.workoutActionContainer}>
+            return (
+              <Pressable
+                key={workout.id}
+                style={[styles.historyRow, isSelected && styles.historyRowSelected]}
+                onLongPress={() => handleLongPressWorkout(workout)}
+                onPress={() => handlePressWorkout(workout)}
+              >
+                {/* Date tile: day number over month */}
+                <View style={styles.dateTile}>
+                  <AppText variant="button" style={styles.dateTileDay}>
+                    {performedOn.getDate()}
+                  </AppText>
+                  <AppText variant="label" style={styles.dateTileMonth}>
+                    {performedOn.toLocaleDateString('en-NZ', { month: 'short' })}
+                  </AppText>
+                </View>
+
+                {/* Title and gym name */}
+                <View style={styles.workoutTextContainer}>
+                  <AppText variant="body">
+                    {performedOn.toLocaleDateString('en-NZ', { weekday: 'long' })}
+                    {' · '}
+                    {createdAt.toLocaleTimeString('en-NZ', {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true,
+                    })}
+                  </AppText>
+                  <AppText variant="caption" color="mutedText">
+                    {workout.gymName}
+                  </AppText>
+                </View>
+
+                {/* Right side of the row */}
                 {isSelected ? (
                   <Pressable onPress={() => setIsDeleteModalVisible(true)}>
                     <Ionicons
                       name="trash-outline"
                       size={22}
-                      color={colors.destructive}
+                      color={Colors.dark.destructive}
                     />
                   </Pressable>
                 ) : (
                   <Ionicons
                     name="chevron-forward"
                     size={22}
-                    color={colors.mutedText}
+                    color={Colors.dark.mutedText}
                   />
                 )}
-              </View>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+              </Pressable>
+            );
+          })}
+        </View>
+      </Screen>
       {/* Modal for confirming deletion of workout */}
       <Modal transparent visible={isDeleteModalVisible} animationType="fade">
         <View style={styles.modalBackdrop}>
-          <View
-            style={[
-              styles.modalCard,
-              { backgroundColor: colors.surface, borderColor: colors.border },
-            ]}
-          >
-            <Text style={[styles.modalTitle, { color: colors.text }]}>
-              Delete workout?
-            </Text>
-            <Text style={[styles.modalMessage, { color: colors.mutedText }]}>
+          <Card style={styles.modalCard}>
+            <AppText variant="cell">Delete workout?</AppText>
+            <AppText variant="caption" color="mutedText">
               This will delete the workout and all saved sets.
-            </Text>
+            </AppText>
 
             <View style={styles.modalActions}>
-              <Pressable
-                style={[
-                  styles.modalCancelButton,
-                  { backgroundColor: colors.surfaceMuted },
-                ]}
-                onPress={handleCancelDeleteWorkout}
-              >
-                <Text
-                  style={[styles.modalCancelButtonText, { color: colors.text }]}
-                >
-                  Cancel
-                </Text>
-              </Pressable>
-
-              <Pressable
-                style={[
-                  styles.modalDeleteButton,
-                  { backgroundColor: colors.destructive },
-                ]}
-                onPress={handleDeleteWorkout}
-              >
-                <Text
-                  style={[
-                    styles.modalDeleteButtonText,
-                    { color: colors.onPrimary },
-                  ]}
-                >
-                  Delete
-                </Text>
-              </Pressable>
+              <View style={styles.modalAction}>
+                <Button
+                  title="Cancel"
+                  variant="secondary"
+                  size="md"
+                  onPress={handleCancelDeleteWorkout}
+                />
+              </View>
+              <View style={styles.modalAction}>
+                <Button
+                  title="Delete"
+                  variant="destructive"
+                  size="md"
+                  onPress={handleDeleteWorkout}
+                />
+              </View>
             </View>
-          </View>
+          </Card>
         </View>
       </Modal>
     </>
@@ -335,52 +336,58 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 24,
-    gap: 16,
+  header: {
+    gap: Spacing.sm,
+    marginTop: Spacing.md,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-  },
-  startButton: {
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  startButtonText: {
-    fontWeight: '700',
-  },
-  errorText: {},
-  prevWorkoutContainer: {
-    padding: 10,
-    paddingRight: 25,
-    borderRadius: 8,
-    gap: 4,
+  weekHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  sessionCount: {
+    fontSize: 18,
+  },
+  historyLabel: {
+    fontSize: 13,
+    marginBottom: -Spacing.sm,
+  },
+  historyList: {
+    gap: Spacing.md,
+  },
+  historyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    padding: Spacing.md,
+    borderRadius: Radius.lg,
     borderWidth: 1,
-
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.12,
-    shadowRadius: 2,
-    elevation: 2,
+    borderColor: 'transparent',
+    backgroundColor: Colors.dark.surface,
+  },
+  historyRowSelected: {
+    borderColor: Colors.dark.destructive,
+  },
+  dateTile: {
+    width: 52,
+    height: 52,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.dark.surfaceMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dateTileDay: {
+    fontSize: 24,
+    lineHeight: 26,
+    letterSpacing: 0,
+  },
+  dateTileMonth: {
+    fontSize: 10,
+    letterSpacing: 1,
   },
   workoutTextContainer: {
-    gap: 4,
     flex: 1,
-  },
-  workoutActionContainer: {
-    width: 40,
-    alignItems: 'flex-end',
-    justifyContent: 'center',
+    gap: 2,
   },
   // Modal
   modalBackdrop: {
@@ -388,52 +395,18 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: Spacing.xxl,
   },
   modalCard: {
     width: '100%',
     maxWidth: 360,
-    borderRadius: 12,
-    padding: 20,
-    gap: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 6,
-    borderWidth: 1,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  modalMessage: {
-    fontSize: 15,
-    lineHeight: 22,
   },
   modalActions: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 12,
-    marginTop: 8,
+    gap: Spacing.md,
+    marginTop: Spacing.sm,
   },
-  modalCancelButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-  },
-  modalCancelButtonText: {
-    fontWeight: '700',
-  },
-  modalDeleteButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-  },
-  modalDeleteButtonText: {
-    fontWeight: '700',
+  modalAction: {
+    flex: 1,
   },
 });

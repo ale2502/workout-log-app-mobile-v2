@@ -199,7 +199,7 @@ Rebuild the render with the primitives. Keep all the data and handlers (load, st
 - Below the action row, when `pendingNote` isn't empty: "Note for set {next}: <muted note>" (13px).
 - `handleSaveSet` sends `note: pendingNote === '' ? null : pendingNote`, then clears `pendingNote` once the save succeeds.
 - Row taps (D5): pass `onPressSet` so that in edit mode it switches the edit target (today's `handlePressSet`), and outside edit mode it calls `openNotes(set)`. Long-press is unchanged.
-- Delete the old `note` / `setNote` state.
+- Delete the old `note` / `setNote` state. `handleUpdateSet` must take the note from the set as it is now, i.e. `sets.find(s => s.id === selectedSetId)?.note ?? null`, not from a value copied when edit mode started. Otherwise saving a note through the note cell while editing and then pressing Update puts the old note back (a bug that existed before step 9).
 
 **Acceptance:** pencil → type → Save shows the lime dot and the preview line. Log set → the row shows the note and the dot disappears. Tapping a saved row opens its note. Long-press enters edit mode.
 **Commit:** `Attach notes to the next set from Log Set`

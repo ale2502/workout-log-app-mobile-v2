@@ -12,6 +12,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { Platform, View, StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import { Colors } from '@/constants/theme';
@@ -55,9 +56,11 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider>
-      <RootLayoutContent />
-    </ThemeProvider>
+    <GestureHandlerRootView style={styles.gestureRoot}>
+      <ThemeProvider>
+        <RootLayoutContent />
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
 
@@ -78,6 +81,9 @@ function RootLayoutContent() {
 }
 
 const styles = StyleSheet.create({
+  gestureRoot: {
+    flex: 1,
+  },
   appContainer: {
     flex: 1,
   },

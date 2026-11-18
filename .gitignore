@@ -22,7 +22,6 @@ coverage/*
 
 # Local Superpowers session state
 .superpowers/
-docs/superpowers/plans/
 
 # Claude Code (personal dev environment, not part of the app)
 .claude/

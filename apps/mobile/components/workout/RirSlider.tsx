@@ -74,6 +74,7 @@ export function RirSlider({ value, onChange, target }: RirSliderProps) {
 
   // Tapping the selected segment again clears it (D3). Shared by taps and screen readers.
   const selectSegment = (index: number) => {
+    Haptics.selectionAsync();
     onChange(index === selectedIndex ? null : index);
   };
 

@@ -1,74 +1,58 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * Iron design tokens: colors, radii, spacing, fonts and text styles.
+ * Screens and components should use these instead of raw hex colors or font strings.
  */
 
-import { Platform } from 'react-native';
-
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#67d5ff';
-
-export const Colors = {
-  light: {
-    background: '#f4f7fb',
-    surface: '#ffffff',
-    surfaceMuted: '#f1f5f9',
-    text: '#11181C',
-    tint: tintColorLight,
-    icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
-    border: '#d1d5db',
-    primary: '#111827',
-    onPrimary: '#ffffff',
-    destructive: '#dc2626',
-    success: '#166534',
-    mutedText: '#4b5563',
-    placeholder: '#6b7280',
-    noteIndicator: '#7c3aed',
-  },
-  dark: {
-    background: '#0b1117',
-    surface: '#151c24',
-    surfaceMuted: '#1d2530',
-    text: '#ECEDEE',
-    tint: tintColorDark,
-    icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
-    border: '#273141',
-    primary: '#dfe8f2',
-    onPrimary: '#0b1117',
-    destructive: '#fb7185',
-    success: '#4ade80',
-    mutedText: '#a1a8b3',
-    placeholder: '#8a93a0',
-    noteIndicator: '#c4b5fd',
-  },
+const iron = {
+  // existing keys (kept so current screens restyle automatically)
+  background: '#0D0D0F',
+  surface: '#17171B',
+  surfaceMuted: '#212127', // raised: stepper buttons, chips, icon tiles
+  text: '#F4F4F5',
+  mutedText: '#9A9AA3',
+  placeholder: '#55555D',
+  border: '#2A2A31',
+  tint: '#C8F031',
+  icon: '#9A9AA3',
+  tabIconDefault: '#9A9AA3',
+  tabIconSelected: '#C8F031',
+  primary: '#F4F4F5', // neutral buttons (NOT lime: steppers use this today)
+  onPrimary: '#0D0D0F',
+  destructive: '#F87171',
+  success: '#4ADE80',
+  noteIndicator: '#D4D4D8',
+  // new keys
+  accent: '#C8F031', // ONLY for primary actions, the active tab and the week strip
+  onAccent: '#0D0D0F',
+  tabBar: '#121215',
+  noteText: '#D4D4D8',
 };
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded:
-      "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
-    mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-  },
-});
+// Temporary shim: the app is dark only, so both schemes point at the same palette.
+// Step 13 of the Iron redesign plan flattens this to `export const Colors = iron`.
+export const Colors = { light: iron, dark: iron };
+
+// RIR effort scale, index = RIR (4 means 4+). Hot = hard, cool = easy.
+export const RirColors = ['#F87171', '#FB923C', '#FACC15', '#4ADE80', '#60A5FA'] as const;
+export const rirTint = (rir: number) => RirColors[Math.min(rir, 4)] + '1F'; // ~12% alpha row background
+export const rirLabel = (rir: number) => (rir >= 4 ? '4+' : String(rir));
+
+export const Radius = { sm: 8, md: 12, lg: 16, xl: 18, pill: 999 };
+export const Spacing = { xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24 };
+
+export const Fonts = {
+  display: 'BarlowCondensed_700Bold',
+  displaySemi: 'BarlowCondensed_600SemiBold',
+};
+
+// Text styles. Uppercase labels use letterSpacing in px (RN has no em): 0.14em x 11px ~ 1.5
+export const Type = {
+  hero: { fontFamily: Fonts.display, fontSize: 46, lineHeight: 46, textTransform: 'uppercase' },
+  title: { fontFamily: Fonts.display, fontSize: 34, lineHeight: 36, textTransform: 'uppercase' },
+  number: { fontFamily: Fonts.display, fontSize: 64, lineHeight: 64 },
+  button: { fontFamily: Fonts.display, fontSize: 22, letterSpacing: 0.9, textTransform: 'uppercase' },
+  cell: { fontFamily: Fonts.displaySemi, fontSize: 20 },
+  label: { fontSize: 11, fontWeight: '600', letterSpacing: 1.5, textTransform: 'uppercase' }, // color: mutedText
+  body: { fontSize: 15, fontWeight: '600' },
+  caption: { fontSize: 13 },
+} as const;

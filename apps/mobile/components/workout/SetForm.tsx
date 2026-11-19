@@ -38,6 +38,10 @@ type SetFormProps = {
 };
 
 export function SetForm(props: SetFormProps) {
+  // A set needs a whole number of reps above 0; an empty box would save as 0.
+  const repsValue = Number(props.reps);
+  const hasReps = Number.isInteger(repsValue) && repsValue > 0;
+
   const hasPendingNote = props.pendingNote !== '';
 
   return (
@@ -47,10 +51,12 @@ export function SetForm(props: SetFormProps) {
           <Stepper
             label="Reps"
             value={props.reps}
-            onChangeText={props.onChangeReps}
+            // Digits only: the number pad can still be bypassed by a paste or a hardware keyboard.
+            onChangeText={(text) => props.onChangeReps(text.replace(/\D/g, ''))}
             onDecrease={props.onDecreaseReps}
             onIncrease={props.onIncreaseReps}
             accessibilityNoun="reps"
+            keyboardType="number-pad"
           />
         </View>
         <View style={styles.stepper}>
@@ -84,6 +90,7 @@ export function SetForm(props: SetFormProps) {
             size="md"
             onPress={props.onUpdate}
             loading={props.isSaving}
+            disabled={!hasReps}
           />
           <View style={styles.actionRow}>
             <View style={styles.actionRowItem}>
@@ -125,6 +132,7 @@ export function SetForm(props: SetFormProps) {
               size="md"
               onPress={props.onSave}
               loading={props.isSaving}
+              disabled={!hasReps}
             />
           </View>
         </View>

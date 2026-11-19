@@ -11,6 +11,8 @@ type StepperProps = {
   onDecrease: () => void;
   onIncrease: () => void;
   accessibilityNoun: string;
+  // Reps are whole numbers, so they use 'number-pad'; load allows decimals.
+  keyboardType?: 'number-pad' | 'decimal-pad';
 };
 
 // Long values like "102.5" would overflow a half-width card at the full size.
@@ -23,6 +25,7 @@ export function Stepper({
   onDecrease,
   onIncrease,
   accessibilityNoun,
+  keyboardType = 'decimal-pad',
 }: StepperProps) {
   return (
     <Card style={styles.card}>
@@ -32,7 +35,7 @@ export function Stepper({
       <TextInput
         value={value}
         onChangeText={onChangeText}
-        keyboardType="decimal-pad"
+        keyboardType={keyboardType}
         placeholder="0"
         placeholderTextColor={Colors.dark.placeholder}
         accessibilityLabel={label}

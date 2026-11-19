@@ -1,61 +1,53 @@
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Colors } from '@/constants/theme';
-import { useThemeMode } from '@/hooks/use-color-scheme';
+import { AppText } from '@/components/ui/AppText';
+import { Screen } from '@/components/ui/Screen';
+import { Colors, Radius, Spacing } from '@/constants/theme';
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { colorScheme } = useThemeMode();
-  const colors = Colors[colorScheme];
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">Settings</ThemedText>
+    <Screen scroll contentStyle={styles.content}>
+      <AppText variant="hero">Settings</AppText>
 
       <Pressable
-        style={[
-          styles.settingCard,
-          {
-            backgroundColor: colors.surface,
-            borderColor: colors.border,
-          },
-        ]}
+        style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
         onPress={() => router.push('/settings/manage-gyms')}
       >
-        <View style={styles.settingCopy}>
-          <ThemedText type="defaultSemiBold">
-            Manage gyms and machines
-          </ThemedText>
-        </View>
-
-        <Ionicons name="chevron-forward" size={22} color={colors.mutedText} />
+        <AppText variant="body" style={styles.rowLabel}>
+          Manage gyms and machines
+        </AppText>
+        <Ionicons
+          name="chevron-forward"
+          size={20}
+          color={Colors.dark.mutedText}
+        />
       </Pressable>
-    </ThemedView>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    paddingTop: 60,
-    gap: 16,
+  content: {
+    gap: Spacing.lg,
   },
-  settingCard: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 16,
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 16,
+    gap: Spacing.md,
+    minHeight: 56,
+    padding: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: Radius.lg,
+    backgroundColor: Colors.dark.surface,
   },
-  settingCopy: {
+  rowPressed: {
+    opacity: 0.85,
+  },
+  rowLabel: {
     flex: 1,
-    gap: 4,
   },
 });

@@ -65,8 +65,11 @@ export default function LogSetScreen() {
   const [load, setLoad] = useState('');
   // RIR comes from the slider, so it is already a number (null = not recorded).
   const [rir, setRir] = useState<number | null>(null);
-  // No UI until step 10 replaces this; it carries an edited set's note through the PATCH.
-  const [note, setNote] = useState('');
+  // The note for the next set. The modal edits a separate draft so Close can throw it away.
+  const [pendingNote, setPendingNote] = useState('');
+  const [pendingNoteDraft, setPendingNoteDraft] = useState('');
+  const [isPendingNoteModalVisible, setIsPendingNoteModalVisible] =
+    useState(false);
   const [selectedSetId, setSelectedSetId] = useState<number | null>(null);
 
   function changeNumberValue(
@@ -203,7 +206,7 @@ export default function LogSetScreen() {
       reps: Number(reps),
       load: load === '' ? null : Number(load),
       rir,
-      note: note === '' ? null : note,
+      note: pendingNote === '' ? null : pendingNote,
     };
 
     try {
@@ -219,6 +222,8 @@ export default function LogSetScreen() {
         throw new Error('Failed to save set');
       }
 
+      // Only clear the note once it's saved, so a failed save keeps it.
+      setPendingNote('');
       await loadSets();
       // later: navigate somewhere or clear the form
     } catch {
@@ -255,7 +260,9 @@ export default function LogSetScreen() {
       reps: Number(reps),
       load: load === '' ? null : Number(load),
       rir,
-      note: note === '' ? null : note,
+      // Read the note from the set as it is now: it may have been changed
+      // through the note cell after edit mode started.
+      note: selectedSet.note ?? null,
     };
 
     try {
@@ -370,7 +377,6 @@ export default function LogSetScreen() {
     setReps('');
     setLoad('');
     setRir(null);
-    setNote('');
   }
 
   function selectSetForEditing(selectedSet: SetDisplay) {
@@ -381,13 +387,13 @@ export default function LogSetScreen() {
     setRir(
       selectedSet.rir === null ? null : Math.min(4, Math.round(selectedSet.rir)),
     );
-    setNote(selectedSet.note ?? '');
     setSelectedExerciseVariantId(selectedSet.exerciseVariantId);
   }
 
   function handlePressSet(selectedSet: SetDisplay) {
-    // If no selected set, just return
+    // Outside edit mode, tapping a row opens its note
     if (selectedSetId === null) {
+      openNotes(selectedSet);
       return;
     }
 
@@ -399,6 +405,17 @@ export default function LogSetScreen() {
 
     // If there's a selected which is not the one tapped, selected this one
     selectSetForEditing(selectedSet);
+  }
+
+  function openPendingNote() {
+    setPendingNoteDraft(pendingNote);
+    setIsPendingNoteModalVisible(true);
+  }
+
+  // Saving only stores the note on the screen; it's sent with the next set.
+  function savePendingNote() {
+    setPendingNote(pendingNoteDraft.trim());
+    setIsPendingNoteModalVisible(false);
   }
 
   useEffect(() => {
@@ -590,6 +607,8 @@ export default function LogSetScreen() {
           onUpdate={handleUpdateSet}
           onDelete={handleDeleteSet}
           onCancel={handleCancelEdit}
+          onPressNote={openPendingNote}
+          pendingNote={pendingNote}
           isSaving={isSaving}
           // If selectedSetId is different than null, this becomes true, which means edit mode is active
           isEditing={selectedSetId !== null}
@@ -614,6 +633,17 @@ export default function LogSetScreen() {
         onClose={closeNotes}
         onSave={saveNotes}
         onDelete={clearNotes}
+      />
+
+      {/* A second modal for the next set's note. It never calls the API. */}
+      <SetNotesModal
+        visible={isPendingNoteModalVisible}
+        note={pendingNoteDraft}
+        isSaving={false}
+        onChangeNote={setPendingNoteDraft}
+        onClose={() => setIsPendingNoteModalVisible(false)}
+        onSave={savePendingNote}
+        onDelete={() => setPendingNoteDraft('')}
       />
     </>
   );

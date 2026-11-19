@@ -1,10 +1,12 @@
+import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
+import { IconButton } from '@/components/ui/IconButton';
 import { RirSlider } from '@/components/workout/RirSlider';
 import { Stepper } from '@/components/workout/Stepper';
-import { Spacing } from '@/constants/theme';
+import { Colors, Radius, Spacing } from '@/constants/theme';
 
 type SetFormProps = {
   reps: string;
@@ -24,7 +26,11 @@ type SetFormProps = {
   onUpdate: () => void;
   onDelete: () => void;
   onCancel: () => void;
+  // Opens the note modal for the set that's about to be logged.
+  onPressNote: () => void;
 
+  // The note that will be attached to the next set ('' = none).
+  pendingNote: string;
   isSaving: boolean;
   isEditing: boolean;
   nextSetNumber: number;
@@ -32,6 +38,8 @@ type SetFormProps = {
 };
 
 export function SetForm(props: SetFormProps) {
+  const hasPendingNote = props.pendingNote !== '';
+
   return (
     <View style={styles.container}>
       <View style={styles.stepperRow}>
@@ -99,8 +107,18 @@ export function SetForm(props: SetFormProps) {
           </View>
         </View>
       ) : (
-        // A row so step 10 can put the note button to the left of "Log set".
-        <View style={styles.actionRow}>
+        <View style={styles.logRow}>
+          <IconButton
+            accessibilityLabel={
+              hasPendingNote ? 'Edit note for next set' : 'Add note to next set'
+            }
+            onPress={props.onPressNote}
+            size={56}
+            badge={hasPendingNote}
+            style={{ borderRadius: Radius.lg }}
+          >
+            <Ionicons name="create-outline" size={22} color={Colors.dark.text} />
+          </IconButton>
           <View style={styles.actionRowItem}>
             <Button
               title={`Log set ${props.nextSetNumber}`}
@@ -110,6 +128,15 @@ export function SetForm(props: SetFormProps) {
             />
           </View>
         </View>
+      )}
+
+      {!props.isEditing && hasPendingNote && (
+        <AppText variant="caption" color="noteText" numberOfLines={2}>
+          Note for set {props.nextSetNumber}:{' '}
+          <AppText variant="caption" color="mutedText">
+            {props.pendingNote}
+          </AppText>
+        </AppText>
       )}
     </View>
   );
@@ -143,5 +170,9 @@ const styles = StyleSheet.create({
   },
   actionRowItem: {
     flex: 1,
+  },
+  logRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
   },
 });

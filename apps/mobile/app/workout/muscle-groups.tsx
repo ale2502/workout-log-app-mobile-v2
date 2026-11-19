@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 // useRouter is only for navigation and useLocalSearchParams is for reading the existing params
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AppText } from '@/components/ui/AppText';
+import { IconButton } from '@/components/ui/IconButton';
+import { Screen } from '@/components/ui/Screen';
+import { Colors, Radius, Spacing } from '@/constants/theme';
 
 type Exercise = {
   id: number;
@@ -14,8 +17,6 @@ type Exercise = {
 
 export default function MuscleGroupScreen() {
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme];
   const params = useLocalSearchParams<{ workoutId: string }>();
   const workoutId = params.workoutId;
   // Same as:
@@ -51,70 +52,97 @@ export default function MuscleGroupScreen() {
     ...new Set(exercises.map((exercise) => exercise.muscleGroup)),
   ];
 
+  const backButton = (
+    <IconButton accessibilityLabel="Go back" onPress={() => router.back()}>
+      <Ionicons name="chevron-back" size={22} color={Colors.dark.text} />
+    </IconButton>
+  );
+
+  // The stack header is hidden on every state, so loading and error keep a back button.
   if (isLoading) {
     return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.text }}>Loading muscle groups...</Text>
-      </View>
+      <>
+        <Stack.Screen options={{ headerShown: false }} />
+        <Screen contentStyle={styles.content}>
+          {backButton}
+          <AppText color="mutedText">Loading muscle groups...</AppText>
+        </Screen>
+      </>
     );
   }
 
   if (error) {
     return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={[styles.errorText, { color: colors.destructive }]}>{error}</Text>
-      </View>
+      <>
+        <Stack.Screen options={{ headerShown: false }} />
+        <Screen contentStyle={styles.content}>
+          {backButton}
+          <AppText color="destructive">{error}</AppText>
+        </Screen>
+      </>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.text }]}>Choose a muscle group</Text>
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <Screen scroll contentStyle={styles.content}>
+        {backButton}
 
-      <View style={styles.muscleGroupList}>
-        {muscleGroups.map((muscleGroup) => (
-          <Pressable
-            key={muscleGroup}
-            style={[
-              styles.muscleGroupButton,
-              { backgroundColor: colors.surface, borderColor: colors.border },
-            ]}
-            onPress={() => {
-              router.push({
-                pathname: '/workout/exercises',
-                params: {
-                  workoutId,
-                  muscleGroup,
-                },
-              });
-            }}
-          >
-            <Text style={{ color: colors.text }}>{muscleGroup}</Text>
-          </Pressable>
-        ))}
-      </View>
-    </View>
+        <AppText variant="title">Muscle group</AppText>
+
+        <View style={styles.list}>
+          {muscleGroups.map((muscleGroup) => (
+            <Pressable
+              key={muscleGroup}
+              style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+              onPress={() => {
+                router.push({
+                  pathname: '/workout/exercises',
+                  params: {
+                    workoutId,
+                    muscleGroup,
+                  },
+                });
+              }}
+            >
+              <AppText variant="body" style={styles.rowLabel}>
+                {muscleGroup}
+              </AppText>
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={Colors.dark.mutedText}
+              />
+            </Pressable>
+          ))}
+        </View>
+      </Screen>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  content: {
+    gap: Spacing.lg,
+  },
+  list: {
+    gap: Spacing.sm,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    minHeight: 56,
+    padding: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: Radius.lg,
+    backgroundColor: Colors.dark.surface,
+  },
+  rowPressed: {
+    opacity: 0.85,
+  },
+  rowLabel: {
     flex: 1,
-    padding: 24,
-    gap: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-  },
-  muscleGroupButton: {
-    padding: 12,
-    borderWidth: 1,
-    borderRadius: 8,
-  },
-  muscleGroupList: {
-    gap: 8,
-  },
-  errorText: {
   },
 });

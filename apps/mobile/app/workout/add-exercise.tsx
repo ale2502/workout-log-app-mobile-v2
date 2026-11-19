@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
+import { StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { AppText } from '@/components/ui/AppText';
+import { IconButton } from '@/components/ui/IconButton';
+import { Screen } from '@/components/ui/Screen';
 import { NewExerciseForm } from '@/components/workout/NewExerciseForm';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Colors, Spacing } from '@/constants/theme';
 
 type CreatedExercise = {
   id: number;
@@ -13,8 +16,6 @@ type CreatedExercise = {
 
 export default function AddExerciseScreen() {
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme];
   const params = useLocalSearchParams<{
     workoutId: string;
     muscleGroup: string;
@@ -112,32 +113,35 @@ export default function AddExerciseScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.text }]}>Add exercise</Text>
-      {isLoading && <Text style={{ color: colors.text }}>Loading muscle groups...</Text>}
-      <NewExerciseForm
-        exerciseName={exerciseName}
-        muscleGroup={selectedMuscleGroup}
-        muscleGroupOptions={muscleGroupOptions}
-        onChangeExerciseName={setExerciseName}
-        onChangeMuscleGroup={setSelectedMuscleGroup}
-        onSubmit={handleCreateExercise}
-        isSaving={isSaving}
-        error={error}
-        successMessage={successMessage}
-      />
-    </View>
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <Screen scroll contentStyle={styles.content}>
+        <IconButton accessibilityLabel="Go back" onPress={() => router.back()}>
+          <Ionicons name="chevron-back" size={22} color={Colors.dark.text} />
+        </IconButton>
+
+        <AppText variant="title">New exercise</AppText>
+        {isLoading && (
+          <AppText color="mutedText">Loading muscle groups...</AppText>
+        )}
+        <NewExerciseForm
+          exerciseName={exerciseName}
+          muscleGroup={selectedMuscleGroup}
+          muscleGroupOptions={muscleGroupOptions}
+          onChangeExerciseName={setExerciseName}
+          onChangeMuscleGroup={setSelectedMuscleGroup}
+          onSubmit={handleCreateExercise}
+          isSaving={isSaving}
+          error={error}
+          successMessage={successMessage}
+        />
+      </Screen>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    gap: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
+  content: {
+    gap: Spacing.lg,
   },
 });

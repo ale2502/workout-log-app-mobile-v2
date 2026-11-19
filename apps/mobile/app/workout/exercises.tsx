@@ -1,15 +1,22 @@
 import { useCallback, useState } from 'react';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Stack,
+  useFocusEffect,
+  useLocalSearchParams,
+  useRouter,
+} from 'expo-router';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Exercise } from '../../../api/server/models/exercise';
 
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AppText } from '@/components/ui/AppText';
+import { Button } from '@/components/ui/Button';
+import { IconButton } from '@/components/ui/IconButton';
+import { Screen } from '@/components/ui/Screen';
+import { Colors, Radius, Spacing } from '@/constants/theme';
 
 export default function ExercisesScreen() {
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme];
   const params = useLocalSearchParams<{
     workoutId: string;
     muscleGroup: string;
@@ -54,28 +61,49 @@ export default function ExercisesScreen() {
     (exercise) => exercise.muscleGroup === muscleGroup,
   );
 
+  const backButton = (
+    <IconButton accessibilityLabel="Go back" onPress={() => router.back()}>
+      <Ionicons name="chevron-back" size={22} color={Colors.dark.text} />
+    </IconButton>
+  );
+
+  // The stack header is hidden on every state, so loading and error keep a back button.
   if (isLoading) {
     return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.text }}>Loading exercises...</Text>
-      </View>
+      <>
+        <Stack.Screen options={{ headerShown: false }} />
+        <Screen contentStyle={styles.content}>
+          {backButton}
+          <AppText color="mutedText">Loading exercises...</AppText>
+        </Screen>
+      </>
     );
   }
 
   if (error) {
     return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={[styles.errorText, { color: colors.destructive }]}>{error}</Text>
-      </View>
+      <>
+        <Stack.Screen options={{ headerShown: false }} />
+        <Screen contentStyle={styles.content}>
+          {backButton}
+          <AppText color="destructive">{error}</AppText>
+        </Screen>
+      </>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.titleButtonContainer}>
-        <Text style={[styles.title, { color: colors.text }]}>Choose an exercise</Text>
-        <Pressable
-          style={[styles.addButton, { backgroundColor: colors.primary }]}
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <Screen scroll contentStyle={styles.content}>
+        {backButton}
+
+        <AppText variant="title">{muscleGroup || 'Exercise'}</AppText>
+
+        <Button
+          title="Add exercise"
+          size="md"
+          icon={<Ionicons name="add" size={22} color={Colors.dark.onAccent} />}
           onPress={() => {
             router.push({
               pathname: '/workout/add-exercise',
@@ -85,74 +113,62 @@ export default function ExercisesScreen() {
               },
             });
           }}
-        >
-          <Text style={[styles.addText, { color: colors.onPrimary }]}>Add +</Text>
-        </Pressable>
-      </View>
+        />
 
-      <View style={styles.exerciseList}>
-        {filteredExercises.map((exercise) => (
-          <Pressable
-            key={exercise.id}
-            style={[
-              styles.exerciseButton,
-              { backgroundColor: colors.surface, borderColor: colors.border },
-            ]}
-            onPress={() => {
-              router.push({
-                // "workout" refers to the folder inside of apps and "log-set" it's the set recording screen. The last path (log-set) is where you're navigating to.
-                pathname: '/workout/log-set',
-                params: {
-                  workoutId,
-                  muscleGroup,
-                  exerciseId: String(exercise.id),
-                },
-              });
-            }}
-          >
-            <Text style={{ color: colors.text }}>{exercise.name}</Text>
-          </Pressable>
-        ))}
-      </View>
-    </View>
+        <View style={styles.list}>
+          {filteredExercises.map((exercise) => (
+            <Pressable
+              key={exercise.id}
+              style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+              onPress={() => {
+                router.push({
+                  // "workout" refers to the folder inside of apps and "log-set" it's the set recording screen. The last path (log-set) is where you're navigating to.
+                  pathname: '/workout/log-set',
+                  params: {
+                    workoutId,
+                    muscleGroup,
+                    exerciseId: String(exercise.id),
+                  },
+                });
+              }}
+            >
+              <AppText variant="body" style={styles.rowLabel}>
+                {exercise.name}
+              </AppText>
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={Colors.dark.mutedText}
+              />
+            </Pressable>
+          ))}
+        </View>
+      </Screen>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    gap: 16,
+  content: {
+    gap: Spacing.lg,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
+  list: {
+    gap: Spacing.sm,
   },
-  // Add+ button
-  titleButtonContainer: {
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: Spacing.md,
+    minHeight: 56,
+    padding: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: Radius.lg,
+    backgroundColor: Colors.dark.surface,
   },
-  addButton: {
-    padding: 10,
-    paddingRight: 20,
-    paddingLeft: 20,
-    borderRadius: 8,
-    alignItems: 'center',
+  rowPressed: {
+    opacity: 0.85,
   },
-  addText: {
-    fontWeight: '700',
-  },
-  // Exercises list
-  exerciseButton: {
-    padding: 12,
-    borderWidth: 1,
-    borderRadius: 8,
-  },
-  exerciseList: {
-    gap: 8,
-  },
-  errorText: {
+  rowLabel: {
+    flex: 1,
   },
 });

@@ -1,26 +1,38 @@
 import * as Haptics from 'expo-haptics';
 import { useCallback, useState } from 'react';
-import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  ScrollView,
-  Modal,
-} from 'react-native';
+  Stack,
+  useLocalSearchParams,
+  useRouter,
+  useFocusEffect,
+} from 'expo-router';
+import { Pressable, StyleSheet, View, Modal } from 'react-native';
 import { SetDisplay } from '../../../api/server/models/set';
+import { AppText } from '@/components/ui/AppText';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { IconButton } from '@/components/ui/IconButton';
+import { Screen } from '@/components/ui/Screen';
 import { SavedSetsTable } from '@/components/workout/SavedSetsTable';
 import { Ionicons } from '@expo/vector-icons';
 import { SetNotesModal } from '@/components/workout/SetNotesModal';
 import { useSetNotes } from '@/hooks/useSetNotes';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Colors, Spacing } from '@/constants/theme';
+
+// "YYYY-MM-DD HH:MM:SS" is a UTC timestamp from SQLite, so it becomes local time.
+function parseApiDate(value: string) {
+  return new Date(value.replace(' ', 'T') + 'Z');
+}
+
+// "Tue 30 Jun" (the title variant uppercases it; built from parts so there is no comma).
+function formatWorkoutDate(date: Date) {
+  const weekday = date.toLocaleDateString('en-NZ', { weekday: 'short' });
+  const month = date.toLocaleDateString('en-NZ', { month: 'short' });
+  return `${weekday} ${date.getDate()} ${month}`;
+}
 
 export default function WorkoutDetailScreen() {
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme];
 
   const params = useLocalSearchParams<{
     workoutId: string;
@@ -175,104 +187,129 @@ export default function WorkoutDetailScreen() {
     }
   }
 
+  // The screen only loads sets, and each set carries its workout's performedOn.
   const gymName = workoutSets[0]?.gymName;
+  const performedOn = workoutSets[0]
+    ? parseApiDate(workoutSets[0].performedOn)
+    : null;
+  const timeLabel = performedOn?.toLocaleTimeString('en-NZ', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+  const subtitle = [gymName, timeLabel].filter(Boolean).join(' · ');
 
+  const backButton = (
+    <IconButton accessibilityLabel="Go back" onPress={() => router.back()}>
+      <Ionicons name="chevron-back" size={22} color={Colors.dark.text} />
+    </IconButton>
+  );
+
+  // The stack header is hidden on every state, so loading and error keep a back button.
   if (isLoading) {
     return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={{ color: colors.text }}>Loading workout...</Text>
-      </View>
+      <>
+        <Stack.Screen options={{ headerShown: false }} />
+        <Screen contentStyle={styles.content}>
+          {backButton}
+          <AppText color="mutedText">Loading workout...</AppText>
+        </Screen>
+      </>
     );
   }
 
   if (error) {
     return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={[styles.errorText, { color: colors.destructive }]}>
-          {error}
-        </Text>
-      </View>
+      <>
+        <Stack.Screen options={{ headerShown: false }} />
+        <Screen contentStyle={styles.content}>
+          {backButton}
+          <AppText color="destructive">{error}</AppText>
+        </Screen>
+      </>
     );
   }
 
   return (
     <>
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Pressable
-          style={[styles.addButton, { backgroundColor: colors.primary }]}
-          onPress={handleAddExercise}
-        >
-          <Text style={[styles.addButtonText, { color: colors.onPrimary }]}>
-            Add exercise
-          </Text>
-        </Pressable>
-        {gymName && <Text style={{ color: colors.mutedText }}>{gymName}</Text>}
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          {workoutSets.length === 0 ? (
-            <Text style={{ color: colors.text }}>
-              No sets found for this workout.
-            </Text>
-          ) : (
-            Object.entries(groupedSets).map(([sectionTitle, sets]) => {
-              const exerciseId = sets[0].exerciseId;
-              const exerciseVariantId = sets[0].exerciseVariantId;
-              const exerciseName = sets[0].exerciseName;
-              const exerciseVariantLabel = sets[0].exerciseVariantLabel;
-              const isSelected =
-                selectedExerciseVariantId === exerciseVariantId;
+      <Stack.Screen options={{ headerShown: false }} />
+      <Screen scroll contentStyle={styles.content}>
+        {backButton}
 
-              return (
-                <Pressable
-                  key={sectionTitle}
+        <View style={styles.titleBlock}>
+          <AppText variant="title">
+            {performedOn ? formatWorkoutDate(performedOn) : 'Workout'}
+          </AppText>
+          {subtitle !== '' && (
+            <AppText variant="caption" color="mutedText">
+              {subtitle}
+            </AppText>
+          )}
+        </View>
+
+        <Button
+          title="Add exercise"
+          size="md"
+          icon={<Ionicons name="add" size={22} color={Colors.dark.onAccent} />}
+          onPress={handleAddExercise}
+        />
+
+        {workoutSets.length === 0 ? (
+          <AppText color="mutedText">No sets found for this workout.</AppText>
+        ) : (
+          Object.entries(groupedSets).map(([sectionTitle, sets]) => {
+            const exerciseId = sets[0].exerciseId;
+            const exerciseVariantId = sets[0].exerciseVariantId;
+            const exerciseName = sets[0].exerciseName;
+            const exerciseVariantLabel = sets[0].exerciseVariantLabel;
+            const isSelected = selectedExerciseVariantId === exerciseVariantId;
+
+            return (
+              <Pressable
+                key={sectionTitle}
+                onPress={() =>
+                  handlePressExercise(
+                    exerciseId,
+                    exerciseVariantId,
+                    exerciseName,
+                  )
+                }
+                onLongPress={() =>
+                  handleLongPressExercise(exerciseVariantId, exerciseName)
+                }
+              >
+                <Card
                   style={[
                     styles.exerciseSection,
-                    {
-                      backgroundColor: colors.surface,
-                      borderColor: colors.border,
-                    },
-                    isSelected && { borderColor: colors.destructive },
+                    isSelected && styles.exerciseSectionSelected,
                   ]}
-                  onPress={() =>
-                    handlePressExercise(
-                      exerciseId,
-                      exerciseVariantId,
-                      exerciseName,
-                    )
-                  }
-                  onLongPress={() =>
-                    handleLongPressExercise(exerciseVariantId, exerciseName)
-                  }
                 >
                   <View style={styles.exerciseTitleContainer}>
                     <View style={styles.exerciseTitleTextContainer}>
-                      <Text
-                        style={[styles.exerciseTitle, { color: colors.text }]}
-                      >
+                      <AppText variant="title" style={styles.exerciseTitle}>
                         {exerciseName}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.exerciseVariantLabel,
-                          { color: colors.mutedText },
-                        ]}
-                      >
+                      </AppText>
+                      <AppText variant="caption" color="mutedText">
                         {exerciseVariantLabel}
-                      </Text>
+                      </AppText>
                     </View>
 
                     {isSelected ? (
-                      <Pressable onPress={() => setIsDeleteModalVisible(true)}>
+                      <Pressable
+                        accessibilityLabel={`Delete ${exerciseName}`}
+                        onPress={() => setIsDeleteModalVisible(true)}
+                      >
                         <Ionicons
                           name="trash-outline"
                           size={22}
-                          color={colors.destructive}
+                          color={Colors.dark.destructive}
                         />
                       </Pressable>
                     ) : (
                       <Ionicons
                         name="chevron-forward"
                         size={22}
-                        color={colors.mutedText}
+                        color={Colors.dark.mutedText}
                       />
                     )}
                   </View>
@@ -292,61 +329,40 @@ export default function WorkoutDetailScreen() {
                       )
                     }
                   />
-                </Pressable>
-              );
-            })
-          )}
-        </ScrollView>
-      </View>
+                </Card>
+              </Pressable>
+            );
+          })
+        )}
+      </Screen>
       {/* Modal for confirming deletion of exercise */}
       <Modal transparent visible={isDeleteModalVisible} animationType="fade">
         <View style={styles.modalBackdrop}>
-          <View
-            style={[
-              styles.modalCard,
-              { backgroundColor: colors.surface, borderColor: colors.border },
-            ]}
-          >
-            <Text style={[styles.modalTitle, { color: colors.text }]}>
-              Delete {selectedExerciseName}?
-            </Text>
-            <Text style={[styles.modalMessage, { color: colors.mutedText }]}>
+          <Card style={styles.modalCard}>
+            <AppText variant="cell">Delete {selectedExerciseName}?</AppText>
+            <AppText variant="caption" color="mutedText">
               This will delete the exercise and its saved sets for this workout.
-            </Text>
+            </AppText>
 
             <View style={styles.modalActions}>
-              <Pressable
-                style={[
-                  styles.modalCancelButton,
-                  { backgroundColor: colors.surfaceMuted },
-                ]}
-                onPress={handleCancelDeleteExercise}
-              >
-                <Text
-                  style={[styles.modalCancelButtonText, { color: colors.text }]}
-                >
-                  Cancel
-                </Text>
-              </Pressable>
-
-              <Pressable
-                style={[
-                  styles.modalDeleteButton,
-                  { backgroundColor: colors.destructive },
-                ]}
-                onPress={handleDeleteExercise}
-              >
-                <Text
-                  style={[
-                    styles.modalDeleteButtonText,
-                    { color: colors.onPrimary },
-                  ]}
-                >
-                  Delete
-                </Text>
-              </Pressable>
+              <View style={styles.modalAction}>
+                <Button
+                  title="Cancel"
+                  variant="secondary"
+                  size="md"
+                  onPress={handleCancelDeleteExercise}
+                />
+              </View>
+              <View style={styles.modalAction}>
+                <Button
+                  title="Delete"
+                  variant="destructive"
+                  size="md"
+                  onPress={handleDeleteExercise}
+                />
+              </View>
             </View>
-          </View>
+          </Card>
         </View>
       </Modal>
       <SetNotesModal
@@ -363,49 +379,37 @@ export default function WorkoutDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    gap: 12,
+  content: {
+    gap: Spacing.lg,
   },
-  scrollContent: {
-    gap: 20,
-    paddingBottom: 24,
-    paddingHorizontal: 3,
-    paddingTop: 0,
+  titleBlock: {
+    gap: Spacing.xs,
   },
-  errorText: {},
+  // The 1px border is always there (transparent) so selecting a section doesn't shift it.
   exerciseSection: {
-    gap: 5,
-    padding: 10,
-    borderRadius: 8,
+    gap: Spacing.sm,
+    padding: Spacing.sm,
     borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.12,
-    shadowRadius: 4,
-    elevation: 3,
+    borderColor: 'transparent',
   },
-  exerciseTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  exerciseVariantLabel: {
-    fontSize: 14,
-  },
-  exerciseTitleTextContainer: {
-    flex: 1,
-    gap: 2,
+  exerciseSectionSelected: {
+    borderColor: Colors.dark.destructive,
   },
   exerciseTitleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 12,
-    marginBottom: 5,
+    gap: Spacing.md,
+    paddingTop: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+  },
+  exerciseTitleTextContainer: {
+    flex: 1,
+    gap: 2,
+  },
+  exerciseTitle: {
+    fontSize: 22,
+    lineHeight: 24,
   },
   // Modal
   modalBackdrop: {
@@ -413,61 +417,18 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: Spacing.xxl,
   },
   modalCard: {
     width: '100%',
     maxWidth: 360,
-    borderRadius: 12,
-    padding: 20,
-    gap: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 6,
-    borderWidth: 1,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-  },
-  modalMessage: {
-    fontSize: 15,
-    lineHeight: 22,
   },
   modalActions: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 12,
-    marginTop: 8,
+    gap: Spacing.md,
+    marginTop: Spacing.sm,
   },
-  modalCancelButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-  },
-  modalCancelButtonText: {
-    fontWeight: '700',
-  },
-  modalDeleteButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-  },
-  modalDeleteButtonText: {
-    fontWeight: '700',
-  },
-  // Add exercise button
-  addButton: {
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  addButtonText: {
-    fontWeight: '700',
+  modalAction: {
+    flex: 1,
   },
 });

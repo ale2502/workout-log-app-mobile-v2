@@ -1,14 +1,16 @@
 import {
+  KeyboardAvoidingView,
   Modal,
-  Pressable,
+  Platform,
   StyleSheet,
-  Text,
   TextInput,
   View,
 } from 'react-native';
 
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AppText } from '@/components/ui/AppText';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { Colors, Radius, Spacing } from '@/constants/theme';
 
 type SetNotesModalProps = {
   visible: boolean;
@@ -22,92 +24,56 @@ type SetNotesModalProps = {
 };
 
 export function SetNotesModal(props: SetNotesModalProps) {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme];
-
   return (
     <Modal transparent visible={props.visible} animationType="fade">
-      <View style={styles.modalBackdrop}>
-        <View
-          style={[
-            styles.modalCard,
-            { backgroundColor: colors.surface, borderColor: colors.border },
-          ]}
-        >
-          <Text style={[styles.modalTitle, { color: colors.text }]}>
-            Set Notes
-          </Text>
+      {/* Padding on iOS lifts the card above the keyboard so the input stays visible. */}
+      <KeyboardAvoidingView
+        style={styles.modalBackdrop}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <Card style={styles.modalCard}>
+          <AppText variant="cell">Set Notes</AppText>
 
           <TextInput
-            style={[
-              styles.noteInput,
-              {
-                backgroundColor: colors.surfaceMuted,
-                borderColor: colors.border,
-                color: colors.text,
-              },
-            ]}
+            style={styles.noteInput}
             value={props.note}
             onChangeText={props.onChangeNote}
             placeholder="Add a note..."
-            placeholderTextColor={colors.placeholder}
+            placeholderTextColor={Colors.dark.placeholder}
             multiline
           />
 
           <View style={styles.modalActions}>
-            <Pressable
-              style={[
-                styles.modalCancelButton,
-                {
-                  backgroundColor: colors.surfaceMuted,
-                  borderColor: colors.border,
-                },
-              ]}
-              onPress={props.onClose}
-            >
-              <Text
-                style={[styles.modalCancelButtonText, { color: colors.text }]}
-              >
-                Close
-              </Text>
-            </Pressable>
-
-            <Pressable
-              style={[
-                styles.modalDeleteButton,
-                { backgroundColor: colors.destructive },
-              ]}
-              onPress={props.onDelete}
-            >
-              <Text
-                style={[
-                  styles.modalDeleteButtonText,
-                  { color: colors.onPrimary },
-                ]}
-              >
-                Clear
-              </Text>
-            </Pressable>
-
-            <Pressable
-              style={[
-                styles.modalSaveButton,
-                { backgroundColor: colors.primary },
-              ]}
-              onPress={props.onSave}
-            >
-              <Text
-                style={[
-                  styles.modalSaveButtonText,
-                  { color: colors.onPrimary },
-                ]}
-              >
-                {props.isSaving ? 'Saving...' : 'Save'}
-              </Text>
-            </Pressable>
+            {/* The secondary buttons share the card's surface color, so each gets a 1px outline.
+                The primary one gets a transparent border so all three have the same height. */}
+            <View style={[styles.modalAction, styles.outlined]}>
+              <Button
+                title="Close"
+                variant="secondary"
+                size="md"
+                onPress={props.onClose}
+              />
+            </View>
+            <View style={[styles.modalAction, styles.outlined]}>
+              <Button
+                title="Clear"
+                variant="secondary"
+                size="md"
+                onPress={props.onDelete}
+              />
+            </View>
+            <View style={[styles.modalAction, styles.transparentOutline]}>
+              <Button
+                title="Save"
+                variant="primary"
+                size="md"
+                onPress={props.onSave}
+                loading={props.isSaving}
+              />
+            </View>
           </View>
-        </View>
-      </View>
+        </Card>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -118,61 +84,39 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.45)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: Spacing.xxl,
   },
   modalCard: {
     width: '100%',
     maxWidth: 360,
-    borderRadius: 12,
-    padding: 20,
-    gap: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 6,
-    borderWidth: 1,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
   },
   noteInput: {
-    minHeight: 90,
+    minHeight: 120,
+    backgroundColor: Colors.dark.background,
     borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
+    borderColor: Colors.dark.border,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
     textAlignVertical: 'top',
+    fontSize: 15,
+    color: Colors.dark.text,
   },
   modalActions: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 12,
-    marginTop: 8,
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
   },
-  modalCancelButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 8,
+  modalAction: {
+    flex: 1,
+  },
+  outlined: {
     borderWidth: 1,
+    borderColor: Colors.dark.border,
+    borderRadius: Radius.lg,
   },
-  modalCancelButtonText: {
-    fontWeight: '700',
-  },
-  modalDeleteButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-  },
-  modalDeleteButtonText: {
-    fontWeight: '700',
-  },
-  modalSaveButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-  },
-  modalSaveButtonText: {
-    fontWeight: '700',
+  transparentOutline: {
+    borderWidth: 1,
+    borderColor: 'transparent',
+    borderRadius: Radius.lg,
   },
 });

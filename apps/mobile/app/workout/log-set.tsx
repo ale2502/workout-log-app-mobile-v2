@@ -78,7 +78,8 @@ export default function LogSetScreen() {
     maxValue?: number,
   ) {
     const currentValue = value === '' ? 0 : Number(value);
-    const increasedValue = currentValue + amount;
+    // Round to 2 decimals: floating point makes 2.2 - 1 = 1.2000000000000002.
+    const increasedValue = Math.round((currentValue + amount) * 100) / 100;
     const valueNotBelowZero = Math.max(0, increasedValue);
     const nextValue =
       maxValue === undefined
@@ -583,8 +584,8 @@ export default function LogSetScreen() {
           onChangeRir={setRir}
           onDecreaseReps={() => changeNumberValue(reps, setReps, -1)}
           onIncreaseReps={() => changeNumberValue(reps, setReps, 1)}
-          onDecreaseLoad={() => changeNumberValue(load, setLoad, -2.5)}
-          onIncreaseLoad={() => changeNumberValue(load, setLoad, 2.5)}
+          onDecreaseLoad={() => changeNumberValue(load, setLoad, -1)}
+          onIncreaseLoad={() => changeNumberValue(load, setLoad, 1)}
           onSave={handleSaveSet}
           onUpdate={handleUpdateSet}
           onDelete={handleDeleteSet}

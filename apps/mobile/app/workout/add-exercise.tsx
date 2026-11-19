@@ -117,7 +117,7 @@ export default function AddExerciseScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <Screen scroll contentStyle={styles.content}>
         <IconButton accessibilityLabel="Go back" onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={22} color={Colors.dark.text} />
+          <Ionicons name="chevron-back" size={22} color={Colors.text} />
         </IconButton>
 
         <AppText variant="title">New exercise</AppText>

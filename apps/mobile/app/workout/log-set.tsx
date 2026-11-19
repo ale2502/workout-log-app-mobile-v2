@@ -468,7 +468,7 @@ export default function LogSetScreen() {
 
   const backButton = (
     <IconButton accessibilityLabel="Go back" onPress={() => router.back()}>
-      <Ionicons name="chevron-back" size={22} color={Colors.dark.text} />
+      <Ionicons name="chevron-back" size={22} color={Colors.text} />
     </IconButton>
   );
 
@@ -570,7 +570,7 @@ export default function LogSetScreen() {
                   <TextInput
                     style={styles.machineInput}
                     placeholder="Machine label"
-                    placeholderTextColor={Colors.dark.placeholder}
+                    placeholderTextColor={Colors.placeholder}
                     value={newVariantLabel}
                     onChangeText={setNewVariantLabel}
                   />
@@ -660,7 +660,7 @@ const styles = StyleSheet.create({
   },
   setPill: {
     borderWidth: 1,
-    borderColor: Colors.dark.accent,
+    borderColor: Colors.accent,
     borderRadius: Radius.pill,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.xs,
@@ -674,7 +674,7 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
   },
   machinePanel: {
-    backgroundColor: Colors.dark.surface,
+    backgroundColor: Colors.surface,
     borderRadius: Radius.md,
     overflow: 'hidden',
   },
@@ -684,10 +684,10 @@ const styles = StyleSheet.create({
   },
   machineOption: {
     borderTopWidth: 1,
-    borderTopColor: Colors.dark.border,
+    borderTopColor: Colors.border,
   },
   machineOptionSelected: {
-    backgroundColor: Colors.dark.surfaceMuted,
+    backgroundColor: Colors.surfaceMuted,
   },
   addMachine: {
     gap: Spacing.sm,
@@ -698,10 +698,10 @@ const styles = StyleSheet.create({
   },
   machineInput: {
     borderWidth: 1,
-    borderColor: Colors.dark.border,
+    borderColor: Colors.border,
     borderRadius: Radius.md,
-    backgroundColor: Colors.dark.surface,
-    color: Colors.dark.text,
+    backgroundColor: Colors.surface,
+    color: Colors.text,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.md,
   },

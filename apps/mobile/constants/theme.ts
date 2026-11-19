@@ -4,7 +4,6 @@
  */
 
 const iron = {
-  // existing keys (kept so current screens restyle automatically)
   background: '#0D0D0F',
   surface: '#17171B',
   surfaceMuted: '#212127', // raised: stepper buttons, chips, icon tiles
@@ -12,25 +11,18 @@ const iron = {
   mutedText: '#9A9AA3',
   placeholder: '#55555D',
   border: '#2A2A31',
-  tint: '#C8F031',
-  icon: '#9A9AA3',
-  tabIconDefault: '#9A9AA3',
-  tabIconSelected: '#C8F031',
   primary: '#F4F4F5', // neutral buttons (NOT lime: steppers use this today)
   onPrimary: '#0D0D0F',
   destructive: '#F87171',
   success: '#4ADE80',
-  noteIndicator: '#D4D4D8',
-  // new keys
   accent: '#C8F031', // ONLY for primary actions, the active tab and the week strip
   onAccent: '#0D0D0F',
   tabBar: '#121215',
   noteText: '#D4D4D8',
 };
 
-// Temporary shim: the app is dark only, so both schemes point at the same palette.
-// Step 13 of the Iron redesign plan flattens this to `export const Colors = iron`.
-export const Colors = { light: iron, dark: iron };
+// The app is dark only, so there is a single flat palette (no light/dark variants).
+export const Colors = iron;
 
 // RIR effort scale, index = RIR (4 means 4+). Hot = hard, cool = easy.
 export const RirColors = ['#F87171', '#FB923C', '#FACC15', '#4ADE80', '#60A5FA'] as const;

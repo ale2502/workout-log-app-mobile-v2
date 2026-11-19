@@ -124,7 +124,7 @@ export function SetForm(props: SetFormProps) {
             badge={hasPendingNote}
             style={{ borderRadius: Radius.lg }}
           >
-            <Ionicons name="create-outline" size={22} color={Colors.dark.text} />
+            <Ionicons name="create-outline" size={22} color={Colors.text} />
           </IconButton>
           <View style={styles.actionRowItem}>
             <Button

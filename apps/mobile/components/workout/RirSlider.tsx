@@ -186,7 +186,7 @@ function Segment({
   onSelect,
 }: SegmentProps) {
   const restColor = RirColors[index];
-  const selectedColor = Colors.dark.onAccent;
+  const selectedColor = Colors.onAccent;
 
   // How much of this segment the highlight covers (0..1), so the label and dot switch
   // to the dark color exactly as the highlight slides under them, mid-drag included.
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: TRACK_PADDING,
     borderRadius: 14,
-    backgroundColor: Colors.dark.surface,
+    backgroundColor: Colors.surface,
   },
   highlight: {
     position: 'absolute',

@@ -6,16 +6,14 @@ import { HapticTab } from '@/components/haptic-tab';
 import { Colors } from '@/constants/theme';
 
 export default function TabLayout() {
-  const colors = Colors.dark;
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.accent,
-        tabBarInactiveTintColor: colors.mutedText,
+        tabBarActiveTintColor: Colors.accent,
+        tabBarInactiveTintColor: Colors.mutedText,
         tabBarStyle: {
-          backgroundColor: colors.tabBar,
-          borderTopColor: colors.border,
+          backgroundColor: Colors.tabBar,
+          borderTopColor: Colors.border,
         },
         tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
         headerShown: false,

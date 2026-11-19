@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/Card';
 import { Screen } from '@/components/ui/Screen';
 import { WeekStrip } from '@/components/workout/WeekStrip';
 import { Colors, Radius, Spacing } from '@/constants/theme';
+import { parseApiDate } from '@/lib/dates';
 import { getStoredDefaultGymId, storeDefaultGymId } from '@/lib/gyms';
 import { countSessionsThisWeek, getWeekStrip } from '@/lib/week';
 
@@ -24,17 +25,6 @@ interface Workout {
 interface Gym {
   id: number;
   name: string;
-}
-
-// "YYYY-MM-DD HH:MM:SS" is a UTC timestamp from SQLite, so it becomes local time.
-// A date-only "YYYY-MM-DD" has no time zone, so it means that calendar day locally.
-function parseApiDate(value: string) {
-  if (value.includes(' ')) {
-    return new Date(value.replace(' ', 'T') + 'Z');
-  }
-
-  const [year, month, day] = value.split('-').map(Number);
-  return new Date(year, month - 1, day);
 }
 
 // "THURSDAY 19 NOV" (the label variant uppercases it; built from parts so there is no comma).
@@ -215,7 +205,7 @@ export default function HomeScreen() {
 
         <Button
           title="Start workout"
-          icon={<Ionicons name="play" size={20} color={Colors.dark.onAccent} />}
+          icon={<Ionicons name="play" size={20} color={Colors.onAccent} />}
           onPress={handleStartWorkout}
           loading={isStartingWorkout}
         />
@@ -286,14 +276,14 @@ export default function HomeScreen() {
                     <Ionicons
                       name="trash-outline"
                       size={22}
-                      color={Colors.dark.destructive}
+                      color={Colors.destructive}
                     />
                   </Pressable>
                 ) : (
                   <Ionicons
                     name="chevron-forward"
                     size={22}
-                    color={Colors.dark.mutedText}
+                    color={Colors.mutedText}
                   />
                 )}
               </Pressable>
@@ -363,16 +353,16 @@ const styles = StyleSheet.create({
     borderRadius: Radius.lg,
     borderWidth: 1,
     borderColor: 'transparent',
-    backgroundColor: Colors.dark.surface,
+    backgroundColor: Colors.surface,
   },
   historyRowSelected: {
-    borderColor: Colors.dark.destructive,
+    borderColor: Colors.destructive,
   },
   dateTile: {
     width: 52,
     height: 52,
     borderRadius: Radius.md,
-    backgroundColor: Colors.dark.surfaceMuted,
+    backgroundColor: Colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
   },

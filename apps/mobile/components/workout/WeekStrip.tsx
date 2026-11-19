@@ -69,14 +69,14 @@ const styles = StyleSheet.create({
     borderRadius: Radius.sm,
   },
   boxDone: {
-    backgroundColor: Colors.dark.accent,
+    backgroundColor: Colors.accent,
   },
   boxToday: {
     borderWidth: 2,
-    borderColor: Colors.dark.accent,
+    borderColor: Colors.accent,
   },
   boxEmpty: {
-    backgroundColor: Colors.dark.surfaceMuted,
+    backgroundColor: Colors.surfaceMuted,
   },
   label: {
     textAlign: 'center',

@@ -16,7 +16,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import { Colors } from '@/constants/theme';
-import { ThemeProvider } from '@/hooks/use-color-scheme';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -29,12 +28,12 @@ const navigationTheme = {
   ...DarkTheme,
   colors: {
     ...DarkTheme.colors,
-    background: Colors.dark.background,
-    card: Colors.dark.surface,
-    text: Colors.dark.text,
-    border: Colors.dark.border,
-    primary: Colors.dark.accent,
-    notification: Colors.dark.accent,
+    background: Colors.background,
+    card: Colors.surface,
+    text: Colors.text,
+    border: Colors.border,
+    primary: Colors.accent,
+    notification: Colors.accent,
   },
 };
 
@@ -57,9 +56,7 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={styles.gestureRoot}>
-      <ThemeProvider>
-        <RootLayoutContent />
-      </ThemeProvider>
+      <RootLayoutContent />
     </GestureHandlerRootView>
   );
 }

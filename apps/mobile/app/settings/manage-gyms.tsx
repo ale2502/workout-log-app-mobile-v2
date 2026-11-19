@@ -423,7 +423,7 @@ export default function ManageGymsScreen() {
 
   const backButton = (
     <IconButton accessibilityLabel="Go back" onPress={() => router.back()}>
-      <Ionicons name="chevron-back" size={22} color={Colors.dark.text} />
+      <Ionicons name="chevron-back" size={22} color={Colors.text} />
     </IconButton>
   );
 
@@ -503,7 +503,7 @@ export default function ManageGymsScreen() {
                 <Ionicons
                   name={isGymDropdownOpen ? 'chevron-up' : 'chevron-down'}
                   size={20}
-                  color={Colors.dark.mutedText}
+                  color={Colors.mutedText}
                 />
               </Pressable>
 
@@ -545,7 +545,7 @@ export default function ManageGymsScreen() {
               <TextInput
                 style={[styles.field, styles.input, styles.inlineInput]}
                 placeholder="Gym name"
-                placeholderTextColor={Colors.dark.placeholder}
+                placeholderTextColor={Colors.placeholder}
                 value={editingGymName}
                 onChangeText={setEditingGymName}
               />
@@ -560,7 +560,7 @@ export default function ManageGymsScreen() {
                 <Ionicons
                   name="checkmark"
                   size={24}
-                  color={Colors.dark.onAccent}
+                  color={Colors.onAccent}
                 />
               </Pressable>
             </View>
@@ -573,7 +573,7 @@ export default function ManageGymsScreen() {
               <TextInput
                 style={[styles.field, styles.input, styles.inlineInput]}
                 placeholder="New gym name"
-                placeholderTextColor={Colors.dark.placeholder}
+                placeholderTextColor={Colors.placeholder}
                 value={newGymName}
                 onChangeText={setNewGymName}
               />
@@ -588,7 +588,7 @@ export default function ManageGymsScreen() {
                 <Ionicons
                   name="checkmark"
                   size={24}
-                  color={Colors.dark.onAccent}
+                  color={Colors.onAccent}
                 />
               </Pressable>
             </View>
@@ -650,7 +650,7 @@ export default function ManageGymsScreen() {
                 <Ionicons
                   name={isExerciseDropdownOpen ? 'chevron-up' : 'chevron-down'}
                   size={20}
-                  color={Colors.dark.mutedText}
+                  color={Colors.mutedText}
                 />
               </Pressable>
 
@@ -692,7 +692,7 @@ export default function ManageGymsScreen() {
             <TextInput
               style={[styles.field, styles.input, styles.inlineInput]}
               placeholder="Machine label"
-              placeholderTextColor={Colors.dark.placeholder}
+              placeholderTextColor={Colors.placeholder}
               value={machineLabel}
               onChangeText={setMachineLabel}
             />
@@ -702,7 +702,7 @@ export default function ManageGymsScreen() {
               style={styles.accentIconButton}
               onPress={handleAddMachine}
             >
-              <Ionicons name="add" size={24} color={Colors.dark.onAccent} />
+              <Ionicons name="add" size={24} color={Colors.onAccent} />
             </IconButton>
           </View>
         </Card>
@@ -742,7 +742,7 @@ export default function ManageGymsScreen() {
                     isManageExerciseDropdownOpen ? 'chevron-up' : 'chevron-down'
                   }
                   size={20}
-                  color={Colors.dark.mutedText}
+                  color={Colors.mutedText}
                 />
               </Pressable>
 
@@ -820,7 +820,7 @@ export default function ManageGymsScreen() {
                             <Ionicons
                               name="checkmark"
                               size={20}
-                              color={Colors.dark.onAccent}
+                              color={Colors.onAccent}
                             />
                           </IconButton>
                           <IconButton
@@ -832,7 +832,7 @@ export default function ManageGymsScreen() {
                             <Ionicons
                               name="close"
                               size={20}
-                              color={Colors.dark.text}
+                              color={Colors.text}
                             />
                           </IconButton>
                         </>
@@ -850,7 +850,7 @@ export default function ManageGymsScreen() {
                             <Ionicons
                               name="create-outline"
                               size={19}
-                              color={Colors.dark.text}
+                              color={Colors.text}
                             />
                           </IconButton>
                         </>
@@ -882,9 +882,9 @@ const styles = StyleSheet.create({
   },
   // Inputs and dropdown buttons sit on a surface card, so they use the background color.
   field: {
-    backgroundColor: Colors.dark.background,
+    backgroundColor: Colors.background,
     borderWidth: 1,
-    borderColor: Colors.dark.border,
+    borderColor: Colors.border,
     borderRadius: Radius.md,
     padding: Spacing.md,
     minHeight: 48,
@@ -909,21 +909,21 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 3,
     elevation: 3,
-    backgroundColor: Colors.dark.background,
+    backgroundColor: Colors.background,
     borderLeftWidth: 1,
     borderRightWidth: 1,
     borderBottomWidth: 1,
-    borderColor: Colors.dark.border,
+    borderColor: Colors.border,
     borderBottomLeftRadius: Radius.md,
     borderBottomRightRadius: Radius.md,
     overflow: 'hidden',
   },
   inlineDropdownMenu: {
-    backgroundColor: Colors.dark.background,
+    backgroundColor: Colors.background,
     borderLeftWidth: 1,
     borderRightWidth: 1,
     borderBottomWidth: 1,
-    borderColor: Colors.dark.border,
+    borderColor: Colors.border,
     borderBottomLeftRadius: Radius.md,
     borderBottomRightRadius: Radius.md,
     overflow: 'hidden',
@@ -935,12 +935,12 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   dropdownOptionBorder: {
-    borderBottomColor: Colors.dark.border,
+    borderBottomColor: Colors.border,
   },
   dropdownOptionSelected: {
-    backgroundColor: Colors.dark.surfaceMuted,
-    borderColor: Colors.dark.accent,
-    borderBottomColor: Colors.dark.accent,
+    backgroundColor: Colors.surfaceMuted,
+    borderColor: Colors.accent,
+    borderBottomColor: Colors.accent,
   },
   gymControlGroup: {
     gap: 6,
@@ -959,7 +959,7 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 11,
     borderWidth: 1,
-    borderColor: Colors.dark.border,
+    borderColor: Colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -967,9 +967,9 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   helpBubble: {
-    backgroundColor: Colors.dark.background,
+    backgroundColor: Colors.background,
     borderWidth: 1,
-    borderColor: Colors.dark.border,
+    borderColor: Colors.border,
     borderRadius: Radius.md,
     padding: 10,
   },
@@ -981,7 +981,7 @@ const styles = StyleSheet.create({
   },
   input: {
     fontSize: 15,
-    color: Colors.dark.text,
+    color: Colors.text,
   },
   inlineForm: {
     flexDirection: 'row',
@@ -995,15 +995,15 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: Radius.md,
-    backgroundColor: Colors.dark.accent,
+    backgroundColor: Colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
   accentIconButton: {
-    backgroundColor: Colors.dark.accent,
+    backgroundColor: Colors.accent,
   },
   mutedIconButton: {
-    backgroundColor: Colors.dark.surfaceMuted,
+    backgroundColor: Colors.surfaceMuted,
   },
   disabledButton: {
     opacity: 0.6,
@@ -1014,7 +1014,7 @@ const styles = StyleSheet.create({
   // Machine rows follow the list-row style; they sit on a surface card, so they use the background color.
   machineRow: {
     minHeight: 56,
-    backgroundColor: Colors.dark.background,
+    backgroundColor: Colors.background,
     borderWidth: 1,
     borderColor: 'transparent',
     borderRadius: Radius.lg,
@@ -1024,7 +1024,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   machineRowEditing: {
-    borderColor: Colors.dark.accent,
+    borderColor: Colors.accent,
   },
   machineLabel: {
     flex: 1,

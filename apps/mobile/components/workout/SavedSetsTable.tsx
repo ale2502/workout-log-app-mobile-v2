@@ -68,8 +68,8 @@ export function SavedSetsTable(props: SavedSetsTableProps) {
               styles.row,
               {
                 backgroundColor:
-                  rir === null ? Colors.dark.surfaceMuted : rirTint(rir),
-                borderColor: isSelected ? Colors.dark.text : 'transparent',
+                  rir === null ? Colors.surfaceMuted : rirTint(rir),
+                borderColor: isSelected ? Colors.text : 'transparent',
               },
             ]}
           >

@@ -37,7 +37,7 @@ export function NewExerciseForm(props: NewExerciseFormProps) {
           value={props.exerciseName}
           onChangeText={props.onChangeExerciseName}
           placeholder="Exercise name"
-          placeholderTextColor={Colors.dark.placeholder}
+          placeholderTextColor={Colors.placeholder}
         />
       </View>
 
@@ -52,7 +52,7 @@ export function NewExerciseForm(props: NewExerciseFormProps) {
             <Ionicons
               name={isDropdownOpen ? 'chevron-up' : 'chevron-down'}
               size={20}
-              color={Colors.dark.mutedText}
+              color={Colors.mutedText}
             />
           </Pressable>
 
@@ -112,22 +112,22 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   input: {
-    backgroundColor: Colors.dark.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: Colors.dark.border,
+    borderColor: Colors.border,
     borderRadius: Radius.md,
     padding: Spacing.md,
     fontSize: 15,
-    color: Colors.dark.text,
+    color: Colors.text,
   },
   dropdownContainer: {
     position: 'relative',
     zIndex: 2,
   },
   dropdownButton: {
-    backgroundColor: Colors.dark.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: Colors.dark.border,
+    borderColor: Colors.border,
     borderRadius: Radius.md,
     padding: Spacing.md,
     flexDirection: 'row',
@@ -145,9 +145,9 @@ const styles = StyleSheet.create({
     elevation: 3,
     gap: Spacing.xs,
     padding: Spacing.xs,
-    backgroundColor: Colors.dark.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: Colors.dark.border,
+    borderColor: Colors.border,
     borderRadius: Radius.md,
   },
   // The 1px border is always there (transparent) so selecting an option doesn't shift it.
@@ -156,15 +156,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'transparent',
     borderRadius: Radius.md,
-    backgroundColor: Colors.dark.surfaceMuted,
+    backgroundColor: Colors.surfaceMuted,
   },
   dropdownOptionSelected: {
-    borderColor: Colors.dark.accent,
+    borderColor: Colors.accent,
   },
   successToast: {
-    backgroundColor: Colors.dark.surface,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: Colors.dark.success,
+    borderColor: Colors.success,
     borderRadius: Radius.md,
     padding: Spacing.md,
   },

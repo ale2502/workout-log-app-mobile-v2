@@ -15,9 +15,9 @@ type ButtonProps = {
 };
 
 const variantStyles = {
-  primary: { background: Colors.dark.accent, text: 'onAccent' },
-  secondary: { background: Colors.dark.surface, text: 'text' },
-  destructive: { background: Colors.dark.destructive, text: 'onPrimary' },
+  primary: { background: Colors.accent, text: 'onAccent' },
+  secondary: { background: Colors.surface, text: 'text' },
+  destructive: { background: Colors.destructive, text: 'onPrimary' },
 } as const;
 
 export function Button({
@@ -46,7 +46,7 @@ export function Button({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={Colors.dark[text]} />
+        <ActivityIndicator color={Colors[text]} />
       ) : (
         <View style={styles.content}>
           {icon}

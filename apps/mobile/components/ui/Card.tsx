@@ -10,7 +10,7 @@ export function Card({ style, ...rest }: CardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.dark.surface,
+    backgroundColor: Colors.surface,
     borderRadius: Radius.xl,
     padding: Spacing.lg,
     gap: Spacing.md,

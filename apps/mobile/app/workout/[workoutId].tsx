@@ -18,11 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SetNotesModal } from '@/components/workout/SetNotesModal';
 import { useSetNotes } from '@/hooks/useSetNotes';
 import { Colors, Spacing } from '@/constants/theme';
-
-// "YYYY-MM-DD HH:MM:SS" is a UTC timestamp from SQLite, so it becomes local time.
-function parseApiDate(value: string) {
-  return new Date(value.replace(' ', 'T') + 'Z');
-}
+import { parseApiDate } from '@/lib/dates';
 
 // "Tue 30 Jun" (the title variant uppercases it; built from parts so there is no comma).
 function formatWorkoutDate(date: Date) {
@@ -201,7 +197,7 @@ export default function WorkoutDetailScreen() {
 
   const backButton = (
     <IconButton accessibilityLabel="Go back" onPress={() => router.back()}>
-      <Ionicons name="chevron-back" size={22} color={Colors.dark.text} />
+      <Ionicons name="chevron-back" size={22} color={Colors.text} />
     </IconButton>
   );
 
@@ -250,7 +246,7 @@ export default function WorkoutDetailScreen() {
         <Button
           title="Add exercise"
           size="md"
-          icon={<Ionicons name="add" size={22} color={Colors.dark.onAccent} />}
+          icon={<Ionicons name="add" size={22} color={Colors.onAccent} />}
           onPress={handleAddExercise}
         />
 
@@ -302,14 +298,14 @@ export default function WorkoutDetailScreen() {
                         <Ionicons
                           name="trash-outline"
                           size={22}
-                          color={Colors.dark.destructive}
+                          color={Colors.destructive}
                         />
                       </Pressable>
                     ) : (
                       <Ionicons
                         name="chevron-forward"
                         size={22}
-                        color={Colors.dark.mutedText}
+                        color={Colors.mutedText}
                       />
                     )}
                   </View>
@@ -393,7 +389,7 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   exerciseSectionSelected: {
-    borderColor: Colors.dark.destructive,
+    borderColor: Colors.destructive,
   },
   exerciseTitleContainer: {
     flexDirection: 'row',

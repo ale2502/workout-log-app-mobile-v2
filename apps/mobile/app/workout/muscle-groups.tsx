@@ -54,7 +54,7 @@ export default function MuscleGroupScreen() {
 
   const backButton = (
     <IconButton accessibilityLabel="Go back" onPress={() => router.back()}>
-      <Ionicons name="chevron-back" size={22} color={Colors.dark.text} />
+      <Ionicons name="chevron-back" size={22} color={Colors.text} />
     </IconButton>
   );
 
@@ -112,7 +112,7 @@ export default function MuscleGroupScreen() {
               <Ionicons
                 name="chevron-forward"
                 size={20}
-                color={Colors.dark.mutedText}
+                color={Colors.mutedText}
               />
             </Pressable>
           ))}
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     paddingHorizontal: Spacing.lg,
     borderRadius: Radius.lg,
-    backgroundColor: Colors.dark.surface,
+    backgroundColor: Colors.surface,
   },
   rowPressed: {
     opacity: 0.85,

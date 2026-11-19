@@ -50,7 +50,7 @@ export function Screen({ children, scroll = false, contentStyle }: ScreenProps) 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: Colors.dark.background,
+    backgroundColor: Colors.background,
   },
   content: {
     paddingHorizontal: Spacing.xl,

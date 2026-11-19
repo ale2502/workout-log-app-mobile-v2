@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.dark.surface,
+    backgroundColor: Colors.surface,
     borderRadius: Radius.md,
   },
   pressed: {
@@ -61,6 +61,6 @@ const styles = StyleSheet.create({
     width: 9,
     height: 9,
     borderRadius: Radius.pill,
-    backgroundColor: Colors.dark.accent,
+    backgroundColor: Colors.accent,
   },
 });

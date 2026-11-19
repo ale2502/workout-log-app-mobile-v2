@@ -39,7 +39,7 @@ export function SetNotesModal(props: SetNotesModalProps) {
             value={props.note}
             onChangeText={props.onChangeNote}
             placeholder="Add a note..."
-            placeholderTextColor={Colors.dark.placeholder}
+            placeholderTextColor={Colors.placeholder}
             multiline
           />
 
@@ -92,14 +92,14 @@ const styles = StyleSheet.create({
   },
   noteInput: {
     minHeight: 120,
-    backgroundColor: Colors.dark.background,
+    backgroundColor: Colors.background,
     borderWidth: 1,
-    borderColor: Colors.dark.border,
+    borderColor: Colors.border,
     borderRadius: Radius.md,
     padding: Spacing.md,
     textAlignVertical: 'top',
     fontSize: 15,
-    color: Colors.dark.text,
+    color: Colors.text,
   },
   modalActions: {
     flexDirection: 'row',
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   },
   outlined: {
     borderWidth: 1,
-    borderColor: Colors.dark.border,
+    borderColor: Colors.border,
     borderRadius: Radius.lg,
   },
   transparentOutline: {

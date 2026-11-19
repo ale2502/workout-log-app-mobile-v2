@@ -37,7 +37,7 @@ export function Stepper({
         onChangeText={onChangeText}
         keyboardType={keyboardType}
         placeholder="0"
-        placeholderTextColor={Colors.dark.placeholder}
+        placeholderTextColor={Colors.placeholder}
         accessibilityLabel={label}
         style={[styles.value, value.length > LONG_VALUE_LENGTH && styles.valueLong]}
       />
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     ...Type.number,
     alignSelf: 'stretch',
     textAlign: 'center',
-    color: Colors.dark.text,
+    color: Colors.text,
     padding: 0,
   },
   valueLong: {
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     height: 44,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.dark.surfaceMuted,
+    backgroundColor: Colors.surfaceMuted,
     borderRadius: Radius.md,
   },
   pressed: {

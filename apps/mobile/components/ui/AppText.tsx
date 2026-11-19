@@ -4,7 +4,7 @@ import { Colors, Type } from '@/constants/theme';
 
 type AppTextProps = TextProps & {
   variant?: keyof typeof Type;
-  color?: keyof typeof Colors.dark;
+  color?: keyof typeof Colors;
 };
 
 export function AppText({
@@ -18,7 +18,7 @@ export function AppText({
 
   return (
     <Text
-      style={[styles.base, Type[variant], { color: Colors.dark[colorKey] }, style]}
+      style={[styles.base, Type[variant], { color: Colors[colorKey] }, style]}
       {...rest}
     />
   );
@@ -26,6 +26,6 @@ export function AppText({
 
 const styles = StyleSheet.create({
   base: {
-    color: Colors.dark.text,
+    color: Colors.text,
   },
 });

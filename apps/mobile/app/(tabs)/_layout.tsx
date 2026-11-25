@@ -23,14 +23,15 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Train',
-          tabBarIcon: ({ color }) => <Ionicons size={24} name="barbell-outline" color={color} />,
+          // SDK 58 types `color` as RN's ColorValue; ours is always a string (tint colors above).
+          tabBarIcon: ({ color }) => <Ionicons size={24} name="barbell-outline" color={color as string} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color }) => <Ionicons size={24} name="settings-outline" color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons size={24} name="settings-outline" color={color as string} />,
         }}
       />
     </Tabs>

@@ -8,26 +8,23 @@ import { Card } from '@/components/ui/Card';
 import { IconButton } from '@/components/ui/IconButton';
 import { Screen } from '@/components/ui/Screen';
 import { Colors, Radius, Spacing } from '@/constants/theme';
+import { ApiError } from '@/lib/api/client';
+import { getExercises } from '@/lib/api/exercises';
+import {
+  createExerciseVariant,
+  updateExerciseVariant,
+} from '@/lib/api/exerciseVariants';
+import {
+  createGym,
+  getGymExerciseVariants,
+  getGyms,
+  updateGym,
+} from '@/lib/api/gyms';
 import { getStoredDefaultGymId, storeDefaultGymId } from '@/lib/gyms';
 
-interface Gym {
-  id: number;
-  name: string;
-}
-
-interface Exercise {
-  id: number;
-  name: string;
-  muscleGroup: string;
-}
-
-interface ExerciseVariantDisplay {
-  id: number;
-  exerciseId: number;
-  gymId: number;
-  label: string;
-  exerciseName: string;
-}
+import type { Exercise } from '../../../api/server/models/exercise';
+import type { ExerciseVariantDisplay } from '../../../api/server/models/exercise-variant';
+import type { Gym } from '../../../api/server/models/gym';
 
 function sortVariants(variants: ExerciseVariantDisplay[]) {
   return [...variants].sort((firstVariant, secondVariant) => {
@@ -49,18 +46,15 @@ function sortGyms(gyms: Gym[]) {
   );
 }
 
-async function getErrorMessage(response: Response, fallback: string) {
-  try {
-    const data = await response.json();
-
-    if (typeof data.error === 'string') {
-      return data.error;
-    }
-  } catch {
-    return fallback;
+// What a failed write shows: the server's own message when it sent one
+// ("Gym name already exists"), the call's fallback when it didn't (plain-text
+// 500), and the raw message for any other error (e.g. a network failure).
+function getRequestErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof ApiError) {
+    return error.serverMessage ?? fallback;
   }
 
-  return fallback;
+  return error instanceof Error ? error.message : fallback;
 }
 
 export default function ManageGymsScreen() {
@@ -131,17 +125,10 @@ export default function ManageGymsScreen() {
   useEffect(() => {
     async function loadManageData() {
       try {
-        const [gymsResponse, exercisesResponse] = await Promise.all([
-          fetch(`${process.env.EXPO_PUBLIC_API_URL}/gyms`),
-          fetch(`${process.env.EXPO_PUBLIC_API_URL}/exercises`),
+        const [gymsData, exercisesData] = await Promise.all([
+          getGyms(),
+          getExercises(),
         ]);
-
-        if (!gymsResponse.ok || !exercisesResponse.ok) {
-          throw new Error('Failed to load manage data');
-        }
-
-        const gymsData: Gym[] = await gymsResponse.json();
-        const exercisesData: Exercise[] = await exercisesResponse.json();
         const storedGymId = await getStoredDefaultGymId();
         const nextGym =
           gymsData.find((gym) => gym.id === storedGymId) ?? gymsData[0];
@@ -170,15 +157,7 @@ export default function ManageGymsScreen() {
 
     async function loadVariants(gymId: number) {
       try {
-        const response = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/gyms/${gymId}/exercise-variants`,
-        );
-
-        if (!response.ok) {
-          throw new Error('Failed to load machines');
-        }
-
-        const data: ExerciseVariantDisplay[] = await response.json();
+        const data = await getGymExerciseVariants(gymId);
         setVariants(sortVariants(data));
       } catch {
         setError('Could not load machines');
@@ -215,22 +194,9 @@ export default function ManageGymsScreen() {
 
     try {
       setIsSavingGymName(true);
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/gyms/${selectedGymId}`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: editingGymName }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          await getErrorMessage(response, 'Could not update gym'),
-        );
-      }
-
-      const updatedGym: Gym = await response.json();
+      const updatedGym = await updateGym(selectedGymId, {
+        name: editingGymName,
+      });
       setGyms((currentGyms) =>
         sortGyms(
           currentGyms.map((gym) =>
@@ -241,11 +207,7 @@ export default function ManageGymsScreen() {
       setGymNameDraft(null);
       setError(null);
     } catch (caughtError) {
-      setError(
-        caughtError instanceof Error
-          ? caughtError.message
-          : 'Could not update gym',
-      );
+      setError(getRequestErrorMessage(caughtError, 'Could not update gym'));
     } finally {
       setIsSavingGymName(false);
     }
@@ -259,17 +221,7 @@ export default function ManageGymsScreen() {
 
     try {
       setIsAddingGym(true);
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/gyms`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newGymName }),
-      });
-
-      if (!response.ok) {
-        throw new Error(await getErrorMessage(response, 'Could not add gym'));
-      }
-
-      const createdGym: Gym = await response.json();
+      const createdGym = await createGym({ name: newGymName });
       setGyms((currentGyms) => sortGyms([...currentGyms, createdGym]));
       setSelectedGymId(createdGym.id);
       setGymNameDraft(null);
@@ -281,11 +233,7 @@ export default function ManageGymsScreen() {
       setError(null);
       await storeDefaultGymId(createdGym.id);
     } catch (caughtError) {
-      setError(
-        caughtError instanceof Error
-          ? caughtError.message
-          : 'Could not add gym',
-      );
+      setError(getRequestErrorMessage(caughtError, 'Could not add gym'));
     } finally {
       setIsAddingGym(false);
     }
@@ -308,26 +256,11 @@ export default function ManageGymsScreen() {
     }
 
     try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/exercise-variants`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            exerciseId: selectedExerciseId,
-            gymId: selectedGymId,
-            label: machineLabel,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          await getErrorMessage(response, 'Could not add machine'),
-        );
-      }
-
-      const createdVariant = await response.json();
+      const createdVariant = await createExerciseVariant({
+        exerciseId: selectedExerciseId,
+        gymId: selectedGymId,
+        label: machineLabel,
+      });
       const exercise = exercises.find(
         (currentExercise) => currentExercise.id === createdVariant.exerciseId,
       );
@@ -348,11 +281,7 @@ export default function ManageGymsScreen() {
       setMachineLabel('');
       setError(null);
     } catch (caughtError) {
-      setError(
-        caughtError instanceof Error
-          ? caughtError.message
-          : 'Could not add machine',
-      );
+      setError(getRequestErrorMessage(caughtError, 'Could not add machine'));
     }
   }
 
@@ -378,22 +307,9 @@ export default function ManageGymsScreen() {
     }
 
     try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/exercise-variants/${editingVariantId}`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ label: editingVariantLabel }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          await getErrorMessage(response, 'Could not update machine'),
-        );
-      }
-
-      const updatedVariant = await response.json();
+      const updatedVariant = await updateExerciseVariant(editingVariantId, {
+        label: editingVariantLabel,
+      });
       setVariants((currentVariants) =>
         sortVariants(
           currentVariants.map((variant) =>
@@ -407,9 +323,7 @@ export default function ManageGymsScreen() {
       setError(null);
     } catch (caughtError) {
       setError(
-        caughtError instanceof Error
-          ? caughtError.message
-          : 'Could not update machine',
+        getRequestErrorMessage(caughtError, 'Could not update machine'),
       );
     }
   }

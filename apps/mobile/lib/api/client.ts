@@ -6,11 +6,16 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 // (with its status) apart from a network failure (fetch throws a TypeError).
 export class ApiError extends Error {
   status: number;
+  // The server's own { error } text, or null when the body wasn't that shape
+  // (e.g. a plain-text 500). Screens that show server text only when it
+  // exists, and their own wording otherwise, read this instead of `message`.
+  serverMessage: string | null;
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, serverMessage: string | null) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
+    this.serverMessage = serverMessage;
   }
 }
 
@@ -39,7 +44,12 @@ export async function request<T>(
   const response = await fetch(`${API_URL}${path}`, init);
 
   if (!response.ok) {
-    throw new ApiError(response.status, await readErrorMessage(response));
+    const serverMessage = await readServerMessage(response);
+    throw new ApiError(
+      response.status,
+      serverMessage ?? `Request failed with status ${response.status}`,
+      serverMessage,
+    );
   }
 
   // DELETE routes answer 204 No Content: there is no JSON to parse.
@@ -49,13 +59,11 @@ export async function request<T>(
 
 // 400/404/409 send { error: 'message' } as JSON, but 500s send plain text,
 // so only trust the body when it has the shape we expect.
-async function readErrorMessage(response: Response): Promise<string> {
-  const fallback = `Request failed with status ${response.status}`;
-
+async function readServerMessage(response: Response): Promise<string | null> {
   try {
     const data = await response.json();
-    return typeof data?.error === 'string' ? data.error : fallback;
+    return typeof data?.error === 'string' ? data.error : null;
   } catch {
-    return fallback;
+    return null;
   }
 }

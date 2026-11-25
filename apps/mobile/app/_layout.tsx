@@ -6,8 +6,8 @@ import {
 import {
   DarkTheme,
   ThemeProvider as NavigationThemeProvider,
-} from '@react-navigation/native';
-import { Stack } from 'expo-router';
+  Stack,
+} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';

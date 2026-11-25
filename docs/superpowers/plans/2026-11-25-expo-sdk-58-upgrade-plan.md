@@ -92,3 +92,11 @@ Each step is one commit touching `apps/mobile/package.json`, `apps/mobile/app.js
 - **Expo Go install prompt.** `expo start --ios` asks to install the matching Expo Go and refuses in non-interactive mode. Run it under a pseudo-terminal and answer `Y`, or install it from an interactive shell once per SDK.
 - **Expo Go first-run intro** (tools menu sheet) needs one manual tap on *Continue* per Expo Go install; the main session cannot tap (no accessibility access for `osascript`).
 - `expo install` writes `"expo": "^N.0.0"` (caret) rather than `~`, and adds `"expo-image"` to the `app.json` plugins by itself. Both are accepted.
+
+## Learnings from Step 2 (apply to Steps 3–4)
+
+- **Duplicate cleanup: prune by name.** Step 2 left stale hoisted copies again (`expo-constants@55`, `expo-router@55`, `expo-image`/`expo-symbols`@55). Prune from the HEAD lockfile only the entries whose package name is Expo, React Native, React, React Navigation, Metro or `eslint-config-expo`, then reinstall. Pruning "everything the API doesn't need" instead bumped about 8 of the API's transitive dependencies. Always compare the API's whole resolved tree against HEAD afterwards.
+- **`react-hooks/set-state-in-effect` is now an error** (SDK 56's `eslint-config-expo` pulls in `eslint-plugin-react-hooks` 7). `app/settings/manage-gyms.tsx` has three spots (state set inside `useEffect`), so `apps/mobile/eslint.config.js` downgrades that one rule to `warn`. **Follow-up:** refactor those effects (derive state or reset it in the handlers) and then remove the override; it needs its own hand-test of the Gyms screen.
+- **Deprecated imports that still work:** `PlatformPressable` from `expo-router/react-navigation` ("copy the component into your codebase", removal in a later SDK) and `Tabs` from `expo-router` (the notes point at `expo-router/js-tabs`). `DarkTheme`/`ThemeProvider` now come from the root `expo-router`. Check each again in Step 4.
+- `expo install --fix` moved mobile's TypeScript to 6.0.x (the API stays on 5.9.x). The editor flags `eslint.config.js` (CommonJS `require`, no types for `eslint-config-expo/flat`); that is cosmetic.
+- **Step 3 hand-check:** the main session can't tap in the simulator (no accessibility access), so the `RirSlider` drag/tap check has to be done by the user.

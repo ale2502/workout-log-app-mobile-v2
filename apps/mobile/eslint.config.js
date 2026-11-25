@@ -7,4 +7,12 @@ module.exports = defineConfig([
   {
     ignores: ['dist/*'],
   },
+  {
+    rules: {
+      // SDK 56's eslint-config-expo turned this on as an error. manage-gyms.tsx
+      // still syncs state in effects (3 spots), so keep them visible as warnings
+      // until that screen is refactored.
+      'react-hooks/set-state-in-effect': 'warn',
+    },
+  },
 ]);

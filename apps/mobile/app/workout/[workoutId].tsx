@@ -18,6 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SetNotesModal } from '@/components/workout/SetNotesModal';
 import { useSetNotes } from '@/hooks/useSetNotes';
 import { Colors, Spacing } from '@/constants/theme';
+import { getWorkoutSets, deleteExerciseVariantSets } from '@/lib/api/workouts';
 import { parseApiDate } from '@/lib/dates';
 
 // "Tue 30 Jun" (the title variant uppercases it; built from parts so there is no comma).
@@ -46,15 +47,7 @@ export default function WorkoutDetailScreen() {
 
   const loadWorkout = useCallback(async () => {
     try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/workouts/${workoutId}/sets`,
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to load workout');
-      }
-
-      const data = await response.json();
+      const data = await getWorkoutSets(Number(workoutId));
       setWorkoutSets(data);
     } catch {
       setError('Could not load workout');
@@ -163,16 +156,10 @@ export default function WorkoutDetailScreen() {
     setError(null);
 
     try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/workouts/${workoutId}/exercise-variants/${selectedExerciseVariantId}/sets`,
-        {
-          method: 'DELETE',
-        },
+      await deleteExerciseVariantSets(
+        Number(workoutId),
+        selectedExerciseVariantId,
       );
-
-      if (!response.ok) {
-        throw new Error('Failed to delete exercise');
-      }
 
       setSelectedExerciseVariantId(null);
       setSelectedExerciseName('');

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { SetDisplay } from '../../api/server/models/set';
+import { updateSet } from '@/lib/api/sets';
 
 type UseSetNotesOptions = {
   sets: SetDisplay[];
@@ -52,18 +53,7 @@ export function useSetNotes({ sets, onSaved, onError }: UseSetNotesOptions) {
     };
 
     try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/sets/${notesModalSetId}`,
-        {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to save note');
-      }
+      await updateSet(notesModalSetId, requestBody);
 
       await onSaved();
       closeNotes();

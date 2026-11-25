@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/Button';
 import { IconButton } from '@/components/ui/IconButton';
 import { Screen } from '@/components/ui/Screen';
 import { Colors, Radius, Spacing } from '@/constants/theme';
+import { getExercises } from '@/lib/api/exercises';
 
 export default function ExercisesScreen() {
   const router = useRouter();
@@ -33,15 +34,7 @@ export default function ExercisesScreen() {
       setError(null);
       setIsLoading(true);
 
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/exercises`,
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to load exercises');
-      }
-
-      const data = await response.json();
+      const data = await getExercises();
       setExercises(data);
     } catch {
       setError('Could not load exercises');

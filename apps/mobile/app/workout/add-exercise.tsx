@@ -7,6 +7,7 @@ import { IconButton } from '@/components/ui/IconButton';
 import { Screen } from '@/components/ui/Screen';
 import { NewExerciseForm } from '@/components/workout/NewExerciseForm';
 import { Colors, Spacing } from '@/constants/theme';
+import { createExercise, getMuscleGroups } from '@/lib/api/exercises';
 
 type CreatedExercise = {
   id: number;
@@ -37,15 +38,7 @@ export default function AddExerciseScreen() {
   useEffect(() => {
     async function loadMuscleGroups() {
       try {
-        const response = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/exercises/muscle-groups`,
-        );
-
-        if (!response.ok) {
-          throw new Error('Failed to load muscle groups');
-        }
-
-        const data: string[] = await response.json();
+        const data = await getMuscleGroups();
         const options = data.includes(routeMuscleGroup)
           ? data
           : [routeMuscleGroup, ...data];
@@ -74,25 +67,10 @@ export default function AddExerciseScreen() {
       setError(null);
       setSuccessMessage(null);
 
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/exercises`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            name: trimmedExerciseName,
-            muscleGroup: selectedMuscleGroup,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to create exercise');
-      }
-
-      const createdExercise: CreatedExercise = await response.json();
+      const createdExercise: CreatedExercise = await createExercise({
+        name: trimmedExerciseName,
+        muscleGroup: selectedMuscleGroup,
+      });
       setSuccessMessage('Exercise created');
 
       await new Promise((resolve) => setTimeout(resolve, 1000));

@@ -8,6 +8,7 @@ import { AppText } from '@/components/ui/AppText';
 import { IconButton } from '@/components/ui/IconButton';
 import { Screen } from '@/components/ui/Screen';
 import { Colors, Radius, Spacing } from '@/constants/theme';
+import { getExercises } from '@/lib/api/exercises';
 
 type Exercise = {
   id: number;
@@ -28,15 +29,7 @@ export default function MuscleGroupScreen() {
   useEffect(() => {
     async function loadExercises() {
       try {
-        const response = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/exercises`,
-        );
-
-        if (!response.ok) {
-          throw new Error('Failed to load muscle groups');
-        }
-
-        const data = await response.json();
+        const data = await getExercises();
         setExercises(data);
       } catch {
         setError('Could not load muscle groups');

@@ -334,7 +334,7 @@ export default function WorkoutDetailScreen() {
       {/* Modal for confirming deletion of exercise */}
       <Modal transparent visible={isDeleteModalVisible} animationType="fade">
         <View style={styles.modalBackdrop}>
-          <Card style={styles.modalCard}>
+          <Card bordered style={styles.modalCard}>
             <AppText variant="cell">Delete {selectedExerciseName}?</AppText>
             <AppText variant="caption" color="mutedText">
               This will delete the exercise and its saved sets for this workout.

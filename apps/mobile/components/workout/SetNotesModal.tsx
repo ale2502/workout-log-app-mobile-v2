@@ -31,7 +31,7 @@ export function SetNotesModal(props: SetNotesModalProps) {
         style={styles.modalBackdrop}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Card style={styles.modalCard}>
+        <Card bordered style={styles.modalCard}>
           <AppText variant="cell">Set Notes</AppText>
 
           <TextInput

@@ -675,6 +675,8 @@ const styles = StyleSheet.create({
   },
   machinePanel: {
     backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
     borderRadius: Radius.md,
     overflow: 'hidden',
   },

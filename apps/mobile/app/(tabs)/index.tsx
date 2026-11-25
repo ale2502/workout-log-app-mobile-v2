@@ -294,7 +294,7 @@ export default function HomeScreen() {
       {/* Modal for confirming deletion of workout */}
       <Modal transparent visible={isDeleteModalVisible} animationType="fade">
         <View style={styles.modalBackdrop}>
-          <Card style={styles.modalCard}>
+          <Card bordered style={styles.modalCard}>
             <AppText variant="cell">Delete workout?</AppText>
             <AppText variant="caption" color="mutedText">
               This will delete the workout and all saved sets.

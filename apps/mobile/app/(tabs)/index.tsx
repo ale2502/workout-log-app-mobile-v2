@@ -10,6 +10,8 @@ import { Card } from '@/components/ui/Card';
 import { Screen } from '@/components/ui/Screen';
 import { WeekStrip } from '@/components/workout/WeekStrip';
 import { Colors, Radius, Spacing } from '@/constants/theme';
+import { getGyms } from '@/lib/api/gyms';
+import { createWorkout, deleteWorkout, getWorkouts } from '@/lib/api/workouts';
 import { parseApiDate } from '@/lib/dates';
 import { getStoredDefaultGymId, storeDefaultGymId } from '@/lib/gyms';
 import { countSessionsThisWeek, getWeekStrip } from '@/lib/week';
@@ -47,15 +49,7 @@ export default function HomeScreen() {
 
   const loadWorkouts = useCallback(async () => {
     try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/workouts`,
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to load workouts');
-      }
-
-      const data = await response.json();
+      const data = await getWorkouts();
       setWorkouts(data);
     } catch {
       setError('Could not load workouts');
@@ -64,13 +58,7 @@ export default function HomeScreen() {
 
   const loadGyms = useCallback(async () => {
     try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/gyms`);
-
-      if (!response.ok) {
-        throw new Error('Failed to load gyms');
-      }
-
-      const data: Gym[] = await response.json();
+      const data: Gym[] = await getGyms();
       const storedGymId = await getStoredDefaultGymId();
       const nextDefaultGymId = storedGymId ?? data[0]?.id ?? null;
 
@@ -102,22 +90,7 @@ export default function HomeScreen() {
     }
 
     try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/workouts`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ gymId: defaultGymId }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to start new workout');
-      }
-
-      const data = await response.json();
+      const data = await createWorkout({ gymId: defaultGymId });
       const workoutId = data.id;
       router.push({
         pathname: '/workout/muscle-groups',
@@ -139,16 +112,7 @@ export default function HomeScreen() {
     setError(null);
 
     try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/workouts/${selectedWorkoutId}`,
-        {
-          method: 'DELETE',
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to delete workout');
-      }
+      await deleteWorkout(selectedWorkoutId);
 
       setSelectedWorkoutId(null);
       setIsDeleteModalVisible(false);

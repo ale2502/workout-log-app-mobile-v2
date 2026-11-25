@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
@@ -73,7 +73,8 @@ export default function ManageGymsScreen() {
   const [selectedExerciseId, setSelectedExerciseId] = useState<number | null>(
     null,
   );
-  const [editingGymName, setEditingGymName] = useState('');
+  // null = not edited yet: the input then shows the selected gym's saved name.
+  const [gymNameDraft, setGymNameDraft] = useState<string | null>(null);
   const [isSavingGymName, setIsSavingGymName] = useState(false);
   const [newGymName, setNewGymName] = useState('');
   const [isAddingGym, setIsAddingGym] = useState(false);
@@ -97,18 +98,24 @@ export default function ManageGymsScreen() {
   const selectedExercise = exercises.find(
     (exercise) => exercise.id === selectedExerciseId,
   );
+  const editingGymName = gymNameDraft ?? selectedGym?.name ?? '';
+  // The picked exercise only counts while the current gym has machines for it
+  // (switching gyms can remove it), so derive it instead of resetting it later.
+  const manageExerciseId =
+    selectedManageExerciseId !== null &&
+    variants.some((variant) => variant.exerciseId === selectedManageExerciseId)
+      ? selectedManageExerciseId
+      : null;
   const selectedManageExercise = exercises.find(
-    (exercise) => exercise.id === selectedManageExerciseId,
+    (exercise) => exercise.id === manageExerciseId,
   );
   const manageExerciseOptions = exercises.filter((exercise) =>
     variants.some((variant) => variant.exerciseId === exercise.id),
   );
   const filteredVariants =
-    selectedManageExerciseId === null
+    manageExerciseId === null
       ? []
-      : variants.filter(
-          (variant) => variant.exerciseId === selectedManageExerciseId,
-        );
+      : variants.filter((variant) => variant.exerciseId === manageExerciseId);
 
   const groupedVariants = filteredVariants.reduce<
     Record<string, ExerciseVariantDisplay[]>
@@ -120,23 +127,6 @@ export default function ManageGymsScreen() {
     groups[variant.exerciseName].push(variant);
     return groups;
   }, {});
-
-  const loadVariants = useCallback(async (gymId: number) => {
-    try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/gyms/${gymId}/exercise-variants`,
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to load machines');
-      }
-
-      const data: ExerciseVariantDisplay[] = await response.json();
-      setVariants(sortVariants(data));
-    } catch {
-      setError('Could not load machines');
-    }
-  }, []);
 
   useEffect(() => {
     async function loadManageData() {
@@ -175,36 +165,37 @@ export default function ManageGymsScreen() {
 
   useEffect(() => {
     if (selectedGymId === null) {
-      setVariants([]);
       return;
+    }
+
+    async function loadVariants(gymId: number) {
+      try {
+        const response = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/gyms/${gymId}/exercise-variants`,
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to load machines');
+        }
+
+        const data: ExerciseVariantDisplay[] = await response.json();
+        setVariants(sortVariants(data));
+      } catch {
+        setError('Could not load machines');
+      }
     }
 
     loadVariants(selectedGymId);
-  }, [loadVariants, selectedGymId]);
-
-  useEffect(() => {
-    setEditingGymName(selectedGym?.name ?? '');
-  }, [selectedGym?.id, selectedGym?.name]);
-
-  useEffect(() => {
-    if (selectedManageExerciseId === null) {
-      return;
-    }
-
-    const selectedExerciseHasVariants = variants.some(
-      (variant) => variant.exerciseId === selectedManageExerciseId,
-    );
-
-    if (!selectedExerciseHasVariants) {
-      setSelectedManageExerciseId(null);
-      setIsManageExerciseDropdownOpen(false);
-      handleCancelEditVariant();
-    }
-  }, [selectedManageExerciseId, variants]);
+  }, [selectedGymId]);
 
   async function handleSelectGym(gym: Gym) {
+    if (gym.id !== selectedGymId) {
+      setGymNameDraft(null);
+    }
+
     setSelectedGymId(gym.id);
     setIsGymDropdownOpen(false);
+    setIsManageExerciseDropdownOpen(false);
     setEditingVariantId(null);
     setEditingVariantLabel('');
     setError(null);
@@ -247,7 +238,7 @@ export default function ManageGymsScreen() {
           ),
         ),
       );
-      setEditingGymName(updatedGym.name);
+      setGymNameDraft(null);
       setError(null);
     } catch (caughtError) {
       setError(
@@ -281,8 +272,10 @@ export default function ManageGymsScreen() {
       const createdGym: Gym = await response.json();
       setGyms((currentGyms) => sortGyms([...currentGyms, createdGym]));
       setSelectedGymId(createdGym.id);
+      setGymNameDraft(null);
       setNewGymName('');
       setIsGymDropdownOpen(false);
+      setIsManageExerciseDropdownOpen(false);
       setEditingVariantId(null);
       setEditingVariantLabel('');
       setError(null);
@@ -547,7 +540,7 @@ export default function ManageGymsScreen() {
                 placeholder="Gym name"
                 placeholderTextColor={Colors.placeholder}
                 value={editingGymName}
-                onChangeText={setEditingGymName}
+                onChangeText={setGymNameDraft}
               />
               <Pressable
                 style={[
@@ -749,7 +742,7 @@ export default function ManageGymsScreen() {
               {isManageExerciseDropdownOpen && (
                 <View style={styles.inlineDropdownMenu}>
                   {manageExerciseOptions.map((exercise, index) => {
-                    const isSelected = exercise.id === selectedManageExerciseId;
+                    const isSelected = exercise.id === manageExerciseId;
                     const isLastOption =
                       index === manageExerciseOptions.length - 1;
 
@@ -784,7 +777,7 @@ export default function ManageGymsScreen() {
 
           {variants.length === 0 ? (
             <AppText color="mutedText">No machines found.</AppText>
-          ) : selectedManageExerciseId === null ? null : (
+          ) : manageExerciseId === null ? null : (
             Object.entries(groupedVariants).map(([exerciseName, machines]) => (
               <View key={exerciseName} style={styles.exerciseSection}>
                 <AppText variant="cell">{exerciseName}</AppText>

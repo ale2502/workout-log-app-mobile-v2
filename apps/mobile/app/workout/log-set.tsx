@@ -13,6 +13,13 @@ import { SetNotesModal } from '@/components/workout/SetNotesModal';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useSetNotes } from '@/hooks/useSetNotes';
+import { getExercises } from '@/lib/api/exercises';
+import {
+  createExerciseVariant,
+  getExerciseVariants,
+} from '@/lib/api/exerciseVariants';
+import { createSet, deleteSet, getSets, updateSet } from '@/lib/api/sets';
+import { getWorkout } from '@/lib/api/workouts';
 
 interface Workout {
   id: number;
@@ -94,30 +101,17 @@ export default function LogSetScreen() {
   }
 
   const loadWorkout = useCallback(async () => {
-    const response = await fetch(
-      `${process.env.EXPO_PUBLIC_API_URL}/workouts/${workoutId}`,
-    );
-
-    if (!response.ok) {
-      throw new Error('Could not load workout');
-    }
-
-    const data: Workout = await response.json();
+    const data: Workout = await getWorkout(Number(workoutId));
     setWorkout(data);
     return data;
   }, [workoutId]);
 
   const loadExerciseVariants = useCallback(
     async (gymId: number) => {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/exercise-variants?exerciseId=${exerciseId}&gymId=${gymId}`,
-      );
-
-      if (!response.ok) {
-        throw new Error('Could not load machines');
-      }
-
-      const data: ExerciseVariant[] = await response.json();
+      const data: ExerciseVariant[] = await getExerciseVariants({
+        exerciseId: Number(exerciseId),
+        gymId,
+      });
       setExerciseVariants(data);
       const routeVariant = data.find(
         (variant) => variant.id === initialExerciseVariantId,
@@ -145,24 +139,11 @@ export default function LogSetScreen() {
     }
 
     try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/exercise-variants`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            exerciseId: Number(exerciseId),
-            gymId: workout.gymId,
-            label: newVariantLabel,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to add machine');
-      }
-
-      const variant: ExerciseVariant = await response.json();
+      const variant: ExerciseVariant = await createExerciseVariant({
+        exerciseId: Number(exerciseId),
+        gymId: workout.gymId,
+        label: newVariantLabel,
+      });
       setExerciseVariants((currentVariants) => [...currentVariants, variant]);
       setSelectedExerciseVariantId(variant.id);
       setNewVariantLabel('');
@@ -210,17 +191,7 @@ export default function LogSetScreen() {
     };
 
     try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/sets`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save set');
-      }
+      await createSet(requestBody);
 
       // Only clear the note once it's saved, so a failed save keeps it.
       setPendingNote('');
@@ -266,20 +237,7 @@ export default function LogSetScreen() {
     };
 
     try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/sets/${selectedSetId}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestBody),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to update set');
-      }
+      await updateSet(selectedSetId, requestBody);
 
       await loadSets();
       // Turn off editing mode and clear the form
@@ -311,16 +269,7 @@ export default function LogSetScreen() {
     setIsSaving(true);
 
     try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/sets/${selectedSetId}`,
-        {
-          method: 'DELETE',
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to delete set');
-      }
+      await deleteSet(selectedSetId);
 
       await loadSets();
       handleCancelEdit();
@@ -334,15 +283,10 @@ export default function LogSetScreen() {
   // Load sets function
   const loadSets = useCallback(async () => {
     try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/sets?workoutId=${workoutId}&exerciseId=${exerciseId}`,
-      );
-
-      if (!response.ok) {
-        throw new Error('Could not load sets');
-      }
-
-      const data = await response.json();
+      const data = await getSets({
+        workoutId: Number(workoutId),
+        exerciseId: Number(exerciseId),
+      });
       setSets(data);
     } catch {
       setError('Could not load sets');
@@ -420,15 +364,7 @@ export default function LogSetScreen() {
 
   useEffect(() => {
     async function loadExercises() {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/exercises`,
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to load exercise');
-      }
-
-      const data = await response.json();
+      const data = await getExercises();
       setExercises(data);
     }
 

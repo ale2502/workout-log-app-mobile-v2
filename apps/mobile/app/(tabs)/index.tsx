@@ -3,12 +3,14 @@ import { useState, useCallback } from 'react';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, View, Modal } from 'react-native';
+import { toLocalDateString } from 'workout-log-shared';
 
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Screen } from '@/components/ui/Screen';
 import { MesocycleCard } from '@/components/workout/MesocycleCard';
+import { StartMesocycleModal } from '@/components/workout/StartMesocycleModal';
 import { WeekStrip } from '@/components/workout/WeekStrip';
 import { Colors, Radius, Spacing } from '@/constants/theme';
 import { useCurrentMesocycle } from '@/hooks/useCurrentMesocycle';
@@ -101,6 +103,7 @@ export default function HomeScreen() {
   const [isEndBlockModalVisible, setIsEndBlockModalVisible] = useState(false);
   const [isCancelBlockModalVisible, setIsCancelBlockModalVisible] =
     useState(false);
+  const [isStartModalVisible, setIsStartModalVisible] = useState(false);
   const {
     mesocycle,
     status: mesocycleStatus,
@@ -256,6 +259,11 @@ export default function HomeScreen() {
     }
   }
 
+  async function handleBlockStarted() {
+    setIsStartModalVisible(false);
+    await reloadMesocycle();
+  }
+
   // The screen is allowed to read the clock; lib/week.ts is not.
   const today = new Date();
   const workoutDates = workouts.map((workout) =>
@@ -296,9 +304,7 @@ export default function HomeScreen() {
             <MesocycleCard
               mesocycle={mesocycle}
               status={mesocycleStatus}
-              onStart={() => {
-                // Step 7 opens the start modal here.
-              }}
+              onStart={() => setIsStartModalVisible(true)}
               onEnd={() => setIsEndBlockModalVisible(true)}
               onCancel={() => setIsCancelBlockModalVisible(true)}
             />
@@ -427,6 +433,13 @@ export default function HomeScreen() {
         onKeep={() => setIsCancelBlockModalVisible(false)}
         onConfirm={handleCancelBlock}
       />
+      {isStartModalVisible && (
+        <StartMesocycleModal
+          today={toLocalDateString(today)}
+          onClose={() => setIsStartModalVisible(false)}
+          onStarted={handleBlockStarted}
+        />
+      )}
     </>
   );
 }

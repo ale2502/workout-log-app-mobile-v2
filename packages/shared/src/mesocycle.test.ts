@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  DEFAULT_MESOCYCLE_SETTINGS,
   FINISHED_CARD_DAYS,
   addDays,
   daysBetween,
@@ -9,8 +10,10 @@ import {
   getMesocycleStatus,
   getNextStartDate,
   getTargetRir,
+  stepMesocycleSetting,
   toLocalDateString,
   type MesocycleSchedule,
+  type MesocycleSettings,
   type MesocycleStatus,
 } from './mesocycle';
 
@@ -677,5 +680,133 @@ describe('getMesocycleCardKind', () => {
     expect(getMesocycleCardKind(completed(true, 1))).toBe('none');
     expect(getMesocycleCardKind(completed(true, 0))).toBe('none');
     expect(getMesocycleCardKind(completed(true, -3))).toBe('none');
+  });
+});
+
+describe('stepMesocycleSetting', () => {
+  const settings = (overrides: Partial<MesocycleSettings> = {}): MesocycleSettings => ({
+    ...DEFAULT_MESOCYCLE_SETTINGS,
+    ...overrides,
+  });
+
+  it('starts from the documented defaults', () => {
+    expect(DEFAULT_MESOCYCLE_SETTINGS).toEqual({
+      trainingWeeks: 4,
+      deloadWeeks: 1,
+      startRir: 3,
+      endRir: 0,
+    });
+  });
+
+  it('steps training weeks up and down', () => {
+    expect(stepMesocycleSetting(settings(), 'trainingWeeks', 1).trainingWeeks).toBe(5);
+    expect(stepMesocycleSetting(settings(), 'trainingWeeks', -1).trainingWeeks).toBe(3);
+  });
+
+  it('steps deload weeks up and down', () => {
+    expect(stepMesocycleSetting(settings(), 'deloadWeeks', 1).deloadWeeks).toBe(2);
+    expect(stepMesocycleSetting(settings(), 'deloadWeeks', -1).deloadWeeks).toBe(0);
+  });
+
+  it('steps start RIR up and down', () => {
+    expect(stepMesocycleSetting(settings(), 'startRir', 1).startRir).toBe(4);
+    expect(stepMesocycleSetting(settings(), 'startRir', -1).startRir).toBe(2);
+  });
+
+  it('steps end RIR up and down', () => {
+    expect(stepMesocycleSetting(settings(), 'endRir', 1).endRir).toBe(1);
+    expect(stepMesocycleSetting(settings({ endRir: 2 }), 'endRir', -1).endRir).toBe(1);
+  });
+
+  it('only changes the stepped field when there is no RIR conflict', () => {
+    expect(stepMesocycleSetting(settings(), 'trainingWeeks', 1)).toEqual({
+      trainingWeeks: 5,
+      deloadWeeks: 1,
+      startRir: 3,
+      endRir: 0,
+    });
+  });
+
+  it('returns the same object at every limit', () => {
+    const cases: [Partial<MesocycleSettings>, keyof MesocycleSettings, 1 | -1][] = [
+      [{ trainingWeeks: 2 }, 'trainingWeeks', -1],
+      [{ trainingWeeks: 8 }, 'trainingWeeks', 1],
+      [{ deloadWeeks: 0 }, 'deloadWeeks', -1],
+      [{ deloadWeeks: 2 }, 'deloadWeeks', 1],
+      [{ startRir: 0, endRir: 0 }, 'startRir', -1],
+      [{ startRir: 4 }, 'startRir', 1],
+      [{ endRir: 0 }, 'endRir', -1],
+      [{ startRir: 4, endRir: 4 }, 'endRir', 1],
+    ];
+    for (const [overrides, field, delta] of cases) {
+      const current = settings(overrides);
+      expect(stepMesocycleSetting(current, field, delta)).toBe(current);
+    }
+  });
+
+  it('returns a new object when something changes', () => {
+    const current = settings();
+    expect(stepMesocycleSetting(current, 'trainingWeeks', 1)).not.toBe(current);
+  });
+
+  it('drags end RIR down when start RIR drops below it', () => {
+    const next = stepMesocycleSetting(settings({ startRir: 3, endRir: 3 }), 'startRir', -1);
+    expect(next.startRir).toBe(2);
+    expect(next.endRir).toBe(2);
+  });
+
+  it('drags start RIR up when end RIR rises above it', () => {
+    const next = stepMesocycleSetting(settings({ startRir: 2, endRir: 2 }), 'endRir', 1);
+    expect(next.startRir).toBe(3);
+    expect(next.endRir).toBe(3);
+  });
+
+  it('leaves the other RIR alone while start stays at or above end', () => {
+    const next = stepMesocycleSetting(settings({ startRir: 3, endRir: 2 }), 'startRir', -1);
+    expect(next.startRir).toBe(2);
+    expect(next.endRir).toBe(2);
+    const raised = stepMesocycleSetting(settings({ startRir: 3, endRir: 1 }), 'endRir', 1);
+    expect(raised.startRir).toBe(3);
+    expect(raised.endRir).toBe(2);
+  });
+
+  it('caps both RIR values at 4', () => {
+    const atMax = settings({ startRir: 4, endRir: 4 });
+    expect(stepMesocycleSetting(atMax, 'startRir', 1)).toBe(atMax);
+    expect(stepMesocycleSetting(atMax, 'endRir', 1)).toBe(atMax);
+    const next = stepMesocycleSetting(settings({ startRir: 3, endRir: 3 }), 'endRir', 1);
+    expect(next.startRir).toBe(4);
+    expect(next.endRir).toBe(4);
+  });
+
+  it('stops start RIR at 0 and drags end RIR with it', () => {
+    const next = stepMesocycleSetting(settings({ startRir: 1, endRir: 1 }), 'startRir', -1);
+    expect(next.startRir).toBe(0);
+    expect(next.endRir).toBe(0);
+    const atMin = settings({ startRir: 0, endRir: 0 });
+    expect(stepMesocycleSetting(atMin, 'startRir', -1)).toBe(atMin);
+  });
+
+  it('never mutates its input', () => {
+    const current = Object.freeze(settings({ startRir: 3, endRir: 3 }));
+    const next = stepMesocycleSetting(current, 'startRir', -1);
+    expect(current).toEqual({ trainingWeeks: 4, deloadWeeks: 1, startRir: 3, endRir: 3 });
+    expect(next).not.toBe(current);
+  });
+
+  it('chains steps from the defaults', () => {
+    let current = DEFAULT_MESOCYCLE_SETTINGS;
+    current = stepMesocycleSetting(current, 'trainingWeeks', 1);
+    current = stepMesocycleSetting(current, 'trainingWeeks', 1);
+    current = stepMesocycleSetting(current, 'deloadWeeks', 1);
+    current = stepMesocycleSetting(current, 'endRir', 1);
+    current = stepMesocycleSetting(current, 'startRir', -1);
+    expect(current).toEqual({ trainingWeeks: 6, deloadWeeks: 2, startRir: 2, endRir: 1 });
+    expect(DEFAULT_MESOCYCLE_SETTINGS).toEqual({
+      trainingWeeks: 4,
+      deloadWeeks: 1,
+      startRir: 3,
+      endRir: 0,
+    });
   });
 });

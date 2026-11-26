@@ -25,7 +25,7 @@ const PAST_OPACITY = 0.6;
 const FUTURE_OPACITY = 0.2;
 
 // "Mon 9 Nov", or "9 Nov" without the weekday (built from parts so there is no comma).
-function formatShortDate(date: string, withWeekday: boolean) {
+export function formatShortDate(date: string, withWeekday: boolean) {
   const parsed = parseApiDate(date);
   const month = parsed.toLocaleDateString('en-NZ', { month: 'short' });
   const base = `${parsed.getDate()} ${month}`;

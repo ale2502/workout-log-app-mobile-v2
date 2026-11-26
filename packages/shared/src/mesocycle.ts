@@ -25,6 +25,56 @@ export const MESOCYCLE_LIMITS = {
   defaultEndRir: 0,
 } as const;
 
+// The four values the start form lets the user change.
+export type MesocycleSettings = Pick<
+  NewMesocycle,
+  'trainingWeeks' | 'deloadWeeks' | 'startRir' | 'endRir'
+>;
+
+export const DEFAULT_MESOCYCLE_SETTINGS: MesocycleSettings = {
+  trainingWeeks: MESOCYCLE_LIMITS.trainingWeeks.default,
+  deloadWeeks: MESOCYCLE_LIMITS.deloadWeeks.default,
+  startRir: MESOCYCLE_LIMITS.defaultStartRir,
+  endRir: MESOCYCLE_LIMITS.defaultEndRir,
+};
+
+function getSettingLimits(field: keyof MesocycleSettings): { min: number; max: number } {
+  switch (field) {
+    case 'trainingWeeks':
+      return MESOCYCLE_LIMITS.trainingWeeks;
+    case 'deloadWeeks':
+      return MESOCYCLE_LIMITS.deloadWeeks;
+    case 'startRir':
+    case 'endRir':
+      return MESOCYCLE_LIMITS.rir;
+  }
+}
+
+// Steps one setting up or down by one, clamped to its limits, keeping startRir >= endRir:
+// lowering startRir below endRir drags endRir down, raising endRir above startRir drags
+// startRir up. Never mutates `settings`; returns the same object when nothing changes,
+// so `stepMesocycleSetting(s, f, d) === s` means "this button is at its limit".
+export function stepMesocycleSetting(
+  settings: MesocycleSettings,
+  field: keyof MesocycleSettings,
+  delta: 1 | -1,
+): MesocycleSettings {
+  const { min, max } = getSettingLimits(field);
+  const value = Math.min(max, Math.max(min, settings[field] + delta));
+  if (value === settings[field]) {
+    return settings;
+  }
+
+  const next = { ...settings, [field]: value };
+  if (field === 'startRir' && next.endRir > value) {
+    next.endRir = value;
+  }
+  if (field === 'endRir' && next.startRir < value) {
+    next.startRir = value;
+  }
+  return next;
+}
+
 // ---------------------------------------------------------------------------
 // Pure date and ramp logic. Nothing here reads the clock: callers pass `today`.
 // All date arithmetic goes through UTC so DST and the machine's time zone can

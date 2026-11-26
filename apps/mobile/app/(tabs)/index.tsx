@@ -8,9 +8,13 @@ import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Screen } from '@/components/ui/Screen';
+import { MesocycleCard } from '@/components/workout/MesocycleCard';
 import { WeekStrip } from '@/components/workout/WeekStrip';
 import { Colors, Radius, Spacing } from '@/constants/theme';
+import { useCurrentMesocycle } from '@/hooks/useCurrentMesocycle';
+import { ApiError } from '@/lib/api/client';
 import { getGyms } from '@/lib/api/gyms';
+import { cancelMesocycle, endMesocycle } from '@/lib/api/mesocycles';
 import { createWorkout, deleteWorkout, getWorkouts } from '@/lib/api/workouts';
 import { parseApiDate } from '@/lib/dates';
 import { getStoredDefaultGymId, storeDefaultGymId } from '@/lib/gyms';
@@ -36,6 +40,54 @@ function formatDateLabel(date: Date) {
   return `${weekday} ${date.getDate()} ${month}`;
 }
 
+type ConfirmModalProps = {
+  visible: boolean;
+  title: string;
+  message: string;
+  keepTitle: string;
+  confirmTitle: string;
+  onKeep: () => void;
+  onConfirm: () => void;
+};
+
+// Same structure as the delete-workout modal below: a bordered card with two actions.
+function ConfirmModal({
+  visible,
+  title,
+  message,
+  keepTitle,
+  confirmTitle,
+  onKeep,
+  onConfirm,
+}: ConfirmModalProps) {
+  return (
+    <Modal transparent visible={visible} animationType="fade">
+      <View style={styles.modalBackdrop}>
+        <Card bordered style={styles.modalCard}>
+          <AppText variant="cell">{title}</AppText>
+          <AppText variant="caption" color="mutedText">
+            {message}
+          </AppText>
+
+          <View style={styles.modalActions}>
+            <View style={styles.modalAction}>
+              <Button title={keepTitle} variant="secondary" size="md" onPress={onKeep} />
+            </View>
+            <View style={styles.modalAction}>
+              <Button
+                title={confirmTitle}
+                variant="destructive"
+                size="md"
+                onPress={onConfirm}
+              />
+            </View>
+          </View>
+        </Card>
+      </View>
+    </Modal>
+  );
+}
+
 export default function HomeScreen() {
   const router = useRouter();
   const [isStartingWorkout, setIsStartingWorkout] = useState(false);
@@ -46,6 +98,16 @@ export default function HomeScreen() {
     null,
   );
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [isEndBlockModalVisible, setIsEndBlockModalVisible] = useState(false);
+  const [isCancelBlockModalVisible, setIsCancelBlockModalVisible] =
+    useState(false);
+  const {
+    mesocycle,
+    status: mesocycleStatus,
+    isLoading: isMesocycleLoading,
+    error: mesocycleError,
+    reload: reloadMesocycle,
+  } = useCurrentMesocycle();
 
   const loadWorkouts = useCallback(async () => {
     try {
@@ -152,6 +214,48 @@ export default function HomeScreen() {
     });
   }
 
+  async function handleEndBlock() {
+    if (mesocycle === null) {
+      return;
+    }
+
+    setError(null);
+
+    try {
+      await endMesocycle(mesocycle.id);
+      await reloadMesocycle();
+    } catch (err) {
+      setError(
+        err instanceof ApiError && typeof err.serverMessage === 'string'
+          ? err.serverMessage
+          : 'Could not end block',
+      );
+    } finally {
+      setIsEndBlockModalVisible(false);
+    }
+  }
+
+  async function handleCancelBlock() {
+    if (mesocycle === null) {
+      return;
+    }
+
+    setError(null);
+
+    try {
+      await cancelMesocycle(mesocycle.id);
+      await reloadMesocycle();
+    } catch (err) {
+      setError(
+        err instanceof ApiError && typeof err.serverMessage === 'string'
+          ? err.serverMessage
+          : 'Could not cancel block',
+      );
+    } finally {
+      setIsCancelBlockModalVisible(false);
+    }
+  }
+
   // The screen is allowed to read the clock; lib/week.ts is not.
   const today = new Date();
   const workoutDates = workouts.map((workout) =>
@@ -179,6 +283,26 @@ export default function HomeScreen() {
             {error}
           </AppText>
         )}
+
+        {mesocycleError && (
+          <AppText variant="caption" color="destructive">
+            {mesocycleError}
+          </AppText>
+        )}
+
+        {/* Render nothing while loading (no flash) or when the load failed and there is no data. */}
+        {!(isMesocycleLoading && mesocycle === null) &&
+          !(mesocycleError && mesocycle === null) && (
+            <MesocycleCard
+              mesocycle={mesocycle}
+              status={mesocycleStatus}
+              onStart={() => {
+                // Step 7 opens the start modal here.
+              }}
+              onEnd={() => setIsEndBlockModalVisible(true)}
+              onCancel={() => setIsCancelBlockModalVisible(true)}
+            />
+          )}
 
         <Card>
           <View style={styles.weekHeader}>
@@ -285,6 +409,24 @@ export default function HomeScreen() {
           </Card>
         </View>
       </Modal>
+      <ConfirmModal
+        visible={isEndBlockModalVisible}
+        title="End this block?"
+        message="This will be your last week. You can start a new block afterwards."
+        keepTitle="Keep going"
+        confirmTitle="End block"
+        onKeep={() => setIsEndBlockModalVisible(false)}
+        onConfirm={handleEndBlock}
+      />
+      <ConfirmModal
+        visible={isCancelBlockModalVisible}
+        title="Cancel this block?"
+        message="It hasn't started yet, so nothing is lost."
+        keepTitle="Keep it"
+        confirmTitle="Cancel block"
+        onKeep={() => setIsCancelBlockModalVisible(false)}
+        onConfirm={handleCancelBlock}
+      />
     </>
   );
 }

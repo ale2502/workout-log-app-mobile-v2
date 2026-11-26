@@ -1,14 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import {
+  FINISHED_CARD_DAYS,
   addDays,
   daysBetween,
   getLastDay,
+  getMesocycleCardKind,
   getMesocycleInputError,
   getMesocycleStatus,
   getNextStartDate,
   getTargetRir,
   toLocalDateString,
   type MesocycleSchedule,
+  type MesocycleStatus,
 } from './mesocycle';
 
 function block(overrides: Partial<MesocycleSchedule> = {}): MesocycleSchedule {
@@ -627,5 +630,52 @@ describe('toLocalDateString', () => {
 
   it('handles a leap day', () => {
     expect(toLocalDateString(new Date(2028, 1, 29, 12))).toBe('2028-02-29');
+  });
+});
+
+describe('getMesocycleCardKind', () => {
+  function completed(endedEarly: boolean, daysSinceLastDay: number): MesocycleStatus {
+    return { phase: 'completed', endedEarly, lastDay: '2026-12-20', daysSinceLastDay };
+  }
+
+  it('shows the none card when there is no block', () => {
+    expect(getMesocycleCardKind(null)).toBe('none');
+  });
+
+  it('shows the upcoming card for an upcoming block', () => {
+    expect(
+      getMesocycleCardKind({ phase: 'upcoming', startsOn: '2026-11-30', daysUntilStart: 4 }),
+    ).toBe('upcoming');
+  });
+
+  it('shows the active card during a training week', () => {
+    expect(
+      getMesocycleCardKind({ phase: 'training', week: 3, totalWeeks: 6, targetRir: 2 }),
+    ).toBe('active');
+  });
+
+  it('shows the active card during a deload week', () => {
+    expect(
+      getMesocycleCardKind({ phase: 'deload', week: 6, totalWeeks: 6, targetRir: 4 }),
+    ).toBe('active');
+  });
+
+  it('shows the finished card the day after the last day', () => {
+    expect(getMesocycleCardKind(completed(false, 1))).toBe('finished');
+  });
+
+  it('keeps the finished card up to and including day 7', () => {
+    expect(FINISHED_CARD_DAYS).toBe(7);
+    expect(getMesocycleCardKind(completed(false, 7))).toBe('finished');
+  });
+
+  it('falls back to the none card on day 8', () => {
+    expect(getMesocycleCardKind(completed(false, 8))).toBe('none');
+  });
+
+  it('shows the none card for a block ended early, even right after', () => {
+    expect(getMesocycleCardKind(completed(true, 1))).toBe('none');
+    expect(getMesocycleCardKind(completed(true, 0))).toBe('none');
+    expect(getMesocycleCardKind(completed(true, -3))).toBe('none');
   });
 });

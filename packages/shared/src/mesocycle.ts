@@ -169,6 +169,28 @@ export function getMesocycleStatus(meso: MesocycleSchedule, today: string): Meso
   return { phase: 'deload', week, totalWeeks, targetRir: 4 };
 }
 
+// How long the "Block finished" card shows on Home after the block's last day.
+export const FINISHED_CARD_DAYS = 7;
+
+export type MesocycleCardKind = 'none' | 'upcoming' | 'active' | 'finished';
+
+// Which Home card to show for a status (null = no block at all).
+// A block that was ended early, or finished more than FINISHED_CARD_DAYS ago, shows the "none" card.
+export function getMesocycleCardKind(status: MesocycleStatus | null): MesocycleCardKind {
+  if (status === null) return 'none';
+  switch (status.phase) {
+    case 'upcoming':
+      return 'upcoming';
+    case 'training':
+    case 'deload':
+      return 'active';
+    case 'completed':
+      return !status.endedEarly && status.daysSinceLastDay <= FINISHED_CARD_DAYS
+        ? 'finished'
+        : 'none';
+  }
+}
+
 function isWholeNumberInRange(value: unknown, min: number, max: number): boolean {
   return typeof value === 'number' && Number.isInteger(value) && value >= min && value <= max;
 }

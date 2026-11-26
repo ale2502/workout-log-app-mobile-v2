@@ -7,7 +7,7 @@ import { Colors, Radius, Spacing } from '@/constants/theme';
 type ButtonProps = {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'destructive';
+  variant?: 'primary' | 'secondary' | 'destructive' | 'raised';
   size?: 'lg' | 'md';
   icon?: ReactNode;
   disabled?: boolean;
@@ -18,6 +18,8 @@ const variantStyles = {
   primary: { background: Colors.accent, text: 'onAccent' },
   secondary: { background: Colors.surface, text: 'text' },
   destructive: { background: Colors.destructive, text: 'onPrimary' },
+  // For buttons that sit on a surface-colored Card, where `secondary` would be invisible.
+  raised: { background: Colors.surfaceMuted, text: 'text' },
 } as const;
 
 export function Button({

@@ -9,9 +9,11 @@ import { IconButton } from '@/components/ui/IconButton';
 import { Screen } from '@/components/ui/Screen';
 import { SavedSetsTable } from '@/components/workout/SavedSetsTable';
 import { SetForm } from '@/components/workout/SetForm';
+import { Chip } from '@/components/workout/MesocycleCard';
 import { SetNotesModal } from '@/components/workout/SetNotesModal';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Radius, Spacing } from '@/constants/theme';
+import { Colors, Radius, Spacing, rirLabel } from '@/constants/theme';
+import { useCurrentMesocycle } from '@/hooks/useCurrentMesocycle';
 import { useSetNotes } from '@/hooks/useSetNotes';
 import { getExercises } from '@/lib/api/exercises';
 import {
@@ -78,6 +80,13 @@ export default function LogSetScreen() {
   const [isPendingNoteModalVisible, setIsPendingNoteModalVisible] =
     useState(false);
   const [selectedSetId, setSelectedSetId] = useState<number | null>(null);
+
+  // The mesocycle target is display-only; it only shows while a block is running.
+  const { status: mesocycleStatus } = useCurrentMesocycle();
+  const activeMesocycle =
+    mesocycleStatus?.phase === 'training' || mesocycleStatus?.phase === 'deload'
+      ? mesocycleStatus
+      : null;
 
   function changeNumberValue(
     value: string,
@@ -466,6 +475,19 @@ export default function LogSetScreen() {
               {isMachineDropdownOpen ? '▴' : '▾'}
             </AppText>
           </AppText>
+          {activeMesocycle && (
+            <View style={styles.mesocycleChips}>
+              <Chip
+                text={`WEEK ${activeMesocycle.week} · ${activeMesocycle.phase === 'deload' ? 'DELOAD' : 'TRAINING'}`}
+                accessibilityLabel={`Week ${activeMesocycle.week}, ${activeMesocycle.phase}`}
+              />
+              <Chip
+                text={`TARGET RIR ${rirLabel(activeMesocycle.targetRir)}`}
+                accessibilityLabel={`Target RIR ${activeMesocycle.targetRir >= 4 ? '4 plus' : activeMesocycle.targetRir}`}
+                rir={activeMesocycle.targetRir}
+              />
+            </View>
+          )}
         </View>
 
         {isMachineDropdownOpen && (
@@ -550,6 +572,14 @@ export default function LogSetScreen() {
           isEditing={selectedSetId !== null}
           nextSetNumber={nextSetNumber}
           editingSetNumber={editingSetNumber}
+          targetRir={activeMesocycle?.targetRir}
+          targetHint={
+            activeMesocycle
+              ? activeMesocycle.phase === 'deload'
+                ? '• = deload target'
+                : `• = week ${activeMesocycle.week} target`
+              : undefined
+          }
         />
 
         <SavedSetsTable
@@ -608,6 +638,11 @@ const styles = StyleSheet.create({
   },
   titleBlock: {
     gap: Spacing.xs,
+  },
+  mesocycleChips: {
+    flexDirection: 'row',
+    gap: 6,
+    marginTop: 6,
   },
   machinePanel: {
     backgroundColor: Colors.surface,

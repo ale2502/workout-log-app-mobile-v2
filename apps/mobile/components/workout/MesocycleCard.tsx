@@ -53,7 +53,7 @@ type ChipProps = {
   rir?: number;
 };
 
-function Chip({ text, accessibilityLabel, rir }: ChipProps) {
+export function Chip({ text, accessibilityLabel, rir }: ChipProps) {
   const isColored = rir !== undefined;
   return (
     <View

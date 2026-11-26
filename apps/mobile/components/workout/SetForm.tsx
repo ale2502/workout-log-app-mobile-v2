@@ -35,6 +35,11 @@ type SetFormProps = {
   isEditing: boolean;
   nextSetNumber: number;
   editingSetNumber: number | null;
+
+  // This week's target RIR inside a mesocycle (draws a dot on the slider) and what the dot means.
+  // Display only: neither changes the selected RIR.
+  targetRir?: number;
+  targetHint?: string;
 };
 
 export function SetForm(props: SetFormProps) {
@@ -72,11 +77,17 @@ export function SetForm(props: SetFormProps) {
       </View>
 
       <View style={styles.rirSection}>
-        {/* The right side of this row is left free for the mesocycle target later. */}
+        {/* The right side shows what the dot under the slider means, inside a mesocycle. */}
         <View style={styles.rirLabelRow}>
           <AppText variant="label">RIR · Reps in reserve</AppText>
+          {props.targetHint !== undefined && (
+            <AppText variant="caption" color="mutedText" style={styles.targetHint}>
+              {props.targetHint}
+            </AppText>
+          )}
         </View>
-        <RirSlider value={props.rir} onChange={props.onChangeRir} />
+        {/* The target is display-only: the selected RIR always comes from `rir`. */}
+        <RirSlider value={props.rir} onChange={props.onChangeRir} target={props.targetRir} />
       </View>
 
       {props.isEditing ? (
@@ -168,6 +179,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  targetHint: {
+    fontSize: 11,
   },
   actions: {
     gap: Spacing.md,

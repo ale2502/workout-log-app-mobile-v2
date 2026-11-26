@@ -11,7 +11,7 @@
         "db:seed": "knex --knexfile ./server/db/knexfile.js seed:run",
         "verify:gym-machines": "tsx server/scripts/verify-gym-machine-variants.ts",
         "deploy": "npm run db:migrate && npm run db:seed && npm start",
-        "test": "vitest run --passWithNoTests"
+        "test": "vitest run"
     },
     "dependencies": {
         "cors": "^2.8.6",

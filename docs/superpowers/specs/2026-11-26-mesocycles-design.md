@@ -61,7 +61,7 @@ The current week and phase are never stored. They are computed so they cannot go
 Pure, runtime-agnostic functions with unit tests (the first tests in the repo that aren't API integration tests):
 
 - `getNextStartDate(today: string): string`: `today` if it is a Monday, otherwise the next Monday
-- `getTargetRir(meso, week): number | '4+'`
+- `getTargetRir(meso, week): number` (deload weeks return `4`; the UI renders 4 as `4+`)
 - `getMesocycleStatus(meso, today: string)` returns one of:
   - `{ phase: 'training', week, totalWeeks, targetRir }`
   - `{ phase: 'deload', week, totalWeeks, targetRir: '4+' }`

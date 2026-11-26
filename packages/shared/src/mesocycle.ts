@@ -24,3 +24,181 @@ export const MESOCYCLE_LIMITS = {
   defaultStartRir: 3,
   defaultEndRir: 0,
 } as const;
+
+// ---------------------------------------------------------------------------
+// Pure date and ramp logic. Nothing here reads the clock: callers pass `today`.
+// All date arithmetic goes through UTC so DST and the machine's time zone can
+// never shift a day.
+// ---------------------------------------------------------------------------
+
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+// Parses `YYYY-MM-DD` into a UTC midnight timestamp, or null if it is not a real calendar date.
+function parseDateMs(date: string): number | null {
+  const match = DATE_PATTERN.exec(date);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const ms = Date.UTC(year, month - 1, day);
+  const check = new Date(ms);
+  if (
+    check.getUTCFullYear() !== year ||
+    check.getUTCMonth() !== month - 1 ||
+    check.getUTCDate() !== day
+  ) {
+    return null;
+  }
+  return ms;
+}
+
+function parseDateOrThrow(date: string): number {
+  const ms = parseDateMs(date);
+  if (ms === null) {
+    throw new RangeError(`Invalid date: ${date}`);
+  }
+  return ms;
+}
+
+function pad(value: number, length: number): string {
+  return String(value).padStart(length, '0');
+}
+
+function formatDate(ms: number): string {
+  const d = new Date(ms);
+  return `${pad(d.getUTCFullYear(), 4)}-${pad(d.getUTCMonth() + 1, 2)}-${pad(d.getUTCDate(), 2)}`;
+}
+
+// 0 = Sunday, 1 = Monday, ... 6 = Saturday.
+function dayOfWeek(date: string): number {
+  return new Date(parseDateOrThrow(date)).getUTCDay();
+}
+
+export function addDays(date: string, days: number): string {
+  return formatDate(parseDateOrThrow(date) + days * MS_PER_DAY);
+}
+
+// Whole days from `from` to `to` (negative when `to` is earlier).
+export function daysBetween(from: string, to: string): number {
+  return Math.round((parseDateOrThrow(to) - parseDateOrThrow(from)) / MS_PER_DAY);
+}
+
+// Today if it is a Monday, otherwise the next Monday.
+export function getNextStartDate(today: string): string {
+  const daysUntilMonday = (8 - dayOfWeek(today)) % 7;
+  return addDays(today, daysUntilMonday);
+}
+
+// A mesocycle without its id and createdAt: everything the schedule logic needs.
+export type MesocycleSchedule = Pick<
+  Mesocycle,
+  'startDate' | 'trainingWeeks' | 'deloadWeeks' | 'startRir' | 'endRir' | 'endedAt'
+>;
+
+// The last scheduled day of the block (a Sunday).
+export function getLastDay(startDate: string, totalWeeks: number): string {
+  return addDays(startDate, totalWeeks * 7 - 1);
+}
+
+// `week` is the 1-based week of the whole block: training weeks first, then deload weeks.
+// Deload weeks return 4, which the UI shows as "4+".
+export function getTargetRir(
+  meso: Pick<Mesocycle, 'trainingWeeks' | 'deloadWeeks' | 'startRir' | 'endRir'>,
+  week: number,
+): number {
+  const { trainingWeeks, deloadWeeks, startRir, endRir } = meso;
+  const totalWeeks = trainingWeeks + deloadWeeks;
+  if (!Number.isInteger(week) || week < 1 || week > totalWeeks) {
+    throw new RangeError(`week must be a whole number from 1 to ${totalWeeks}, got ${week}`);
+  }
+  if (week > trainingWeeks) {
+    return MESOCYCLE_LIMITS.rir.max;
+  }
+  if (trainingWeeks === 1) {
+    return startRir;
+  }
+  return Math.round(startRir - ((startRir - endRir) * (week - 1)) / (trainingWeeks - 1));
+}
+
+export type MesocycleStatus =
+  | { phase: 'upcoming'; startsOn: string; daysUntilStart: number }
+  | { phase: 'training'; week: number; totalWeeks: number; targetRir: number }
+  | { phase: 'deload'; week: number; totalWeeks: number; targetRir: 4 }
+  | { phase: 'completed'; endedEarly: boolean; lastDay: string; daysSinceLastDay: number };
+
+export function getMesocycleStatus(meso: MesocycleSchedule, today: string): MesocycleStatus {
+  const totalWeeks = meso.trainingWeeks + meso.deloadWeeks;
+  const lastDay = getLastDay(meso.startDate, totalWeeks);
+
+  if (meso.endedAt !== null) {
+    return {
+      phase: 'completed',
+      endedEarly: true,
+      lastDay,
+      daysSinceLastDay: daysBetween(lastDay, today),
+    };
+  }
+  if (today < meso.startDate) {
+    return {
+      phase: 'upcoming',
+      startsOn: meso.startDate,
+      daysUntilStart: daysBetween(today, meso.startDate),
+    };
+  }
+  if (today > lastDay) {
+    return {
+      phase: 'completed',
+      endedEarly: false,
+      lastDay,
+      daysSinceLastDay: daysBetween(lastDay, today),
+    };
+  }
+
+  const week = Math.floor(daysBetween(meso.startDate, today) / 7) + 1;
+  if (week <= meso.trainingWeeks) {
+    return { phase: 'training', week, totalWeeks, targetRir: getTargetRir(meso, week) };
+  }
+  return { phase: 'deload', week, totalWeeks, targetRir: 4 };
+}
+
+function isWholeNumberInRange(value: unknown, min: number, max: number): boolean {
+  return typeof value === 'number' && Number.isInteger(value) && value >= min && value <= max;
+}
+
+// Validates an untrusted request body. Returns the first error message, or null if it is valid.
+export function getMesocycleInputError(input: unknown, today: string): string | null {
+  if (typeof input !== 'object' || input === null || Array.isArray(input)) {
+    return 'request body must be an object';
+  }
+  const body = input as Record<string, unknown>;
+  const { startDate, trainingWeeks, deloadWeeks, startRir, endRir } = body;
+
+  if (typeof startDate !== 'string' || parseDateMs(startDate) === null) {
+    return 'startDate must be a valid date (YYYY-MM-DD)';
+  }
+  if (dayOfWeek(startDate) !== 1) {
+    return 'startDate must be a Monday';
+  }
+  if (startDate < today) {
+    return 'startDate must not be in the past';
+  }
+
+  const { trainingWeeks: tw, deloadWeeks: dw, rir } = MESOCYCLE_LIMITS;
+  if (!isWholeNumberInRange(trainingWeeks, tw.min, tw.max)) {
+    return `trainingWeeks must be a whole number from ${tw.min} to ${tw.max}`;
+  }
+  if (!isWholeNumberInRange(deloadWeeks, dw.min, dw.max)) {
+    return `deloadWeeks must be a whole number from ${dw.min} to ${dw.max}`;
+  }
+  if (!isWholeNumberInRange(startRir, rir.min, rir.max)) {
+    return `startRir must be a whole number from ${rir.min} to ${rir.max}`;
+  }
+  if (!isWholeNumberInRange(endRir, rir.min, rir.max)) {
+    return `endRir must be a whole number from ${rir.min} to ${rir.max}`;
+  }
+  if ((startRir as number) < (endRir as number)) {
+    return 'startRir must be greater than or equal to endRir';
+  }
+  return null;
+}

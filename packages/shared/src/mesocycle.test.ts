@@ -7,6 +7,7 @@ import {
   getMesocycleStatus,
   getNextStartDate,
   getTargetRir,
+  toLocalDateString,
   type MesocycleSchedule,
 } from './mesocycle';
 
@@ -604,5 +605,27 @@ describe('getMesocycleInputError', () => {
         'endRir must be a whole number from 0 to 4',
       );
     });
+  });
+});
+
+describe('toLocalDateString', () => {
+  it('keeps the local date late in the evening', () => {
+    expect(toLocalDateString(new Date(2026, 10, 26, 23, 59, 59))).toBe('2026-11-26');
+  });
+
+  it('uses the new local date just after midnight', () => {
+    expect(toLocalDateString(new Date(2026, 10, 27, 0, 0, 1))).toBe('2026-11-27');
+  });
+
+  it('zero-pads single-digit months and days', () => {
+    expect(toLocalDateString(new Date(2026, 0, 5))).toBe('2026-01-05');
+  });
+
+  it('handles the last day of the year', () => {
+    expect(toLocalDateString(new Date(2026, 11, 31, 23, 59, 59))).toBe('2026-12-31');
+  });
+
+  it('handles a leap day', () => {
+    expect(toLocalDateString(new Date(2028, 1, 29, 12))).toBe('2028-02-29');
   });
 });

@@ -70,6 +70,13 @@ function formatDate(ms: number): string {
   return `${pad(d.getUTCFullYear(), 4)}-${pad(d.getUTCMonth() + 1, 2)}-${pad(d.getUTCDate(), 2)}`;
 }
 
+// The LOCAL calendar date of `date` as `YYYY-MM-DD`.
+// Never use toISOString() here: it returns the UTC date, which in New Zealand is
+// still yesterday in the morning.
+export function toLocalDateString(date: Date): string {
+  return `${pad(date.getFullYear(), 4)}-${pad(date.getMonth() + 1, 2)}-${pad(date.getDate(), 2)}`;
+}
+
 // 0 = Sunday, 1 = Monday, ... 6 = Saturday.
 function dayOfWeek(date: string): number {
   return new Date(parseDateOrThrow(date)).getUTCDay();

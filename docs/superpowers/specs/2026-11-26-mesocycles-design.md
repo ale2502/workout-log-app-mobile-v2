@@ -72,7 +72,7 @@ Dates are local `YYYY-MM-DD` strings, and `today` is passed in, never read from 
 
 ## API Design
 
-- `GET /mesocycles/active` → the current or upcoming mesocycle, or `null`. It means not ended and not past its last week.
+- `GET /mesocycles/current` → the most recent mesocycle in any phase (upcoming, running, finished or ended), or `null`. The client derives what to show from its status. (It is not `/active` because Home needs the finished block to show the "Block finished" card.)
 - `POST /mesocycles` → body `{ startDate, trainingWeeks, deloadWeeks, startRir, endRir }`. `startDate` must be a Monday and not in the past. Returns 201. Returns 409 if one is already active or upcoming. Returns 400 on invalid input.
 - `PATCH /mesocycles/:id/end` → sets `ended_at` to today (end an active block early). Returns 404 if missing, 409 if the block hasn't started.
 - `DELETE /mesocycles/:id` → cancels an upcoming block (a block that never started leaves no trace). Returns 204. Returns 404 if missing, 409 if the block has already started.
@@ -86,7 +86,7 @@ All UI follows the Iron direction (see `docs/superpowers/specs/2026-11-18-iron-r
 - **Home, active block**: a meso card with a segmented bar (one segment per week, deload last), the label `Week 2 of 5 · Target RIR 2`, and an "End block" action.
 - **Home, no active block**: a card with a "Start mesocycle" button that opens the start sheet.
 - **Home, upcoming block**: the same card with the title `Starts Mon 30 Nov`, an `IN 4 DAYS` chip, a dimmed bar, the week 1 target, and a "Cancel block" action.
-- **Home, block just finished**: a "Block finished" card with a "Start a new block" button.
+- **Home, block just finished**: a "Block finished" card with a "Start a new block" button, shown for 7 days after the block's last day. A block ended early goes straight to the "Start mesocycle" card.
 - **Start sheet** (modal, bordered `Card`): training-weeks stepper, deload-weeks stepper, start RIR and end RIR steppers, a read-only "Starts" line (`Today · Mon 30 Nov` on a Monday, `Next Monday · 30 Nov` otherwise), and a live preview of the per-week target ramp. A "Start block" button submits.
 - **Log Set** shows the chips only while today falls inside the current block (not while it is upcoming, finished or ended): a week chip (`Week 2 · Training`), a target chip (`Target RIR 2`), and a target dot on the `RirSlider`. During deload the chips read `Deload` and `4+`.
 
@@ -107,6 +107,7 @@ All UI follows the Iron direction (see `docs/superpowers/specs/2026-11-18-iron-r
 5. Home cards and start sheet.
 6. Log Set chips and slider target dot (touches `RirSlider`, so this is the riskiest step).
 
-## Open Items
+## Notes
 
-- Test runner for `packages/shared` (Vitest is the roadmap choice). This is the first thing the plan has to decide.
+- Request and response types for this resource (`Mesocycle`, `NewMesocycle`, the limits) live in `packages/shared`, imported by both the API and the app.
+- Tests use Vitest (shared unit tests; API route tests with supertest against the in-memory SQLite `test` environment). See `docs/superpowers/plans/2026-11-26-mesocycles-plan.md`.

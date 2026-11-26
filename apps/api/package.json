@@ -10,20 +10,25 @@
         "db:migrate": "knex --knexfile ./server/db/knexfile.js migrate:latest",
         "db:seed": "knex --knexfile ./server/db/knexfile.js seed:run",
         "verify:gym-machines": "tsx server/scripts/verify-gym-machine-variants.ts",
-        "deploy": "npm run db:migrate && npm run db:seed && npm start"
+        "deploy": "npm run db:migrate && npm run db:seed && npm start",
+        "test": "vitest run --passWithNoTests"
     },
     "dependencies": {
         "cors": "^2.8.6",
         "express": "^5.1.0",
         "knex": "^3.2.9",
-        "sqlite3": "^6.0.1"
+        "sqlite3": "^6.0.1",
+        "workout-log-shared": "*"
     },
     "devDependencies": {
         "@types/cors": "^2.8.19",
         "@types/express": "^5.0.3",
         "@types/node": "^24.6.0",
+        "@types/supertest": "^7.2.1",
+        "supertest": "^7.3.2",
         "ts-node-dev": "^2.0.0",
         "tsx": "^4.21.0",
-        "typescript": "^5.9.2"
+        "typescript": "^5.9.2",
+        "vitest": "^5.1.2"
     }
 }
